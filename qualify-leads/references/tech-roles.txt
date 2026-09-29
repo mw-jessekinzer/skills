@@ -1,0 +1,29 @@
+# One regex per line, case-insensitive. A job title that matches any line is a tech role.
+# Used by ats_count.py and label.py. Edit here, never in the scripts.
+\bsoftware\b
+\bdevelopers?\b
+\bprogrammers?\b
+# "systems engineer" is left out on purpose: at a device or hardware maker it is not
+# software work. A software marker ("Software Systems Engineer") still matches above.
+\b(data|platform|cloud|devops|dev ops|site reliability|reliability|ml|ai|machine learning|security|backend|back[- ]end|frontend|front[- ]end|full[- ]?stack|mobile|ios|android|infrastructure|qa|test|automation|web|solutions|network|forward deployed|founding|applications?)\s+(engineers?|engineering|architects?|developers?)\b
+\b(engineers?|engineering)\b.*\b(software|data|platform|cloud|ai|ml|security|infrastructure)\b
+\bdata (scientists?|analysts?|analytics|engineering)\b
+\bmachine learning\b
+\bdevops\b
+\bsre\b
+\b(it|i\.t\.)\s+(manager|director|specialist|support|analyst|administrator|engineer|lead|technician)\b
+\binformation (technology|security|systems)\b
+\bcyber ?security\b
+\bproduct (managers?|owners?|designers?|lead|management)\b
+\b(ux|ui|user experience|user interface)\b
+\btechnical recruiter\b
+\brecruiter\b.*\b(engineering|technical|tech)\b
+\bengineering managers?\b
+\b(vp|vice president|head|director),? (of )?engineering\b
+\bcto\b
+\bchief technology officer\b
+\bdatabase\b
+\bdba\b
+\bscrum master\b
+\btechnical program managers?\b
+\bsolutions architects?\b

@@ -1,0 +1,239 @@
+
+===== 2026-07-17 09:15:05 CDT START =====
+Done. The run is complete and its outcome is on the record.
+
+**Bottom line:** The weekly quote miner **could not run** this week and **nothing was posted** to #client-quotes. The Airspeed MCP server (the only transcript source) was recognized but exposed zero callable tools, so zero calls could be scanned. I deliberately did not post a "none found" digest, since that would misreport a broken data source as a genuinely quiet week.
+
+**To recover:** reconnect/authorize the `airspeed` MCP server in the scheduled-run environment, then re-run the skill.
+
+**Also flagged for the fix:** the skill references `mcp__plugin_slack_slack__slack_send_message`, but only `mcp__claude_ai_Slack__slack_send_message` is present in headless runs (same connector-prefix drift as your weekly-digest automation). Update the skill's Slack tool name so posting works once Airspeed is back. Both findings are saved to memory.
+
+Operator push notification wasn't delivered (Remote Control inactive), so this summary is the record.
+===== 2026-07-17 09:21:46 CDT END (exit 0) =====
+
+===== 2026-07-24 09:15:05 CDT START =====
+## Weekly Quote Miner — Run Summary (2026-07-24)
+
+**Status: FAILED — did not run. Nothing posted to #client-quotes.**
+
+**Blocker:** Airspeed MCP is down. The `airspeed` server is not exposing any callable tools (`mcp__airspeed__list_calls` / `mcp__airspeed__get_call_info` never loaded across 4 ToolSearch queries + a resource listing). Airspeed is the sole data source, so zero calls could be scanned.
+
+- Calls scanned: 0
+- Calls mined: 0
+- Skipped: 0
+- Candidates (A/B/C): 0 / 0 / 0
+- Message link: none (correctly withheld)
+
+**Why nothing was posted:** Per the documented handling rule, a data-source outage is not a quiet week. Posting "0 calls scanned / none found" would misreport a broken pipeline as a real zero-result week, and an error post isn't an authorized message type for a channel reps watch. So the failure is surfaced here instead.
+
+**This is the second consecutive failed run** (2026-07-17 and 2026-07-24), same cause. The root issue has not been addressed.
+
+**Action needed from you:** Reconnect/authorize the `airspeed` MCP server in the scheduled-run environment. Until that's fixed, this job will keep no-op'ing every Friday.
+
+One side note for when airspeed is back: the skill still references the Slack tool as `mcp__plugin_slack_slack__slack_send_message`, but headless runs only expose `mcp__claude_ai_Slack__slack_send_message`. Worth patching the skill so the post step doesn't fail once data flows again.
+===== 2026-07-24 09:16:14 CDT END (exit 0) =====
+
+===== 2026-07-31 09:15:05 CDT START =====
+**Run summary — Weekly Quote Miner, 2026-07-31: FAILED, nothing posted (3rd consecutive week).**
+
+- **Cause:** The airspeed MCP server exposes zero callable tools. It responds to resource listing (empty) but `mcp__airspeed__list_calls` / `mcp__airspeed__get_call_info` never loaded via ToolSearch (direct select and keyword searches both empty). Airspeed is the sole data source, so no calls could be scanned. Same failure as 2026-07-17 and 2026-07-24.
+- **Calls scanned:** 0 · **mined:** 0 · **skipped:** 0 · **candidates:** none.
+- **Slack:** No digest and no error message posted to #client-quotes, per the data-source-down handling rule (a "none found" post would misreport a broken source as a quiet week).
+- **Notification:** Desktop push attempted; mobile push not delivered (Remote Control inactive).
+- **Memory:** Updated `project_weekly_quote_miner.md` and the index to record the third failure.
+
+**Action needed from you:** Reconnect or reauthorize the airspeed MCP server in the scheduled-run environment (via `/mcp` in an interactive session or your claude.ai connector settings). This has now cost three weeks of quote coverage; the automation is dead weight until it's fixed. If airspeed can't be restored soon, worth deciding whether to backfill those three weeks manually once it's back.
+===== 2026-07-31 09:16:34 CDT END (exit 0) =====
+
+===== 2026-08-07 09:18:09 CDT START =====
+Endpoint is alive (401 unauthenticated) but returns 403 with our stored token. That's a dead credential, not an outage. Recording it.
+API Error: Connection closed mid-response. The response above may be incomplete.
+===== 2026-08-07 10:34:23 CDT END (exit 1) =====
+
+===== 2026-08-14 09:15:05 CDT START =====
+**Run summary — weekly-quote-miner, 2026-08-14 (FAILED, 5th consecutive week)**
+
+Window: 2026-08-07T14:15:18Z → 2026-08-14T14:15:18Z (UTC)
+
+- **Calls scanned: 0 · mined: 0 · skipped: 0 · candidates: none**
+- **Cause:** Airspeed (Glyphic) is the sole data source and it's unreachable. `claude mcp list` prints no airspeed/glyphic line at all now (10 lines, all `plugin:*` servers needing auth), and ToolSearch finds no airspeed tools by exact name (`select:mcp__airspeed__list_calls,mcp__airspeed__get_call_info` → "No matching deferred tools found") or by keyword.
+- **State changed since last week.** On 2026-08-07 the server was configured but returned HTTP 403 (dead credential). Today it isn't registered at all. Fix is now re-adding the server, not just reauthorizing it.
+- **Slack:** nothing posted to #client-quotes, per the data-source-down rule (a "none found" digest would misreport a broken source as a quiet week).
+- **Notification:** desktop push sent; mobile not delivered (Remote Control inactive).
+
+**Changed**
+- `/Users/jk/.claude/projects/-Users-jk/memory/project_weekly_quote_miner.md` — recorded 5th failure + the config-missing diagnosis.
+
+**Check it**
+- `claude mcp list | grep -i glyphic` → currently returns nothing. That's the single indicator to watch.
+
+**Open**
+- Airspeed needs a human to re-add and authorize it (`claude mcp add` or claude.ai connector settings). Re-running the job does nothing until then.
+- The pending SKILL.md Slack-tool patch (step 3 still names `mcp__plugin_slack_slack__slack_send_message`; headless runs expose `mcp__claude_ai_Slack__slack_send_message`) is **still unapplied** — my edit was blocked because `/Users/jk/.claude/skills/**` is write-denied in the sandbox and this run is non-interactive. Fix it from an interactive session, or the post step will fail after a full week of mining work.
+- 5 weeks of quote coverage uncollected (07-17 through 08-14). Calls still exist in Glyphic, so a backfill is possible once auth is restored. Worth deciding whether this automation stays on the schedule while dead.
+===== 2026-08-14 09:16:49 CDT END (exit 0) =====
+
+===== 2026-08-21 09:15:05 CDT START =====
+**Run summary — Weekly Quote Miner, 2026-08-21**
+
+Blocked before step 1. Airspeed MCP server not registered (confirmed via `claude mcp list`: 8 servers total, none airspeed/glyphic; ToolSearch also returns zero airspeed tools). Same root cause as 5 prior weeks: server removed from config 2026-08-14, never re-added.
+
+Calls scanned: 0. Nothing posted to #client-quotes (data-source-down rule: don't fake a "0 found" digest, don't post errors into a rep-watched channel).
+
+Failure streak: 6 weeks straight (07-17, 07-24, 07-31, 08-07, 08-14, 08-21).
+
+**Fix needs you, not me:** reconnect airspeed via `claude mcp add` or claude.ai connector settings, interactively. I can't do this headless.
+===== 2026-08-21 09:16:21 CDT END (exit 0) =====
+
+===== 2026-09-01 08:28:34 CDT START =====
+Failed to authenticate: OAuth session expired and could not be refreshed
+===== 2026-09-01 08:29:32 CDT END (exit 1) =====
+
+===== 2026-09-04 09:15:05 CDT START =====
+**Run summary, Weekly Quote Miner, 2026-09-04: FAILED before step 1. Nothing posted to #client-quotes.**
+
+Window: 2026-08-28T14:15Z to 2026-09-04T14:15Z (UTC)
+
+- Calls scanned: 0
+- Calls mined: 0
+- Skipped: 0
+- Candidates (A/B/C): 0 / 0 / 0
+- Message link: none, correctly withheld
+
+**Cause: the airspeed (Glyphic) OAuth credential is dead.** The session startup reports the server as configured but failing with HTTP 403 and an nginx HTML body. An unauthenticated probe of the same endpoint returns 401, so Glyphic is up and is rejecting our stored token specifically. ToolSearch finds no airspeed tools by name or keyword, as expected when the connection never completes.
+
+**State changed since 08-21.** Two weeks ago the server wasn't registered at all. Today it's registered again but the token is still rejected. Re-adding the server did not finish the job. Someone needs to complete the OAuth flow via `/mcp` in an interactive session or in claude.ai connector settings. Oddly, `claude mcp list` run from your home directory prints no airspeed line even though the session sees it, so it lives in a scope that listing doesn't show.
+
+**Slack:** no digest, no error post, per the data-source-down rule. A "0 found" message would misreport a broken source as a quiet week.
+
+**Streak:** every run since 07-17 has failed. run.log shows no 08-28 entry at all, and a stray 09-01 Monday run that crashed on the runner's own Claude OAuth ("OAuth session expired and could not be refreshed"), a separate problem worth a look. Eight weeks of quote coverage are uncollected. Calls still exist in Glyphic, so a backfill is possible once auth works.
+
+**Still open:** the SKILL.md step 3 Slack tool name is still `mcp__plugin_slack_slack__slack_send_message`. Headless runs only expose `mcp__claude_ai_Slack__slack_send_message`. I can't edit the skills folder from a sandboxed headless run. Patch it interactively or the post step fails on the first week that mining succeeds.
+
+Memory updated with today's diagnosis. No advisor tool was exposed in this session, so the advisor-escalation step in your global instructions could not be followed.
+===== 2026-09-04 09:17:05 CDT END (exit 0) =====
+
+===== 2026-09-11 09:15:05 CDT START =====
+**Weekly Quote Miner run summary — 2026-09-11 (window 2026-09-04 → 2026-09-11)**
+
+- Calls scanned: 0
+- Calls mined: 0
+- Skipped: 0
+- Candidates (A / B / C): 0 / 0 / 0
+- Message link: none (deliberately withheld)
+
+The run stopped at step 1. Airspeed (Glyphic) is the only data source and it never connected. Session startup reports it as configured but failing with HTTP 403 and an nginx HTML error body, and `ToolSearch` finds no `mcp__airspeed__*` tools, which is what you'd expect when a connection never completes. I ran the confirming probe from the diagnostic note: an unauthenticated POST to `https://api.glyphic.ai/mcp` returns **401**. That means Glyphic itself is healthy and is specifically rejecting our stored token. Same conclusion as every week since 2026-08-07.
+
+Nothing was posted to #client-quotes. Per the data-source-down rule, a "none found" digest would misreport a dead credential as a quiet week, and an error post isn't an authorized message type in a channel reps watch.
+
+Two things carried forward. The failure streak now covers every scheduled run since 2026-07-17 (07-17, 07-24, 07-31, 08-07, 08-14, 08-21, 09-01, 09-04, 09-11), so nine weeks of quote coverage is uncollected. The calls still exist in Glyphic, so a backfill is possible once auth works. And the skill's step 3 still names `mcp__plugin_slack_slack__slack_send_message`, while headless sessions only expose `mcp__claude_ai_Slack__slack_send_message`. Writes to `~/.claude/skills/` are sandbox-denied here, so I could not patch it. If you fix airspeed without fixing this, the first successful mining week will do all the work and then fail at the post.
+
+No advisor tool is exposed in headless runs, so the advisor-escalation step in your global instructions wasn't followed. I updated the project memory file with today's date and streak count.
+
+**My read:** keeping this on the schedule is now pure waste. Seven weeks of identical diagnosis says the blocker is a human OAuth click, and no automated run can get past it. Either do the reconnect or pause the job.
+
+### What to do, in order
+
+1. Open an interactive Claude Code session (not this scheduled one):
+
+```
+claude
+```
+
+2. Inside it, run the MCP manager and reauthorize `airspeed`:
+
+```
+/mcp
+```
+
+Pick `airspeed`, choose reconnect/authenticate, and complete the browser OAuth flow. If `airspeed` doesn't appear in that list, it's registered as a claude.ai connector instead: go to claude.ai → Settings → Connectors and reconnect it there.
+
+3. In that same interactive session, patch the Slack tool name in the skill:
+
+```
+sed -i '' 's/mcp__plugin_slack_slack__slack_send_message/mcp__claude_ai_Slack__slack_send_message/g' /Users/jk/.claude/skills/weekly-quote-miner/SKILL.md
+```
+
+4. Verify the token took before waiting a week to find out:
+
+```
+claude -p "Load mcp__airspeed__list_calls via ToolSearch and list 3 recent calls."
+```
+
+If that returns calls, the pipeline is live and next Friday's 9:15am run will work. If it still 403s, the OAuth flow didn't complete.
+
+5. Optional, once step 4 passes: ask for a backfill of the nine missed windows (07-10 through 09-11) as a one-off, rather than waiting for them to trickle in weekly.
+===== 2026-09-11 09:16:05 CDT END (exit 0) =====
+
+===== 2026-09-18 09:15:05 CDT START =====
+The job did not run. Airspeed is still locked out.
+
+**Run summary (2026-09-18, window Sep 12–18)**
+- Calls scanned: 0. Mined: 0. Skipped: 0.
+- Candidates: none (A: 0, B: 0, C: 0).
+- Slack message: none posted. This is on purpose. A "none found" post would make a broken tool look like a quiet week.
+- Cause: the `airspeed` MCP server failed to connect. Error: `HTTP 403` with an nginx HTML body. The stored login token is dead, not the server.
+- I could not run the confirming `curl` check. The sandbox blocked the network call to `api.glyphic.ai`.
+- This is failed run number 10 in a row, every week since 2026-07-17. Ten weeks of quotes are still uncollected.
+- No advisor tool exists in this headless run, so I could not do the advisor step from your CLAUDE.md.
+
+**What is broken, in plain words:** a login token expired. A computer cannot log in again by itself. A person has to click through the login screen. Until you do that, every Friday run will fail the same way.
+
+**What you do next.** Open a normal (interactive) Claude Code session, then run these, in order:
+
+1. Reconnect Airspeed. Type this inside the session:
+```
+/mcp
+```
+Pick `airspeed`, then choose reconnect/authorize and finish the browser login.
+
+2. Fix the wrong Slack tool name in the skill file. I cannot write there (sandbox blocks it):
+```
+sed -i '' 's/mcp__plugin_slack_slack__slack_send_message/mcp__claude_ai_Slack__slack_send_message/g' /Users/jk/.claude/skills/weekly-quote-miner/SKILL.md
+```
+
+3. Test that the login worked, so you don't wait a week to find out:
+```
+claude -p "Load mcp__airspeed__list_calls via ToolSearch and list 3 recent calls."
+```
+If you see calls, it is fixed.
+
+4. Only after step 3 passes, ask me for the backfill of the ten missed weeks (2026-07-10 through 2026-09-18).
+
+One decision for you: keep the Friday 9:15am job running, or pause it until the login is fixed. I would pause it. Ten empty runs in a row cost time and tell you nothing new. Restart it right after step 3 passes.
+===== 2026-09-18 09:16:01 CDT END (exit 0) =====
+
+===== 2026-09-25 09:15:05 CDT START =====
+The run failed again, so I posted nothing to Slack.
+
+Airspeed would not connect. It gave the same "403 Forbidden" error as every week since Jul 17, which makes this the 11th failed run. The Airspeed server itself is up. The saved login ("OAuth", the permission link between Claude and Airspeed) is dead. An automatic run cannot fix that. A person has to sign in again.
+
+**Run summary (2026-09-25)**
+- Calls scanned: 0. Airspeed did not connect.
+- Calls mined: 0. Calls skipped: 0.
+- Quotes found: none. No A, B or C quotes.
+- Slack message: none sent. I did not post a "none found" message, because that would make it look like a quiet week when the tool is broken. This follows the rule saved in memory.
+- I updated the memory note with this run.
+
+You have two jobs. Both need an interactive session (a normal session where you are present).
+
+1. Sign in to Airspeed again. Start Claude Code:
+   ```
+   claude
+   ```
+   Then type this and pick `airspeed` to sign in:
+   ```
+   /mcp
+   ```
+   If airspeed is not in that list, reconnect it in claude.ai under Settings, then Connectors.
+
+2. Fix the Slack tool name in the skill file. If you skip this, the next good run will find quotes and then fail when it tries to post them. In that same session, paste:
+   ```
+   Edit /Users/jk/.claude/skills/weekly-quote-miner/SKILL.md: replace mcp__plugin_slack_slack__slack_send_message with mcp__claude_ai_Slack__slack_send_message
+   ```
+
+After both jobs, you can backfill the missed weeks (Jul 10 to Sep 25). The calls are still in Airspeed. Paste this in the same session:
+```
+Run the weekly-quote-miner skill with a date range starting 2026-07-10
+```
+===== 2026-09-25 09:15:35 CDT END (exit 0) =====

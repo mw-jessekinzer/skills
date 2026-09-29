@@ -1,0 +1,23 @@
+match,host,channel,paid,scanner
+suffix,facebook.com,Facebook,yes,no
+suffix,instagram.com,Instagram,no,no
+exact,syndicatedsearch.goog,Google search partners,yes,no
+suffix,amazon-adsystem.com,Amazon,yes,no
+suffix,cbsnews.com,CBS News,yes,no
+suffix,foxnews.com,Fox News,yes,no
+suffix,themediatrust.com,ad-verification scanner,no,yes
+suffix,google.com,Google search,no,no
+suffix,bing.com,Bing search,no,no
+suffix,yahoo.com,Yahoo search,no,no
+suffix,duckduckgo.com,DuckDuckGo search,no,no
+suffix,linkedin.com,LinkedIn,no,no
+exact,lnkd.in,LinkedIn,no,no
+exact,t.co,X (Twitter),no,no
+suffix,x.com,X (Twitter),no,no
+suffix,twitter.com,X (Twitter),no,no
+suffix,chatgpt.com,ChatGPT,no,no
+suffix,perplexity.ai,Perplexity,no,no
+exact,com.google.android.gm,a Gmail app link,no,no
+exact,statics.teams.cdn.office.net,a Microsoft Teams link,no,no
+suffix,force.com,a Salesforce link,no,no
+suffix,midwestern.com,another Midwestern page,no,no

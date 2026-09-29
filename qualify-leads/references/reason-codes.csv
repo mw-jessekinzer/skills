@@ -1,0 +1,33 @@
+code,class,template
+COMPLIANCE_DNC,absolute,Do not contact: on the compliance exclusion list.
+INTERNAL,absolute,"Midwestern employee or executive, internal traffic."
+COMPETITOR_STAFFING,company,"{company} sells staffing, recruiting, or dev and design services, so treat this as competitor research."
+NOT_US,company,{company} is not a US company and has no US buying team.
+OVER_2000,company,"{company} has about {employees_text} employees ({employees_source}), over the 2,000 cap."
+PUBLIC_BODY_NON_BUYER,company,{company} is a school or public body and this person is not a technology or operating buyer.
+CONSUMER_SELF_EMPLOYED,company,"Individual or self-employed, with no company need to sell into."
+CANNOT_BUY,company,{company} (about {employees_text} people) can't realistically buy recruiting or software work.
+STRUCTURAL_NO_NEED,company,"{company} has no tech, product, design, or recruiting need we serve: {no_need_why}."
+TINY_NO_BUDGET,company,"Under 11 employees with no sign of budget, growth, or an open tech need."
+VENDOR_SELLING,person,{name} sells to companies like ours and is prospecting us.
+JOB_SEEKER,person,Looks like a job seeker.
+STUDENT_EDUCATOR,person,Student or educator with no buying role.
+NOT_AT_COMPANY,person,{name} no longer works at {company} ({works_there_source}).
+EXCLUDED_TITLE,person,Title ({title}) is on the exclude list for our buyers.
+UNRELATED_TITLE,person,Title ({title}) has no buying role for our services.
+PERSONAL_EMAIL_SUBMITTED,person,Gave a personal email on a form.
+INS_NO_PERSON,insufficient,"Company-level record, no named person."
+INS_NO_COMPANY,insufficient,Can't identify the company.
+INS_NO_TITLE,insufficient,No title on record.
+INS_SIZE_UNKNOWN,insufficient,Headcount not confirmed ({size_note}).
+INS_US_UNKNOWN,insufficient,Can't confirm a US base.
+OPEN_AUTHORITY,open,Buying authority unclear ({title}).
+OPEN_NEED,open,No current tech hiring or project need found.
+OPEN_EMPLOYMENT,open,Not yet confirmed that {name} still works there.
+OPEN_EMAIL,open,Work email not confirmed yet ({email_status}).
+OPEN_SIZE,open,Headcount is an estimate (about {employees_text}).
+OPEN_TINY,open,"Very small company (under 11 people); a low-quality lead unless there is clear budget."
+OPEN_PARENT,open,"Buying may sit with parent {parent_name} (about {parent_employees} employees), over the 2,000 cap."
+GAP_HIRING_NOT_CHECKED,gap,Hiring not checked.
+GAP_HIRING_UNREAD,gap,"Job board not found or not readable, so hiring is unknown."
+QUALIFIED,qualified,{title} at {company} (about {employees_text} people); {need_text}; {email_phrase}.

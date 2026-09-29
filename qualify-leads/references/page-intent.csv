@@ -1,0 +1,18 @@
+match,path,level,label,phrase,ad_landing,job_seeker_hint
+exact,/contact,High,contact page,,no,no
+exact,/survey,High,Configure a team quiz,"Opened the Configure a team quiz{source} (RB2B shows the visit, not whether they finished)",no,no
+exact,/services/recruiting/direct-placement,Medium,recruiting direct-placement page,,yes,no
+exact,/industry/enterprise,Medium,enterprise industry page,,yes,no
+exact,/services,Medium,services page,,no,no
+prefix,/services/,Medium,{tail} services page,,no,no
+exact,/work,Medium,case studies page,,no,no
+prefix,/work/,Medium,case study ({tail}),,no,no
+exact,/global-talent,Medium,global talent page,,no,no
+prefix,/industry/,Medium,{tail} industry page,,no,no
+exact,/,Low,homepage,,yes,no
+exact,/about,Low,about page,,no,no
+prefix,/insights/,Low,insights article,,no,no
+exact,/insights,Low,insights page,,no,no
+exact,/privacy-policy,Low,privacy policy,,no,no
+prefix,/careers,None,careers page,,no,yes
+default,,Low,page {path},,no,no

@@ -1,0 +1,117 @@
+# Well-known employers with 5,000+ staff. A lead whose company name matches one of
+# these (after normalizing) goes to knowledge triage first, which confirms it and drops it
+# as OVER_2000 or keeps it for research. Used for sources with no size field (social,
+# campaign lists). One name per line; add variants people actually type.
+Amazon
+Amazon Web Services
+AWS
+Apple
+Google
+Alphabet
+Meta
+Facebook
+Microsoft
+Oracle
+Salesforce
+IBM
+Intel
+Cisco
+Dell
+Dell Technologies
+HP
+Hewlett Packard Enterprise
+Adobe
+SAP
+Accenture
+Deloitte
+PwC
+PricewaterhouseCoopers
+EY
+Ernst & Young
+KPMG
+McKinsey & Company
+Boston Consulting Group
+Capgemini
+Cognizant
+Infosys
+Tata Consultancy Services
+Wipro
+JPMorgan Chase
+JPMorganChase
+JP Morgan
+Bank of America
+Wells Fargo
+Citi
+Citigroup
+Capital One
+Goldman Sachs
+Morgan Stanley
+American Express
+US Bank
+U.S. Bank
+PNC
+Truist
+Charles Schwab
+Fidelity Investments
+Vanguard
+State Farm
+Allstate
+Progressive
+Liberty Mutual
+UnitedHealth Group
+UnitedHealthcare
+CVS Health
+Humana
+Cigna
+Anthem
+Elevance Health
+Kaiser Permanente
+HCA Healthcare
+Walmart
+Target
+Costco
+Kroger
+Home Depot
+The Home Depot
+Lowe's
+Walgreens
+T-Mobile
+Verizon
+AT&T
+Comcast
+Charter Communications
+Disney
+The Walt Disney Company
+Netflix
+Uber
+Lyft
+FedEx
+UPS
+General Motors
+Ford
+Ford Motor Company
+Tesla
+Boeing
+Lockheed Martin
+Raytheon
+General Electric
+GE
+Johnson & Johnson
+Pfizer
+Procter & Gamble
+PepsiCo
+Coca-Cola
+Nike
+Starbucks
+McDonald's
+Marriott
+Hilton
+Four Seasons Hotels
+Tyson Foods
+Cerner
+Oracle Health
+Epic Systems
+Garmin
+O'Reilly Auto Parts
+Leggett & Platt
+Walmart Global Tech

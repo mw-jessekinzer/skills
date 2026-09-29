@@ -1,0 +1,20 @@
+kind,pattern,code,note
+person,\bferich\b,COMPLIANCE_DNC,Class-action pixel-tracking lawyer at Ahdoot & Wolfson; route to the consent-compliance project
+company,\bahdoot\b,COMPLIANCE_DNC,Ahdoot & Wolfson class-action firm
+company,\bmidwestern interactive\b,INTERNAL,Our own company
+domain,^(midwestern\.com|buildmidwestern\.com)$,INTERNAL,Our own domains
+company,\bunosquare\b,COMPETITOR_STAFFING,Named competitor
+domain,^letsmake\.com$,COMPETITOR_STAFFING,Make (letsmake.com) named competitor
+company,^crafted$,COMPETITOR_STAFFING,Named competitor
+company,\bayatas\b,COMPETITOR_STAFFING,Named competitor
+company,\bbayshore intelligence\b,COMPETITOR_STAFFING,Named competitor
+company,\brobert half\b,COMPETITOR_STAFFING,Staffing company
+company,\bteksystems\b,COMPETITOR_STAFFING,Staffing company
+company,\binsight global\b,COMPETITOR_STAFFING,Staffing company
+company,\brandstad\b,COMPETITOR_STAFFING,Staffing company
+company,\bkforce\b,COMPETITOR_STAFFING,Staffing company
+company,\btoptal\b,COMPETITOR_STAFFING,Talent marketplace
+company,\bstaffing\b,COMPETITOR_STAFFING,Name says staffing
+company,\brecruit(ing|ers?|ment)\b,COMPETITOR_STAFFING,Name says recruiting
+company,\bworkforce solutions\b,COMPETITOR_STAFFING,Name says workforce solutions
+company,\btalent solutions\b,COMPETITOR_STAFFING,Name says talent solutions
