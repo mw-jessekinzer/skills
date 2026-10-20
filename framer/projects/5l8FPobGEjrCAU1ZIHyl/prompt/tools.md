@@ -6,6 +6,8 @@ Changes to the project itself are made by passing a DSL string to `framer.agent.
 - `framer.agent.publish`
 - `framer.agent.queryImages`
 - `framer.agent.queryAnalytics`
+- `framer.agent.queryBandwidth`
+- `framer.agent.getBandwidthLimit`
 - `framer.agent.flattenComponentInstance`
 - `framer.agent.makeExternalComponentLocal`
 - `framer.agent.listComponents`
@@ -446,6 +448,13 @@ Currently supports `"unsplash"` as the image source.
 `framer.agent.queryAnalytics` runs a read-only ClickHouse query against this site's analytics data and returns an array of row objects.
 - Input shape: `{ query: string, from: string, to?: string }`. `from` and `to` are ISO date strings; `to` defaults to now.
 - Before use, request the `Analytics` guide with `framer.agent.readProject([{"type":"implementation-guide-from-index","name":"Analytics"}])`. It documents the schema, rules, and example queries.
+
+## framer.agent.queryBandwidth
+
+`framer.agent.queryBandwidth` runs a read-only ClickHouse query against this site's aggregated bandwidth usage and returns `{ rows: unknown[], truncated: boolean }`.
+- Input shape: `{ query: string, from: string, to?: string }`. `from` and `to` are ISO date strings; `to` is exclusive and defaults to now.
+- `framer.agent.getBandwidthLimit()` returns this site's monthly bandwidth quota in GB as `{ limitGB: number | null }` (`null` when the plan has no bandwidth limit).
+- Before use, request the `Bandwidth` guide with `framer.agent.readProject([{"type":"implementation-guide-from-index","name":"Bandwidth"}])`. It documents the tables and how to investigate usage.
 
 ## framer.agent.flattenComponentInstance
 

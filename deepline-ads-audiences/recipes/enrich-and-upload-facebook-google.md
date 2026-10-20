@@ -48,7 +48,7 @@ Keep work-email rows in the enrichment pool until they receive a personal hash o
 
 Stop there by default. Report coverage lift, unique hashes added, contacts still missing personal hashes, and Deepline spend.
 
-Then ask the user whether they want to spend more per contact on broader raw personal-email providers. Quote the current rate from `deepline tools describe <tool_id> --json` rather than a figure written here: rates change, and a stale number in an approval gate makes users agree to a price that no longer holds. Only after explicit approval, run the expanded pass:
+Then ask the user whether they want to spend more per contact on broader raw personal-email providers. Quote the current rate from `deepline describe <tool_id>` rather than a figure written here: rates change, and a stale number in an approval gate makes users agree to a price that no longer holds. Only after explicit approval, run the expanded pass:
 
 4. LeadMagic personal email on rows still missing personal hashes, then normalize and hash once.
 5. ContactOut free personal-email pre-check, then paid reveal only for true rows.
@@ -112,8 +112,8 @@ A live upload without a no-double-hash audit is not acceptable for this workflow
 Discover accounts first. Show account name and ID to the user before upload.
 
 ```bash
-deepline tools search "google ads audiences accounts" --json
-deepline tools search "meta audiences custom audience upload" --json
+deepline search "connected ad platform login -> accessible ad accounts" --type tools
+deepline search "hashed emails and phones -> custom audience upload" --type tools
 ```
 
 Use the combined play when both channel IDs are ready:

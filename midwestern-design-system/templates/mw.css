@@ -1,0 +1,359 @@
+/* ==========================================================================
+   Midwestern design system: shared stylesheet
+   One file, five blocks. Every template carries a copy of the blocks it needs
+   inside its own <style> tag, so a template works on its own (claude.ai
+   artifacts cannot load relative files). If you change a value here, change
+   it in the templates too.
+
+     MW FONTS     font loading and the one font stack
+     MW BASE      reset and type defaults shared by every medium
+     MW DOCUMENT  US Letter documents (section.page frames)
+     MW DECK      1920 x 1080 slides (section.slide frames, body.deck)
+     MW CHECK     marks any page or slide whose content spills
+
+   Use this file on its own only when no template fits: link or paste the
+   blocks, then build with the same classes the templates use.
+   ========================================================================== */
+
+/* ==== MW FONTS: start ==== */
+/* TT Hoves is the brand font. It is used only where it is installed.
+   Never embed, bundle or link the TT Hoves font file: the desktop license
+   bars @font-face files and sharing the file. */
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 400;
+  src: local("TT Hoves Regular"), local("TTHoves-Regular"), local("TT Hoves Pro Regular"), local("TTHovesPro-Rg"); }
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 500;
+  src: local("TT Hoves Medium"), local("TTHoves-Medium"), local("TT Hoves Pro Medium"), local("TTHovesPro-Md"); }
+/* DM Sans is the approved fallback. Google Fonts first; offline, a fonts/
+   folder beside this HTML file (copy assets/fonts/dm-sans/DMSans-Variable.ttf
+   there), then the skill's own assets folder. Never edit this block.
+   With opsz 32 (set on html) and size-adjust 99% it sets close to TT Hoves
+   widths, so line breaks hold. */
+@font-face { font-family: "DM Sans"; font-style: normal; font-weight: 400 500; size-adjust: 99%;
+  src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format("woff2"),
+       url("fonts/DMSans-Variable.ttf") format("truetype"),
+       url("../assets/fonts/dm-sans/DMSans-Variable.ttf") format("truetype"),
+       local("DM Sans"); }
+:root { --font: "TT Hoves", "DM Sans", "Helvetica Neue", Arial, sans-serif; }
+/* ==== MW FONTS: end ==== */
+
+/* ==== MW BASE: start ==== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  font-family: var(--font);
+  font-weight: 400;
+  font-synthesis: none;
+  font-variation-settings: "opsz" 32;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+h1, h2, h3, h4, h5, h6, th, strong, b { font-weight: 400; }
+em, i { font-style: normal; }
+p, li, dd { text-wrap: pretty; }
+ul, ol { list-style: none; }
+img { display: block; max-width: 100%; }
+.logo { display: block; width: auto; aspect-ratio: 811 / 127; fill: currentColor; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.g { display: grid; column-gap: var(--gutter); align-items: start; }
+.at-1 { grid-column-start: 1; }  .at-2 { grid-column-start: 2; }  .at-3 { grid-column-start: 3; }
+.at-4 { grid-column-start: 4; }  .at-5 { grid-column-start: 5; }  .at-6 { grid-column-start: 6; }
+.at-7 { grid-column-start: 7; }  .at-8 { grid-column-start: 8; }  .at-9 { grid-column-start: 9; }
+.at-10 { grid-column-start: 10; } .at-11 { grid-column-start: 11; } .at-12 { grid-column-start: 12; }
+.w-1 { grid-column-end: span 1; }  .w-2 { grid-column-end: span 2; }  .w-3 { grid-column-end: span 3; }
+.w-4 { grid-column-end: span 4; }  .w-5 { grid-column-end: span 5; }  .w-6 { grid-column-end: span 6; }
+.w-7 { grid-column-end: span 7; }  .w-8 { grid-column-end: span 8; }  .w-9 { grid-column-end: span 9; }
+.w-10 { grid-column-end: span 10; } .w-11 { grid-column-end: span 11; } .w-12 { grid-column-end: span 12; }
+.end { align-self: end; }
+.right { justify-self: end; text-align: right; }
+
+.mt-1 { margin-top: var(--s1); } .mt-2 { margin-top: var(--s2); } .mt-3 { margin-top: var(--s3); }
+.mt-4 { margin-top: var(--s4); } .mt-5 { margin-top: var(--s5); } .mt-6 { margin-top: var(--s6); }
+.mt-7 { margin-top: var(--s7); } .mt-8 { margin-top: var(--s8); } .mt-9 { margin-top: var(--s9); }
+.mt-auto { margin-top: auto; }
+
+/* Type roles. Sizes come from the medium's tokens (document or deck). */
+.kicker { font-size: var(--t-small); line-height: 1.35; color: var(--muted); }
+.title { font-size: var(--t-title); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+.kicker + .title { margin-top: var(--s2); }
+.display { font-size: var(--t-display); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.lead { font-size: var(--t-lead); line-height: 1.38; }
+.body { font-size: var(--t-body); line-height: 1.45; }
+.small { font-size: var(--t-small); line-height: 1.45; }
+.label { font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+.text > * + * { margin-top: var(--s2); }
+
+/* Figures: a big number only where the number is the message. */
+.fig { font-size: var(--t-display); line-height: 1; letter-spacing: -0.03em; white-space: nowrap; }
+.fig .unit { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-left: 4px; }
+.fig .fig-pre { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-right: 4px; }  /* DM Sans has little sidebearing: keep a real gap */
+.fig--title { font-size: var(--t-title); letter-spacing: -0.015em; }
+.fig-label { margin-top: var(--s2); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+
+/* Honest tables: the only place hairlines repeat. */
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: 1.4; }
+.table th { text-align: left; color: var(--muted); padding: 0 var(--s3) var(--s2) 0; vertical-align: bottom; }
+.table td { border-top: var(--hair); padding: var(--row-pad) var(--s3) var(--row-pad) 0; vertical-align: top; }
+.table tr:last-child td { border-bottom: var(--hair); }
+.table .num { text-align: right; white-space: nowrap; }
+.table td:last-child, .table th:last-child { padding-right: 0; }
+.table .note { color: var(--muted); }
+
+/* Bars drawn to the data: --v on the bar, --max on the chart. */
+.chart-row { align-items: center; }
+.chart-row + .chart-row { margin-top: var(--s3); }
+.track { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.bar { flex: none; height: var(--bar-h); width: calc(var(--v) / var(--max) * (100% - 5em)); background: var(--data); }
+.bar.is-key { background: var(--key); }
+.bar-val { white-space: nowrap; }
+/* Spans on a time axis: --start and --len in units, --total on the chart. */
+.span-track { position: relative; height: var(--bar-h); }
+.span { position: absolute; top: 0; height: 100%; background: var(--data);
+  left: calc(var(--start) / var(--total) * 100%); width: calc(var(--len) / var(--total) * 100%); }
+.span.is-key { background: var(--key); }
+.axis { display: flex; justify-content: space-between; border-top: var(--hair); padding-top: var(--s1);
+  font-size: var(--t-small); color: var(--muted); }
+
+/* Numbered steps: no rules, no circles, space between. */
+.steps > li + li { margin-top: var(--s4); }
+.steps .n { color: var(--muted); font-size: var(--t-small); line-height: 1.4; }
+.page .steps .n { display: block; margin-bottom: var(--s1); }
+
+.quote { font-size: var(--t-quote); line-height: 1.22; letter-spacing: -0.01em; text-indent: -0.4em; text-wrap: balance; }
+.quote-by { margin-top: var(--s3); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+/* ==== MW BASE: end ==== */
+
+/* ==== MW DOCUMENT: start ==== */
+:root {
+  /* color */
+  --paper: #FFFFFF;                        /* print white; #F6F7FE prints as a tint */
+  --ink: #010313;
+  --muted: #666666;                        /* labels, meta, captions, footer only */
+  --blue: #2237F1;
+  --accent: #2237F1;                       /* blue: the decision or next step only */
+  --key: #010313;                          /* the one key bar or span in a chart */
+  --night: #010313;
+  --on-color: #F6F7FE;
+  --on-color-muted: rgba(246, 247, 254, 0.72);
+  --data: #A8A8A8;                         /* bars that are not the key series */
+  --frame: #E9E9E9;                        /* image frame until the real image lands */
+  --hair: 0.5pt solid #010313;             /* the only line weight */
+  --row-pad: 7px;
+  --bar-h: 12px;
+
+  /* type: 8 sizes, px at 96 per inch (pt in brackets) */
+  --t-foot: 8.5px;     /* 6.4pt  footer only */
+  --t-small: 10.5px;   /* 7.9pt  labels, kickers, tables, captions */
+  --t-body: 11.5px;    /* 8.6pt  reading text */
+  --t-lead: 16px;      /* 12pt   standfirst, step titles, contact */
+  --t-quote: 24px;     /* 18pt   one pull quote per document */
+  --t-title: 36px;     /* 27pt   page title, always at the top */
+  --t-display: 64px;   /* 48pt   cover title, key figures, blue-page statement */
+  --t-hero: 80px;      /* 60pt   a short cover title, 2 lines at most */
+
+  /* page and grid: US Letter, 4 columns of 164px */
+  --page-w: 816px; --page-h: 1056px;
+  --m-top: 56px; --m-side: 56px; --m-foot: 88px; --gutter: 16px;
+
+  /* space */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+}
+@page { size: 8.5in 11in; margin: 0; }
+body { background: #E6E6E6; padding: 40px 0; color: var(--ink); font-size: var(--t-body); line-height: 1.45; }
+.page {
+  counter-increment: folio;
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 0 auto 40px;
+  padding: var(--m-top) var(--m-side) var(--m-foot);
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  break-after: page;
+}
+.page:last-of-type { break-after: auto; margin-bottom: 0; }
+@media print {
+  body { background: none; padding: 0; }
+  .page { margin: 0; }
+}
+.page .g { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Color pages carry the most important content: 1 dark and 2 blue at most. */
+.page--blue { background: var(--blue); }
+.page--dark { background: var(--night); }
+.page--blue, .page--dark {
+  --ink: #F6F7FE;
+  --muted: var(--on-color-muted);
+  --accent: #F6F7FE;
+  --key: #F6F7FE;
+  --data: rgba(246, 247, 254, 0.4);
+  --hair: 0.5pt solid rgba(246, 247, 254, 0.7);
+}
+.hero { font-size: var(--t-hero); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
+
+/* Footer inside every page: logo, document name, folio. */
+.runner { position: absolute; left: var(--m-side); right: var(--m-side); bottom: 40px;
+  font-size: var(--t-foot); line-height: 1.3; color: var(--muted); align-items: end; }
+.runner .logo { height: 9px; color: var(--ink); }
+.runner .doc-name::before { content: var(--doc-name, ""); }
+.runner .folio { justify-self: end; }
+.runner .folio::before { content: counter(folio); }
+.page--blue .runner .logo { visibility: hidden; }
+.page:first-of-type .runner .logo { visibility: hidden; }  /* the head logo is the page's one logo */
+.logo--head { height: 13px; justify-self: end; color: var(--ink); }
+
+/* Blue field with a line glyph drawn about one idea (the steps, the phases). */
+.field { position: relative; height: var(--field-h, 176px); background: var(--blue); color: #F6F7FE; }
+.field svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.field text { font-family: var(--font); font-size: 10.5px; fill: currentColor; }
+
+/* Image frame: square, no border. Only for a real image. */
+.frame { background: var(--frame); position: relative; overflow: hidden; }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Page head: kicker and title at the top (cols 1 to 3), result in col 4. */
+.head { align-items: end; }
+/* Hang rows: label in col 1, reading text in cols 2 to 3, aside in col 4. */
+.rows > * + * { margin-top: var(--s6); }
+.row-label { font-size: var(--t-body); line-height: 1.45; }
+
+.meta dt { color: var(--muted); font-size: var(--t-small); line-height: 1.4; }
+.meta dd { font-size: var(--t-small); line-height: 1.4; margin-bottom: var(--s3); }
+/* ==== MW DOCUMENT: end ==== */
+
+/* ==== MW DECK: start ==== */
+.deck {
+  --bg: #010313;
+  --fg: #F6F7FE;
+  --muted: rgba(246, 247, 254, 0.62);
+  --data: rgba(246, 247, 254, 0.3);
+  --accent: #C7FA50;                       /* green: one highlight per slide at most */
+  --key: #C7FA50;                          /* the key bar or span on a dark slide */
+  --hair: 1px solid rgba(246, 247, 254, 0.5);  /* 1px on 1920 = 0.5pt at 13.33in */
+  --frame: #1C1E2D;
+  --row-pad: 16px;
+  --bar-h: 40px;
+
+  /* type: 8 sizes */
+  --t-foot: 20px;      /* footer only */
+  --t-small: 24px;     /* kickers, labels, captions, table heads */
+  --t-body: 32px;      /* reading text, lists, table cells */
+  --t-lead: 44px;      /* item titles, contact lines, standfirst */
+  --t-quote: 72px;     /* one quote */
+  --t-title: 72px;     /* slide title, always at the top */
+  --t-display: 120px;  /* cover, section, statement, closing */
+  --t-figure: 280px;   /* one big number */
+
+  /* slide and grid: 12 columns */
+  --slide-w: 1920px; --slide-h: 1080px;
+  --m-top: 88px; --m-side: 96px; --m-bottom: 152px; --gutter: 32px;
+  --head-h: 312px;
+
+  /* space */
+  --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 48px;
+  --s6: 64px; --s7: 96px; --s8: 128px; --s9: 192px;
+
+  background: #26272E;
+  padding: 48px 0;
+  font-size: var(--t-body);
+  line-height: 1.35;
+}
+.deck--light {
+  --bg: #FFFFFF;
+  --fg: #010313;
+  --muted: #666666;
+  --data: #C4C5CC;
+  --accent: #2237F1;                       /* on light slides: the next step */
+  --key: #010313;
+  --hair: 1px solid #010313;
+  --frame: #E9E9E9;
+}
+.slide--blue {
+  --bg: #2237F1;
+  --fg: #F6F7FE;
+  --muted: rgba(246, 247, 254, 0.75);
+  --data: rgba(246, 247, 254, 0.4);
+  --accent: #F6F7FE;
+  --key: #F6F7FE;
+  --hair: 1px solid rgba(246, 247, 254, 0.7);
+}
+@page { size: 1920px 1080px; margin: 0; }
+.slide {
+  counter-increment: slide;
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  margin: 0 auto 48px;
+  padding: var(--m-top) var(--m-side) var(--m-bottom);
+  background: var(--bg);
+  color: var(--fg);
+  display: grid;
+  grid-template-rows: var(--head-h) minmax(0, 1fr);
+  overflow: hidden;
+  break-after: page;
+}
+.slide:last-of-type { break-after: auto; margin-bottom: 0; }
+@media print {
+  .deck { background: none; padding: 0; }
+  .slide { margin: 0; }
+}
+.slide .g { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.deck .title { line-height: 1.05; letter-spacing: -0.02em; }
+.deck .display { line-height: 1; letter-spacing: -0.03em; }
+.deck .lead { line-height: 1.25; letter-spacing: -0.01em; }
+.deck .body { line-height: 1.35; }
+.deck .kicker, .deck .label { line-height: 1.3; }
+.deck .table { font-size: var(--t-body); line-height: 1.3; }
+.deck .table th { font-size: var(--t-small); }
+.deck .fig .unit, .deck .fig .fig-pre { font-size: var(--t-small); }
+.deck .fig .unit { margin-left: 16px; }
+.deck .fig .fig-pre { margin-right: 8px; }
+.fig--xl { font-size: var(--t-figure); line-height: 0.86; letter-spacing: -0.045em; }
+.fig--display { font-size: var(--t-display); }
+.deck .quote { text-indent: -0.42em; }
+
+/* Slide anatomy: head row (kicker + title) at the top, main row below. */
+.s-head { grid-row: 1; align-content: start; }
+.s-main { grid-row: 2; min-height: 0; align-content: start; }
+.s-main--end { align-content: end; }
+.s-full { grid-row: 1 / 3; }
+.s-foot { position: absolute; left: var(--m-side); right: var(--m-side); bottom: 56px;
+  font-size: var(--t-foot); line-height: 1.2; color: var(--muted); align-items: end; }
+.s-foot .logo { height: 22px; color: var(--fg); }
+.s-foot .deck-name::before { content: var(--deck-name, ""); }
+.s-foot .num { justify-self: end; }
+.s-foot .num::before { content: counter(slide); }
+.slide--blue .s-foot .logo { visibility: hidden; }
+.logo--cover { height: 36px; justify-self: end; color: var(--fg); }
+
+/* Layout-specific spacing */
+.slide--title .s-full, .slide--section .s-full, .slide--statement .s-full,
+.slide--quote .s-full, .slide--closing .s-full { display: flex; flex-direction: column; }
+.slide--image { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.slide--image > .s-head, .slide--image > .s-main { grid-column: 1 / span 5; }
+.slide--image > .frame { grid-column: 7 / span 6; grid-row: 1 / 3; }
+.frame { background: var(--frame); position: relative; overflow: hidden; }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+.frame .label { position: absolute; left: var(--s3); top: var(--s3); }
+.stack > * + * { margin-top: var(--s4); }
+.deck .steps > li + li { margin-top: var(--s5); }
+.deck .steps .n { padding-top: 12px; }
+.deck .steps .body { padding-top: 6px; }
+/* ==== MW DECK: end ==== */
+
+/* ==== MW CHECK: start ==== */
+/* On screen only: a red frame on any page or slide whose content spills.
+   Fix the copy until no frame shows. Nothing prints. */
+@media screen {
+  .is-spilling { outline: 6px solid #CC1838; outline-offset: -6px; }
+  .is-spilling::after { content: "Spills: cut copy on this page"; position: absolute; top: 0; right: 0;
+    background: #CC1838; color: #FFFFFF; font: 14px/1.4 Arial, sans-serif; padding: 4px 8px; }
+}
+/* ==== MW CHECK: end ==== */

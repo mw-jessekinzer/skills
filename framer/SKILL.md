@@ -1,7 +1,7 @@
 ---
 name: framer
 description: >
-  Use when the user wants to design, edit, analyze, or publish a website or web page — creating layouts, editing sections, updating text or images, querying site analytics, managing CMS collections and content, syncing external data, creating or modifying code components, managing color and text styles, handling localization, or publishing deployments. Trigger when the user mentions Framer, references their website or web pages, asks to edit designs, update site content, analyze site traffic or conversions, or work with any Framer project — even if they don't explicitly say 'Framer'.
+  If Framer MCP tools (such as `open_project`) are available, use them instead and do not load this skill. Use when the user wants to design, edit, analyze, or publish a website or web page — creating layouts, editing sections, updating text or images, querying site analytics, managing CMS collections and content, syncing external data, creating or modifying code components, managing color and text styles, handling localization, or publishing deployments. Trigger when the user mentions Framer, references their website or web pages, asks to edit designs, update site content, analyze site traffic or conversions, or work with any Framer project — even if they don't explicitly say 'Framer'.
   **Mandatory precondition**: run `npx @framer/agent@latest setup` and let it complete **BEFORE** loading this skill.
 allowed-tools:
   - 'Bash(npx @framer/agent:*)'
@@ -10,6 +10,8 @@ allowed-tools:
   - 'Write(/var/folders/14/4gw0d7fj5rv1v6zgrr6km78r0000gp/T/framer/*)'
   - 'Read(/Users/jk/.claude/skills/framer/projects/**)'
 ---
+
+If tools from the Framer MCP server (such as `open_project`) are available in this session, stop: use them instead of this skill and the Framer CLI.
 
 If you didn't run this command before loading the skill, run it now:
 ```bash

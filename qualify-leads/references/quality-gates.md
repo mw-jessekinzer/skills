@@ -7,7 +7,7 @@ Nothing goes to JK until gates 1 to 8 pass (`python3 scripts/checks.py all --run
 | Gate | What it proves | Typical fix |
 |---|---|---|
 | 1 Counts | canonical ids unique; source rows = canonical + merged; pass1, qualified, and final CSV cover the same lead ids; every batch file came back with the same company keys; every researched company's people have person rows; every triage Keep was researched; every researched company without a company code (and its people) was checked in HubSpot; Tier 1 is within its size (`tier1_max`, default 8), and each Tier 1 company has a committee file and a packet unless it is listed in `06-enrich-skipped.csv` (reported as a warning, not a failure) | rerun the missing batch or CRM rows; `classify.py keeps` |
-| 2 Vocabulary | every label cell is an allowed value; every reason code exists; `CANNOT_BUY` never over 50 people; `OVER_2000` only with a tier A or B figure of 2,000+ or an estimate of 5,000+; no Qualified row on a tier C size; no Drop that rests on missing evidence (only a hard disqualifier or a confirmed absence of need may Drop); no `TINY_NO_BUDGET` without a tier A or B headcount and a job list that was read; research and triage files use the allowed values; need signals are dated; overrides name real fields | correct the worker file or add an override |
+| 2 Vocabulary | every label cell is an allowed value; every reason code exists; `CANNOT_BUY` never over 50 people; Company size is an allowed value, and a Growth startup has a funding signal in the last 24 months and fewer than 500 employees; no row dropped or lowered for size (no retired size code, no Enterprise Drop without a hard disqualifier); no Drop that rests on missing evidence (only a hard disqualifier or a confirmed absence of need may Drop); a retired triage size drop (`OVER_2000`, `OVER_SIZE_CAP`) is a warning, read as not a drop; no `TINY_NO_BUDGET` without a tier A or B headcount and a job list that was read; research and triage files use the allowed values; need signals are dated; overrides name real fields | correct the worker file or add an override |
 | 3 Lint | no em dash, en dash, or " -- " in any CSV cell, the summary, or a packet; no "broker", "staffing firm", "staffing partner", "outsource"; no internal jargon in CSV cells (DQ, ICP gate, pass1, ATS); no contrast-flip tropes; cells within length | fix the worker text (an override, or the packet) |
 | 4 Domain match | every committee and import email is on the company's domains; every committee member's employer domain matches; packet emails and statuses match `08-committee-status.csv` (the same strings as the CSV, visitor status included); any name collision has a `collision_resolved` override | drop or replace the person; write the resolution |
 | 5 CRM applied | the CSV's CRM status equals what the HubSpot facts produce; a HubSpot contact email at the company domain shows as the Email with status From HubSpot | rerun `label.py` and `assemble.py` |
@@ -54,8 +54,9 @@ Apply each accepted finding as an `overrides.csv` fact row (or a packet edit), t
 | Mistake | Instead |
 |---|---|
 | Editing a Verdict or Action cell, or a label in code | Add a fact row to `overrides.csv`, rerun `label.py` |
-| "Over 2,000" from a keyword, or RB2B's size | A tier A or B number of 2,000+, or an estimate of 5,000+ |
-| Dropping a row because hiring or size was never checked | The script parks it; check the fact and rerun |
+| Dropping or downgrading a company for its size | Size is a descriptive tier only; record `employees_best` and let `label.py` set Company size |
+| Counting open roles at an Enterprise company | Light pass: `hiring_checked = not_checked`; only a fresh need signal lifts its strength |
+| Dropping a row because hiring was never checked | The script parks it; check the fact and rerun |
 | Calling a page view a submission | Quote `What they did`; RB2B proves a visit only |
 | Joining files by company name or row position | Join on `lead_id` and `company_key`; gate 1 checks key sets |
 | Trusting a same-name company | Every contact's email and employer domain must be on the company's domains |

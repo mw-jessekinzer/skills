@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- SLOT: deck title for the browser tab and PDF. -->
+<title>Larkspur Freight, dispatch app proposal</title>
+<!--
+  Midwestern deck template. 1920 x 1080 slides, dark by default.
+  Every layout in the catalog is here once. Keep the slides you need, delete
+  the rest, copy a slide to repeat a layout. Never restyle: fill the slots.
+
+  SLOT      text to replace. The comment gives the word budget. Stay inside it.
+  REPEAT    a block you copy or delete as a whole, within the count given.
+  OPTIONAL  a block you may delete, from the marker to its /OPTIONAL marker.
+  DATA      a graphic drawn from numbers in its style attribute (--v, --start).
+            Change the number and the graphic redraws; retype the printed value.
+
+  Light variant (print, or when asked): add class "deck--light" to <body>.
+  Slide numbers count themselves. The deck name is set once, below.
+  A red frame on screen means a slide spills: cut copy, never shrink type.
+-->
+<style>
+/* ==== MW FONTS: start ==== */
+/* TT Hoves is the brand font. It is used only where it is installed.
+   Never embed, bundle or link the TT Hoves font file: the desktop license
+   bars @font-face files and sharing the file. */
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 400;
+  src: local("TT Hoves Regular"), local("TTHoves-Regular"), local("TT Hoves Pro Regular"), local("TTHovesPro-Rg"); }
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 500;
+  src: local("TT Hoves Medium"), local("TTHoves-Medium"), local("TT Hoves Pro Medium"), local("TTHovesPro-Md"); }
+/* DM Sans is the approved fallback. Google Fonts first; offline, a fonts/
+   folder beside this HTML file (copy assets/fonts/dm-sans/DMSans-Variable.ttf
+   there), then the skill's own assets folder. Never edit this block.
+   With opsz 32 (set on html) and size-adjust 99% it sets close to TT Hoves
+   widths, so line breaks hold. */
+@font-face { font-family: "DM Sans"; font-style: normal; font-weight: 400 500; size-adjust: 99%;
+  src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format("woff2"),
+       url("fonts/DMSans-Variable.ttf") format("truetype"),
+       url("../assets/fonts/dm-sans/DMSans-Variable.ttf") format("truetype"),
+       local("DM Sans"); }
+:root { --font: "TT Hoves", "DM Sans", "Helvetica Neue", Arial, sans-serif; }
+/* ==== MW FONTS: end ==== */
+/* ==== MW BASE: start ==== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  font-family: var(--font);
+  font-weight: 400;
+  font-synthesis: none;
+  font-variation-settings: "opsz" 32;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+h1, h2, h3, h4, h5, h6, th, strong, b { font-weight: 400; }
+em, i { font-style: normal; }
+p, li, dd { text-wrap: pretty; }
+ul, ol { list-style: none; }
+img { display: block; max-width: 100%; }
+.logo { display: block; width: auto; aspect-ratio: 811 / 127; fill: currentColor; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.g { display: grid; column-gap: var(--gutter); align-items: start; }
+.at-1 { grid-column-start: 1; }  .at-2 { grid-column-start: 2; }  .at-3 { grid-column-start: 3; }
+.at-4 { grid-column-start: 4; }  .at-5 { grid-column-start: 5; }  .at-6 { grid-column-start: 6; }
+.at-7 { grid-column-start: 7; }  .at-8 { grid-column-start: 8; }  .at-9 { grid-column-start: 9; }
+.at-10 { grid-column-start: 10; } .at-11 { grid-column-start: 11; } .at-12 { grid-column-start: 12; }
+.w-1 { grid-column-end: span 1; }  .w-2 { grid-column-end: span 2; }  .w-3 { grid-column-end: span 3; }
+.w-4 { grid-column-end: span 4; }  .w-5 { grid-column-end: span 5; }  .w-6 { grid-column-end: span 6; }
+.w-7 { grid-column-end: span 7; }  .w-8 { grid-column-end: span 8; }  .w-9 { grid-column-end: span 9; }
+.w-10 { grid-column-end: span 10; } .w-11 { grid-column-end: span 11; } .w-12 { grid-column-end: span 12; }
+.end { align-self: end; }
+.right { justify-self: end; text-align: right; }
+
+.mt-1 { margin-top: var(--s1); } .mt-2 { margin-top: var(--s2); } .mt-3 { margin-top: var(--s3); }
+.mt-4 { margin-top: var(--s4); } .mt-5 { margin-top: var(--s5); } .mt-6 { margin-top: var(--s6); }
+.mt-7 { margin-top: var(--s7); } .mt-8 { margin-top: var(--s8); } .mt-9 { margin-top: var(--s9); }
+.mt-auto { margin-top: auto; }
+
+/* Type roles. Sizes come from the medium's tokens (document or deck). */
+.kicker { font-size: var(--t-small); line-height: 1.35; color: var(--muted); }
+.title { font-size: var(--t-title); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+.kicker + .title { margin-top: var(--s2); }
+.display { font-size: var(--t-display); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.lead { font-size: var(--t-lead); line-height: 1.38; }
+.body { font-size: var(--t-body); line-height: 1.45; }
+.small { font-size: var(--t-small); line-height: 1.45; }
+.label { font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+.text > * + * { margin-top: var(--s2); }
+
+/* Figures: a big number only where the number is the message. */
+.fig { font-size: var(--t-display); line-height: 1; letter-spacing: -0.03em; white-space: nowrap; }
+.fig .unit { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-left: 4px; }
+.fig .fig-pre { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-right: 4px; }  /* DM Sans has little sidebearing: keep a real gap */
+.fig--title { font-size: var(--t-title); letter-spacing: -0.015em; }
+.fig-label { margin-top: var(--s2); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+
+/* Honest tables: the only place hairlines repeat. */
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: 1.4; }
+.table th { text-align: left; color: var(--muted); padding: 0 var(--s3) var(--s2) 0; vertical-align: bottom; }
+.table td { border-top: var(--hair); padding: var(--row-pad) var(--s3) var(--row-pad) 0; vertical-align: top; }
+.table tr:last-child td { border-bottom: var(--hair); }
+.table .num { text-align: right; white-space: nowrap; }
+.table td:last-child, .table th:last-child { padding-right: 0; }
+.table .note { color: var(--muted); }
+
+/* Bars drawn to the data: --v on the bar, --max on the chart. */
+.chart-row { align-items: center; }
+.chart-row + .chart-row { margin-top: var(--s3); }
+.track { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.bar { flex: none; height: var(--bar-h); width: calc(var(--v) / var(--max) * (100% - 5em)); background: var(--data); }
+.bar.is-key { background: var(--key); }
+.bar-val { white-space: nowrap; }
+/* Spans on a time axis: --start and --len in units, --total on the chart. */
+.span-track { position: relative; height: var(--bar-h); }
+.span { position: absolute; top: 0; height: 100%; background: var(--data);
+  left: calc(var(--start) / var(--total) * 100%); width: calc(var(--len) / var(--total) * 100%); }
+.span.is-key { background: var(--key); }
+.axis { display: flex; justify-content: space-between; border-top: var(--hair); padding-top: var(--s1);
+  font-size: var(--t-small); color: var(--muted); }
+
+/* Numbered steps: no rules, no circles, space between. */
+.steps > li + li { margin-top: var(--s4); }
+.steps .n { color: var(--muted); font-size: var(--t-small); line-height: 1.4; }
+.page .steps .n { display: block; margin-bottom: var(--s1); }
+
+.quote { font-size: var(--t-quote); line-height: 1.22; letter-spacing: -0.01em; text-indent: -0.4em; text-wrap: balance; }
+.quote-by { margin-top: var(--s3); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+/* ==== MW BASE: end ==== */
+/* ==== MW DECK: start ==== */
+.deck {
+  --bg: #010313;
+  --fg: #F6F7FE;
+  --muted: rgba(246, 247, 254, 0.62);
+  --data: rgba(246, 247, 254, 0.3);
+  --accent: #C7FA50;                       /* green: one highlight per slide at most */
+  --key: #C7FA50;                          /* the key bar or span on a dark slide */
+  --hair: 1px solid rgba(246, 247, 254, 0.5);  /* 1px on 1920 = 0.5pt at 13.33in */
+  --frame: #1C1E2D;
+  --row-pad: 16px;
+  --bar-h: 40px;
+
+  /* type: 8 sizes */
+  --t-foot: 20px;      /* footer only */
+  --t-small: 24px;     /* kickers, labels, captions, table heads */
+  --t-body: 32px;      /* reading text, lists, table cells */
+  --t-lead: 44px;      /* item titles, contact lines, standfirst */
+  --t-quote: 72px;     /* one quote */
+  --t-title: 72px;     /* slide title, always at the top */
+  --t-display: 120px;  /* cover, section, statement, closing */
+  --t-figure: 280px;   /* one big number */
+
+  /* slide and grid: 12 columns */
+  --slide-w: 1920px; --slide-h: 1080px;
+  --m-top: 88px; --m-side: 96px; --m-bottom: 152px; --gutter: 32px;
+  --head-h: 312px;
+
+  /* space */
+  --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 48px;
+  --s6: 64px; --s7: 96px; --s8: 128px; --s9: 192px;
+
+  background: #26272E;
+  padding: 48px 0;
+  font-size: var(--t-body);
+  line-height: 1.35;
+}
+.deck--light {
+  --bg: #FFFFFF;
+  --fg: #010313;
+  --muted: #666666;
+  --data: #C4C5CC;
+  --accent: #2237F1;                       /* on light slides: the next step */
+  --key: #010313;
+  --hair: 1px solid #010313;
+  --frame: #E9E9E9;
+}
+.slide--blue {
+  --bg: #2237F1;
+  --fg: #F6F7FE;
+  --muted: rgba(246, 247, 254, 0.75);
+  --data: rgba(246, 247, 254, 0.4);
+  --accent: #F6F7FE;
+  --key: #F6F7FE;
+  --hair: 1px solid rgba(246, 247, 254, 0.7);
+}
+@page { size: 1920px 1080px; margin: 0; }
+.slide {
+  counter-increment: slide;
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  margin: 0 auto 48px;
+  padding: var(--m-top) var(--m-side) var(--m-bottom);
+  background: var(--bg);
+  color: var(--fg);
+  display: grid;
+  grid-template-rows: var(--head-h) minmax(0, 1fr);
+  overflow: hidden;
+  break-after: page;
+}
+.slide:last-of-type { break-after: auto; margin-bottom: 0; }
+@media print {
+  .deck { background: none; padding: 0; }
+  .slide { margin: 0; }
+}
+.slide .g { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.deck .title { line-height: 1.05; letter-spacing: -0.02em; }
+.deck .display { line-height: 1; letter-spacing: -0.03em; }
+.deck .lead { line-height: 1.25; letter-spacing: -0.01em; }
+.deck .body { line-height: 1.35; }
+.deck .kicker, .deck .label { line-height: 1.3; }
+.deck .table { font-size: var(--t-body); line-height: 1.3; }
+.deck .table th { font-size: var(--t-small); }
+.deck .fig .unit, .deck .fig .fig-pre { font-size: var(--t-small); }
+.deck .fig .unit { margin-left: 16px; }
+.deck .fig .fig-pre { margin-right: 8px; }
+.fig--xl { font-size: var(--t-figure); line-height: 0.86; letter-spacing: -0.045em; }
+.fig--display { font-size: var(--t-display); }
+.deck .quote { text-indent: -0.42em; }
+
+/* Slide anatomy: head row (kicker + title) at the top, main row below. */
+.s-head { grid-row: 1; align-content: start; }
+.s-main { grid-row: 2; min-height: 0; align-content: start; }
+.s-main--end { align-content: end; }
+.s-full { grid-row: 1 / 3; }
+.s-foot { position: absolute; left: var(--m-side); right: var(--m-side); bottom: 56px;
+  font-size: var(--t-foot); line-height: 1.2; color: var(--muted); align-items: end; }
+.s-foot .logo { height: 22px; color: var(--fg); }
+.s-foot .deck-name::before { content: var(--deck-name, ""); }
+.s-foot .num { justify-self: end; }
+.s-foot .num::before { content: counter(slide); }
+.slide--blue .s-foot .logo { visibility: hidden; }
+.logo--cover { height: 36px; justify-self: end; color: var(--fg); }
+
+/* Layout-specific spacing */
+.slide--title .s-full, .slide--section .s-full, .slide--statement .s-full,
+.slide--quote .s-full, .slide--closing .s-full { display: flex; flex-direction: column; }
+.slide--image { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.slide--image > .s-head, .slide--image > .s-main { grid-column: 1 / span 5; }
+.slide--image > .frame { grid-column: 7 / span 6; grid-row: 1 / 3; }
+.frame { background: var(--frame); position: relative; overflow: hidden; }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+.frame .label { position: absolute; left: var(--s3); top: var(--s3); }
+.stack > * + * { margin-top: var(--s4); }
+.deck .steps > li + li { margin-top: var(--s5); }
+.deck .steps .n { padding-top: 12px; }
+.deck .steps .body { padding-top: 6px; }
+/* ==== MW DECK: end ==== */
+/* ==== MW CHECK: start ==== */
+/* On screen only: a red frame on any page or slide whose content spills.
+   Fix the copy until no frame shows. Nothing prints. */
+@media screen {
+  .is-spilling { outline: 6px solid #CC1838; outline-offset: -6px; }
+  .is-spilling::after { content: "Spills: cut copy on this page"; position: absolute; top: 0; right: 0;
+    background: #CC1838; color: #FFFFFF; font: 14px/1.4 Arial, sans-serif; padding: 4px 8px; }
+}
+/* ==== MW CHECK: end ==== */
+
+/* SLOT: deck name shown in every footer, 45 characters or fewer. End it with
+   ", sample data" when any number is a sample. */
+.deck { --deck-name: "Larkspur Freight proposal, sample data"; }
+</style>
+</head>
+<body class="deck">
+<!-- ==== MW LOGO: start ==== -->
+<svg class="sprite" aria-hidden="true" focusable="false"><symbol id="mw-logo" viewBox="0 0 811 127"><path d="M237.195 14.7881V126.504H184.69V73.7529L131.507 126.504H94.4023V89.665L184.69 0.112305H222.398L237.195 14.7881ZM546.984 69.6143C562.014 69.6143 573.79 81.4264 573.79 96.999C573.79 98.6142 573.589 99.9013 573.463 100.86L573.261 102.375H532.485C533.671 109.997 539.344 115.272 546.959 115.272C553.288 115.272 557.147 111.613 558.231 109.366H572.177L572.201 109.315C571.016 113.606 564.258 126.504 546.984 126.504C530.896 126.504 519.095 114.691 519.095 98.0586C519.095 81.4262 530.896 69.6144 546.984 69.6143ZM689.107 69.6143C704.137 69.6143 715.913 81.4264 715.913 96.999C715.913 98.6142 715.711 99.9013 715.585 100.86L715.384 102.375H674.607C675.793 109.997 681.467 115.272 689.082 115.272C695.411 115.272 699.27 111.613 700.354 109.366H714.299L714.324 109.315C713.139 113.606 706.381 126.504 689.107 126.504C673.019 126.504 661.218 114.691 661.218 98.0586C661.218 81.4261 673.019 69.6143 689.107 69.6143ZM432.248 125.419H420.446L419.361 119.513H418.832C417.748 120.901 416.461 122.087 414.974 123.046C412.402 124.762 408.317 126.478 402.744 126.479C388.799 126.479 377.527 115.197 377.526 98.0342C377.526 80.8715 388.799 69.5889 402.744 69.5889C408.216 69.589 411.973 71.4068 414.545 73.123C416.033 74.0821 417.344 75.2685 418.303 76.5557H418.832V50.2559H432.248V125.419ZM600.092 69.5889C616.079 69.589 623.165 80.8716 623.165 87.3076H610.279C610.279 83.9761 606.522 80.3409 600.092 80.3408C593.661 80.3408 590.434 83.4458 590.434 86.7773C590.434 89.3516 592.905 91.068 597.948 91.8252L607.076 93.2129C618.348 94.9292 624.249 100.078 624.249 109.846C624.249 118.856 616.634 126.478 600.646 126.479C580.272 126.479 577.043 112.522 577.043 108.761H589.904V108.786C589.905 111.462 593.233 115.752 600.621 115.752C608.01 115.752 610.809 113.177 610.809 109.846C610.809 106.514 609.296 104.697 603.294 103.738L594.721 102.35C583.449 100.532 577.018 95.9138 577.018 86.7773C577.018 77.6407 585.062 69.5889 600.092 69.5889ZM150.224 14.7881L37.1045 126.354H0V89.5146L90.25 0H135.289L150.224 14.7881ZM370.567 125.443H357.151V70.6748H370.567V125.443ZM459.053 106.641H461.196L470.325 70.6748H485.354L494.483 106.641H496.626L505.755 70.6748H519.7L505.755 125.443H488.053L478.924 90.0078H476.78L467.652 125.443H449.95L436.005 70.6748H449.925L459.053 106.641ZM646.213 70.6748H658.544V83.5713H646.213V109.871C646.213 112.345 647.499 113.632 649.971 113.632H658.544V125.443H646.743C637.615 125.443 632.798 120.724 632.798 112.547V83.5469H624.225V70.6494H632.798V55.1016H646.213V70.6748ZM788.891 69.5889C801.222 69.5889 810.35 78.7256 810.351 92.6826V125.443H796.935V93.7686C796.935 86.8026 792.093 81.9562 785.134 81.9561C778.174 81.9561 773.332 86.8025 773.332 93.7686V125.443H759.917V70.6748H772.248L773.332 76.0508H773.861C774.82 74.8645 776.105 73.8037 777.518 72.8193C779.989 71.204 783.746 69.5889 788.891 69.5889ZM327.647 69.5889C338.919 69.5889 348.023 79.2557 348.023 91.5977V125.419H334.607V92.6582C334.607 85.6924 330.951 81.9318 325.479 81.9316C319.478 81.9316 315.291 86.6512 315.291 92.6582V125.419H301.876V92.6582C301.876 85.6922 298.219 81.9316 292.747 81.9316C286.746 81.9318 282.56 86.6514 282.56 92.6582V125.419H269.195V70.6748H281.526L282.61 76.0508H283.14C283.997 74.8645 285.081 73.8037 286.367 72.8193C288.511 71.2041 291.739 69.5889 296.025 69.5889C301.497 69.5889 305.028 71.5324 307.499 73.3496C308.886 74.5358 310.071 75.7223 311.029 77.1104H311.56C312.619 75.7223 313.929 74.5357 315.417 73.3496C317.989 71.5324 321.949 69.5889 327.647 69.5889ZM756.134 83.5469H746.476C739.718 83.547 736.288 86.9791 736.288 93.7432V125.419H722.873V70.6748H734.17L735.229 75.4951H735.759C736.389 74.6371 737.146 73.8801 738.129 73.123C739.743 71.9368 742.088 70.6494 745.417 70.6494H756.134V83.5469ZM404.887 81.9561C396.742 81.9563 390.943 87.7615 390.942 98.0586C390.942 108.356 396.742 114.162 404.887 114.162C413.032 114.162 418.832 108.356 418.832 98.0586C418.832 87.7613 413.032 81.9561 404.887 81.9561ZM546.984 80.8711C538.84 80.8712 534.098 86.247 532.51 93.2129H560.4C559.215 86.2469 554.6 80.8711 546.984 80.8711ZM689.107 80.8711C680.962 80.8711 676.221 86.247 674.633 93.2129H702.522C701.337 86.247 696.723 80.8711 689.107 80.8711ZM371.097 62.0674H356.622V49.1963H371.097V62.0674Z" fill="currentColor"/></symbol></svg>
+<!-- ==== MW LOGO: end ==== -->
+
+<!-- LAYOUT: title. First slide only. No footer. -->
+<section class="slide slide--title">
+  <div class="s-full">
+    <div class="g">
+      <!-- SLOT: what this is and who it is for, 8 words or fewer. -->
+      <p class="kicker at-1 w-6">Scoped project proposal for Larkspur Freight</p>
+      <svg class="logo logo--cover at-9 w-4" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+    </div>
+    <div class="g mt-9">
+      <!-- SLOT: deck title, 10 words or fewer, 2 lines at most. -->
+      <h1 class="display at-1 w-10">A dispatch app your drivers will actually use.</h1>
+    </div>
+    <div class="g mt-auto">
+      <!-- REPEAT: meta item, 2 or 3. Label 2 words, value 6 words or fewer. -->
+      <div class="at-1 w-4"><p class="label">Prepared for</p><p class="body">Priya Natarajan, VP Engineering</p></div>
+      <!-- /REPEAT: meta item -->
+      <div class="at-5 w-4"><p class="label">Prepared by</p><p class="body">Placeholder: name, Midwestern</p></div>
+      <div class="at-9 w-4"><p class="label">Date</p><p class="body">September 30, 2026</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT: section. Opens a part of the deck. Use when the deck has 3+ parts. -->
+<section class="slide slide--section">
+  <div class="s-full">
+    <div class="g">
+      <!-- SLOT: part number and name of the part, 4 words or fewer. -->
+      <p class="kicker at-1 w-6">Part 01</p>
+    </div>
+    <div class="g mt-2">
+      <!-- SLOT: section title, 5 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+      <h2 class="display at-1 w-9">Dispatch runs on phone calls</h2>
+    </div>
+    <!-- OPTIONAL: what this part covers, 15 words or fewer. -->
+    <div class="g mt-auto">
+      <p class="lead muted at-1 w-6">What the current app costs your team, and where the hours go.</p>
+    </div>
+    <!-- /OPTIONAL -->
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: statement. One sentence that carries the argument. Stays dark.
+     Add "slide--blue" only when the sentence is the decision or next step you
+     are asking for (2 blue slides per deck at most, the closing included). -->
+<section class="slide slide--statement">
+  <div class="s-full">
+    <div class="g">
+      <!-- SLOT: kicker, 4 words or fewer. -->
+      <p class="kicker at-1 w-6">The problem, sample data</p>
+    </div>
+    <div class="g mt-2">
+      <!-- SLOT: the statement, 12 words or fewer. -->
+      <h2 class="display at-1 w-10">Your dispatchers re-key 400 loads a day by hand.</h2>
+    </div>
+    <!-- OPTIONAL: source or note, 12 words or fewer. -->
+    <div class="g mt-auto">
+      <p class="label at-1 w-6">Source: August ops review.</p>
+    </div>
+    <!-- /OPTIONAL -->
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: big number. One number that is the message. -->
+<section class="slide slide--number">
+  <header class="s-head g">
+    <!-- SLOT: kicker, 4 words or fewer. -->
+    <p class="kicker at-1 w-6">The cost</p>
+    <!-- SLOT: title that says what the number means, 8 words or fewer. Never
+         repeat the number in the title. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">Re-keying eats a full-time job every week.</h2>
+  </header>
+  <div class="s-main s-main--end g">
+    <div class="at-1 w-7">
+      <!-- SLOT: the numeral, 4 characters or fewer (digits and separators; a
+           currency sign and a K, M or % suffix do not count), plus a unit of 2 words. "Under" goes in <span class="fig-pre">
+           before it. Never use "<", "~" or "+". -->
+      <p class="fig fig--xl">38<span class="unit">hours a week</span></p>
+    </div>
+    <!-- SLOT: context, 30 words or fewer. -->
+    <p class="body at-9 w-4 end">Four dispatchers spend about nine and a half hours each re-entering loads the app drops.</p>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: numbers. Two to four figures that belong together. No boxes. -->
+<section class="slide slide--numbers">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">After launch</p>
+    <!-- SLOT: title, 8 words or fewer. Never repeat a figure. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">Drivers stop re-keying and start driving</h2>
+  </header>
+  <div class="s-main g">
+    <!-- REPEAT: figure, 2 to 4. With 3 use w-4; with 4 use w-3; with 2 use w-6.
+         Numeral 5 characters or fewer, label 8 words or fewer. Each figure is a
+         different fact; never restate the title or another slide. -->
+    <div class="at-1 w-4">
+      <p class="fig fig--display">4<span class="unit">min</span></p>
+      <p class="body mt-3">Load entry time, down from 11 minutes</p>
+    </div>
+    <!-- /REPEAT: figure -->
+    <div class="at-5 w-4">
+      <p class="fig fig--display">0</p>
+      <p class="body mt-3">Loads re-keyed by hand</p>
+    </div>
+    <div class="at-9 w-4">
+      <p class="fig fig--display">12<span class="unit">weeks</span></p>
+      <p class="body mt-3">From kickoff to drivers on the new app</p>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: two columns. Two ideas side by side: options, before and after. -->
+<section class="slide slide--two">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">Options</p>
+    <!-- SLOT: title, 8 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">Fixed scope, or a team that flexes</h2>
+  </header>
+  <div class="s-main g">
+    <!-- REPEAT: column, exactly 2. Heading 5 words or fewer, text 35 words or fewer.
+         The text adds to the heading; never restate it. -->
+    <div class="at-1 w-5">
+      <h3 class="lead">Scoped project</h3>
+      <p class="body mt-3">We own delivery against a fixed scope, price and date. You review every two weeks and sign off each phase.</p>
+    </div>
+    <!-- /REPEAT: column -->
+    <div class="at-7 w-5">
+      <h3 class="lead">Embedded team</h3>
+      <p class="body mt-3">Our engineers join your standup and your board. You set priorities week to week, and the team grows or shrinks with the work.</p>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: steps. A process in order, 3 to 5 steps. -->
+<section class="slide slide--steps">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">How we work</p>
+    <!-- SLOT: title, 8 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">One team from ride-along to handover</h2>
+  </header>
+  <ol class="s-main steps">
+    <!-- REPEAT: step, 3 to 5. Title 4 words or fewer, text 14 words or fewer (one line with 5 steps). -->
+    <li class="g">
+      <span class="n at-1 w-1">01</span>
+      <h3 class="lead at-2 w-4">Discovery</h3>
+      <p class="body at-7 w-6">Ride along with dispatch, map every load handoff, agree the scope.</p>
+    </li>
+    <!-- /REPEAT: step -->
+    <li class="g">
+      <span class="n at-1 w-1">02</span>
+      <h3 class="lead at-2 w-4">Design</h3>
+      <p class="body at-7 w-6">Test screens with three drivers before a line of code ships.</p>
+    </li>
+    <li class="g">
+      <span class="n at-1 w-1">03</span>
+      <h3 class="lead at-2 w-4">Build</h3>
+      <p class="body at-7 w-6">Two-week releases to a pilot group, then to every driver.</p>
+    </li>
+    <li class="g">
+      <span class="n at-1 w-1">04</span>
+      <h3 class="lead at-2 w-4">Launch and hand over</h3>
+      <p class="body at-7 w-6">Your team owns the code, the runbook and the release pipeline.</p>
+    </li>
+  </ol>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: timeline. Phases drawn to scale on one axis, 2 to 5 phases. -->
+<section class="slide slide--timeline">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">Plan</p>
+    <!-- SLOT: title, 8 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">Build takes half of the twelve weeks</h2>
+  </header>
+  <!-- DATA: --total is the length of the axis (weeks). Each span takes --start
+       (weeks before it starts) and --len (weeks). Mark a phase is-key only
+       when the title names it; otherwise all spans stay neutral. -->
+  <div class="s-main" style="--total: 12">
+    <!-- REPEAT: phase, 2 to 5. Name 3 words or fewer, weeks label 4 words or fewer. -->
+    <div class="g chart-row">
+      <div class="at-1 w-3"><p class="body">Discovery</p><p class="label">Weeks 1 to 2</p></div>
+      <div class="at-4 w-9 span-track"><div class="span" style="--start: 0; --len: 2"></div></div>
+    </div>
+    <!-- /REPEAT: phase -->
+    <div class="g chart-row">
+      <div class="at-1 w-3"><p class="body">Design</p><p class="label">Weeks 3 to 5</p></div>
+      <div class="at-4 w-9 span-track"><div class="span" style="--start: 2; --len: 3"></div></div>
+    </div>
+    <div class="g chart-row">
+      <div class="at-1 w-3"><p class="body">Build</p><p class="label">Weeks 5 to 10</p></div>
+      <div class="at-4 w-9 span-track"><div class="span is-key" style="--start: 4; --len: 6"></div></div>
+    </div>
+    <div class="g chart-row">
+      <div class="at-1 w-3"><p class="body">Launch</p><p class="label">Weeks 11 to 12</p></div>
+      <div class="at-4 w-9 span-track"><div class="span" style="--start: 10; --len: 2"></div></div>
+    </div>
+    <div class="g mt-4">
+      <!-- SLOT: axis labels: start, middle, end. -->
+      <div class="at-4 w-9 axis"><span>Week 1</span><span>Week 6</span><span>Week 12</span></div>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: table. Real rows and columns: people, prices, comparisons. 6 rows, 4 columns at most. -->
+<section class="slide slide--table">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">Team</p>
+    <!-- SLOT: title, 8 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title at-1 w-9">Five people own the build</h2>
+  </header>
+  <div class="s-main g">
+    <table class="table at-1 w-10">
+      <thead><tr><th>Role</th><th>What they own</th><th class="num">Time on project</th></tr></thead>
+      <tbody>
+        <!-- REPEAT: row, 2 to 6. Cells 6 words or fewer. -->
+        <tr><td>Engagement lead</td><td>Scope, budget, weekly review</td><td class="num">25%</td></tr>
+        <!-- /REPEAT: row -->
+        <tr><td>Senior mobile engineer</td><td>Driver app, offline sync</td><td class="num">100%</td></tr>
+        <tr><td>Backend engineer</td><td>Load API, integrations</td><td class="num">100%</td></tr>
+        <tr><td>Product designer</td><td>Driver research, screens</td><td class="num">50%</td></tr>
+        <tr><td>QA engineer</td><td>Test plan, release checks</td><td class="num">50%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: chart. Bars drawn to the data, 2 to 6 bars. The key bar is the only color. -->
+<section class="slide slide--chart">
+  <header class="s-head g">
+    <p class="kicker at-1 w-6">Where the hours go</p>
+    <!-- SLOT: title states the finding, 8 words or fewer. -->
+    <h2 class="title at-1 w-9">Re-keying is the biggest single loss</h2>
+  </header>
+  <!-- DATA: --max is the axis maximum. Each bar takes --v. Mark is-key only on
+       the bar the title names. Value labels: number and unit, 6 characters or fewer. -->
+  <div class="s-main" style="--max: 40">
+    <!-- REPEAT: bar, 2 to 6. Label 4 words or fewer. -->
+    <div class="g chart-row">
+      <p class="body at-1 w-3">Re-keying loads</p>
+      <div class="track at-4 w-9"><div class="bar is-key" style="--v: 38"></div><span class="bar-val body">38 h</span></div>
+    </div>
+    <!-- /REPEAT: bar -->
+    <div class="g chart-row">
+      <p class="body at-1 w-3">Status calls</p>
+      <div class="track at-4 w-9"><div class="bar" style="--v: 22"></div><span class="bar-val body">22 h</span></div>
+    </div>
+    <div class="g chart-row">
+      <p class="body at-1 w-3">Scanning paperwork</p>
+      <div class="track at-4 w-9"><div class="bar" style="--v: 14"></div><span class="bar-val body">14 h</span></div>
+    </div>
+    <div class="g chart-row">
+      <p class="body at-1 w-3">Rate lookups</p>
+      <div class="track at-4 w-9"><div class="bar" style="--v: 9"></div><span class="bar-val body">9 h</span></div>
+    </div>
+    <div class="g mt-5">
+      <!-- SLOT: source line, 12 words or fewer. -->
+      <p class="label at-4 w-9">Hours per week across four dispatchers.</p>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: quote. One real quote per deck at most. Never invent one: mark any
+     draft quote as a placeholder. -->
+<section class="slide slide--quote">
+  <div class="s-full">
+    <div class="g">
+      <p class="kicker at-1 w-6">From a client</p>
+    </div>
+    <div class="g mt-5">
+      <!-- SLOT: the quote, 25 words or fewer, with curly quotes. -->
+      <blockquote class="quote at-1 w-10">&ldquo;They read our codebase before the first call. By week two they were shipping to our drivers.&rdquo;</blockquote>
+    </div>
+    <div class="g mt-auto">
+      <!-- SLOT: name, role, company. Until the quote is approved write
+           "Placeholder: approved quote, name, role, company". -->
+      <p class="body at-1 w-6">Placeholder: approved quote, name, role, company</p>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- LAYOUT: image and text. Only with a real image (product screen, team,
+     site photo). No stock photos. No image: delete this slide. -->
+<section class="slide slide--image">
+  <header class="s-head">
+    <p class="kicker">In the cab</p>
+    <!-- SLOT: title, 7 words or fewer. A sentence that states the point. A topic label ("Two wins this quarter", "Our team") fails. -->
+    <h2 class="title">Built for a phone on a dashboard</h2>
+  </header>
+  <div class="s-main">
+    <!-- SLOT: text, 30 words or fewer. -->
+    <p class="body">Large targets, one task per screen, and offline sync, because the signal drops on half your routes.</p>
+  </div>
+  <!-- SLOT: replace the label with <img src="..." alt="..."> -->
+  <div class="frame"><p class="label">Real screenshot or photo here</p></div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+
+<!-- OPTIONAL: closing. The ask (the action you want the reader to take) is
+     draft content: write it for client decks. The contact is a Midwestern fact:
+     use the user's or write "Placeholder: name, email, phone" at body size.
+     Internal decks end on their last content slide unless the user named the
+     decision. Blue, because blue means the decision or next step. -->
+<section class="slide slide--closing slide--blue">
+  <div class="s-full">
+    <div class="g">
+      <p class="kicker at-1 w-6">Next step</p>
+    </div>
+    <div class="g mt-2">
+      <!-- SLOT: the ask, 8 words or fewer. -->
+      <h2 class="display at-1 w-10">Book a 45-minute scoping session.</h2>
+    </div>
+    <div class="g mt-auto">
+      <!-- SLOT: contact. Real name, email and phone at lead size, one per line.
+           Missing: one line at body size, "Placeholder: name, email, phone". -->
+      <div class="at-1 w-5">
+        <p class="body">Placeholder: name, email, phone</p>
+      </div>
+      <!-- SLOT: what happens on the call, 25 words or fewer. Never promise a
+           turnaround or terms the user did not give. -->
+      <p class="body at-7 w-5 end">On the call we walk through your dispatch flow and agree what a fixed price would cover.</p>
+    </div>
+  </div>
+  <footer class="s-foot g"><svg class="logo at-1 w-2" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg><span class="deck-name at-7 w-4"></span><span class="num at-12 w-1"></span></footer>
+</section>
+<!-- /OPTIONAL: closing -->
+
+<!-- ==== MW CHECK SCRIPT: start ==== -->
+<script>
+/* MW CHECK: frames any page or slide whose content spills (screen only). */
+(function () {
+  function run() {
+    document.querySelectorAll('.page, .slide').forEach(function (p) {
+      p.classList.toggle('is-spilling', p.scrollHeight > p.clientHeight + 1 || p.scrollWidth > p.clientWidth + 1);
+    });
+  }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(run); } else { addEventListener('load', run); }
+})();
+</script>
+<!-- ==== MW CHECK SCRIPT: end ==== -->
+</body>
+</html>

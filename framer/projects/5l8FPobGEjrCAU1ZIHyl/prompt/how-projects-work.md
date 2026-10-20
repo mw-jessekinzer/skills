@@ -449,7 +449,7 @@ Use the optional `queryParam` attribute to customize the URL query parameter nam
 On `WebPageNode` and `ComponentNode` scopes, omitting `initialValue` when adding a variable automatically marks it as optional.
 An optional variable's value is unset until explicitly provided at runtime.
 Providing an `initialValue` keeps the variable non-optional.
-Supported on types: `boolean`, `number`, `string`, `date`, `option`, `collectionreference`, `multicollectionreference`, `controlReference`. For other types, or other scope types, an initial value is required.
+Supported on types: `boolean`, `number`, `dimension`, `string`, `date`, `option`, `collectionreference`, `multicollectionreference`, `controlReference`. For other types, or other scope types, an initial value is required.
 
 ## Forms
 
@@ -538,7 +538,7 @@ Do not add a transition to a `customCursor` unless the user explicitly asks for 
 - On a `ComponentInstanceNode`, the exposed `eventKey` is the component's public API and does not change when the component's internal trigger changes.
 - When the selected node is a `ComponentInstanceNode` and the user asks to switch the trigger event, use `framer.agent.readComponentControls` and compare the requested internal frame handler (e.g. `onMouseEnter`) to the exposed `eventKey` values. If that internal handler is not listed as an exposed key, leave the instance handler name unchanged, retrieve the node with `exec` for that component, and edit the internal source node that fires `TRIGGER_EVENT` instead.
 - If a `ComponentInstanceNode` update is rejected because the requested handler is not valid there, do not retry by writing the same frame event to the instance again. Treat that rejection as a cue to update the internal source component trigger and keep or restore the instance action on its existing exposed `eventKey`.
-- Event-menu labels map to internal frame handlers as follows: `Click` → `onTap`, `Click Start` → `onTapStart`, `Appear` → `onAppear`, `Mouse Enter` → `onMouseEnter`, `Mouse Leave` → `onMouseLeave`. Do not use an internal frame handler name as the instance `eventKey` unless component controls expose that exact key.
+- Event-menu labels map to internal frame handlers as follows: `Click` → `onTap`, `Click start` → `onTapStart`, `Appear` → `onAppear`, `Mouse enter` → `onMouseEnter`, `Mouse leave` → `onMouseLeave`. Do not use an internal frame handler name as the instance `eventKey` unless component controls expose that exact key.
 
 #### Overlays on component instances
 

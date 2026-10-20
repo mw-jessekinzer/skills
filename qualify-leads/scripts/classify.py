@@ -329,7 +329,8 @@ _LARGE = None
 
 
 def known_large():
-    """Normalized names of well-known 5,000+ employers (references/large-companies.txt)."""
+    """Normalized names of well-known enterprises (references/large-companies.txt). A match only
+    sends the company to triage first to confirm its size and identity; size never drops a row."""
     global _LARGE
     if _LARGE is None:
         path = os.path.join(C.REF_DIR, "large-companies.txt")
@@ -614,7 +615,9 @@ def keeps(argv):
     companies = {c["company_key"]: c for c in C.read_csv(C.work(args.run, "02-companies.csv"))}
     triage = C.read_many(C.glob_work(args.run, "03-triage-"))
     done = {r["company_key"] for r in C.read_many(C.glob_work(args.run, "03-research-companies-"))}
-    keep = [r["company_key"] for r in triage if C.clean(r.get("triage")).lower() == "keep"]
+    # a retired size drop (OVER_2000, OVER_SIZE_CAP) is not a drop: research it like a Keep
+    keep = [r["company_key"] for r in triage if C.clean(r.get("triage")).lower() == "keep" or
+            (C.clean(r.get("triage")).lower() == "drop" and C.canonical_code(r.get("drop_code")) in C.RETIRED_SIZE_CODES)]
     existing = C.glob_work(args.run, "02-batch-keep-")
     queued = {r["company_key"] for r in C.read_many(existing)}
     todo = [companies[k] for k in sorted(set(keep)) if k in companies and k not in done and k not in queued]

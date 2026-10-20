@@ -62,10 +62,10 @@ Then send ONE Opus worker (`model: "opus"`) over the flagged rows only:
 - a `Generic exec` row whose buyer role is still `unknown`
 - a company with a `collision` in `05-company-rollup.csv`: the name was used for another domain in earlier runs, different names in this file share an email domain (same company, or a stale email?), or a no-domain row carries a name that is split across domains (which company?)
 - a `STRUCTURAL_NO_NEED ignored` warning: if the business really has no need, write the business-model cause into `no_need_why`; otherwise leave it parked
-- a `label_warnings` cell (a rejected triage code, a Keep never researched)
+- a `label_warnings` cell (a rejected triage code, a Keep never researched, a triage size drop that was ignored: research that company like a Keep)
 - a Qualified row with Low confidence
 - a CRM `possible_match`
-- a `GAP_*` code in `reason_codes` on a Review row (hiring not checked or unreadable at a confirmed US company under 2,000): run `ats_count.py` or read the careers page, and record the counts or a dated signal. These are the cheapest upgrades to an Account play. Low priority gap rows are checked only if time allows.
+- a `GAP_*` code in `reason_codes` on a Review row (hiring not checked or unreadable at a confirmed US company that is not Enterprise): run `ats_count.py` or read the careers page, and record the counts or a dated signal. These are the cheapest upgrades to an Account play. Low priority gap rows are checked only if time allows.
 
 Missing evidence is never a reason to Drop: `label.py` parks those rows in Review or Low priority, and `checks.py` gate 2 fails any Drop that rests on a gap. Offshore-only tech roles count as demand; do not write an override to downgrade them.
 

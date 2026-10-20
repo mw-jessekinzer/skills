@@ -3,16 +3,13 @@ name: find-qualified-titles
 description: "Use when finding real role-holders at known company domains from an ICP, especially prompts like 'find all job titles at these companies', 'find qualified titles', 'find RevOps or marketing-ops buyers', or when exact title discovery should precede paid people search."
 ---
 
-# Find Qualified Titles (company_titles -> ICP filter -> contacts)
+# Find Qualified Titles
 
 ## Quick Start
 
 ```bash
 npm install -g deepline
-# Fallback for secure sandboxes: mkdir -p "$HOME/.local" && npm config set prefix "$HOME/.local" && export PATH="$HOME/.local/bin:$PATH" && npm install -g deepline --registry https://code.deepline.com/api/v2/npm/
-deepline auth register --wait auto
-deepline auth wait --timeout 120 # completes Cowork/browser approval; no-op if already connected
-deepline auth status
+deepline preflight
 deepline -h
 ```
 

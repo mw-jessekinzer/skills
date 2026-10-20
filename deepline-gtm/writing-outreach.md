@@ -134,7 +134,7 @@ When you already have contact + company context in CSV columns, use `run_javascr
 **Critical: avoid mail-merge output.** If every email has the same structure with only `{{first_name}}` and `{{company_name}}` swapped, it's a template — not personalized outreach. Each email must reference something specific to the company (product, use case, industry, recent news). Use `company_description`, `one_liner`, `company_research`, or other enrichment columns in your JS template or `deeplineagent` prompt so each email is substantively different.
 
 Author the generation column(s) as a custom play over your enriched CSV
-([recipes/deepline-plays.md](recipes/deepline-plays.md)) with
+(see `deepline plays --help`) with
 one `withColumn` per output:
 
 - Fast path: a `run_javascript` column applying a deterministic template.
@@ -152,7 +152,7 @@ Notes:
 ## Recommended Workflow
 
 ```bash
-deepline tools describe deeplineagent
+deepline describe deeplineagent
 
 ICP_CONTEXT=$(cat ./context/icp.md)
 PRODUCT_CONTEXT=$(cat ./context/product_context.md)
@@ -225,7 +225,7 @@ SEQ_WITH=$(jq -nc --arg product "$PRODUCT_CONTEXT" '{
 printf "prospect_payload\n{\"person\":{\"firstName\":\"Rachael\",\"lastName\":\"Foster\",\"title\":\"Vice President AMER Field Marketing, Public Sector, Services, & Community\"},\"company\":{\"name\":\"Cloudera\",\"domain\":\"cloudera.com\"}}\n" > ./qualification_email_seed.csv
 
 # Run both columns as a custom play over the seed CSV (one withColumn per
-# payload above) — recipes/deepline-plays.md has the authoring loop.
+# payload above) — `deepline plays --help` covers authoring.
 ```
 
 ## Prompt Templates (Copy/Paste)
@@ -298,27 +298,39 @@ deepline csv render --csv leads.csv --open
 
 ### Inspect rows (`deepline csv show`)
 
-`deepline csv show --csv <path> [--format json|table|csv] [--verbose] [--summary] [--rows START:END]`
+Keep the complete export, including intermediate evidence; select columns for
+display with `csv show` instead of changing the exported file. See
+`deepline csv show -h` for options.
 
-- format: json (default, `{rows, _metadata}`), table (ASCII, 40-char cap), csv (RFC 4180)
-- --verbose: include step columns + full cell values
-- --summary: per-column stats + miss_reasons
-- --rows: `start:end` bounds (default `0:19`)
+- `--format json|table|csv` applies to both row display and summary; JSON is default.
+- `--columns a,b` includes named columns; `--exclude-columns c` omits them.
+  Exclusions win. Unknown names or an empty selection fail; the file is unchanged.
+- `--verbose` shows full cell values in table output, not additional columns.
+- `--summary` returns one row per selected column with present/missing counts,
+  present percentage, unique count, top repeated values and other count. It
+  analyzes all file rows by default; presence is not verification or a miss reason.
+- `--rows start:end` is inclusive. Normal display defaults to `0:19`; an
+  explicit range also limits the summary.
 
 ```bash
-deepline csv show --csv leads.csv
-deepline csv show --csv leads.csv --format table --rows 0:10
-deepline csv show --csv leads.csv --summary
+deepline csv show leads.csv
+deepline csv show leads.csv --columns first_name,email --format table --rows 0:10
+deepline csv show leads.csv --summary
 ```
+
+Use actual column names from the file. CSV JSON display still contains string
+cells. For native nested objects and arrays, use `runs export --format json`
+as described in `deepline runs export --help`.
 
 ### Re-run a column
 
-`deepline csv` is local inspection only. To recompute a column, re-run the
-play that produced it: completed cells are reused from the durable dataset by
-default, and `deepline plays run --force` starts a fresh run graph when you
-genuinely want everything recomputed.
+`deepline csv` is local inspection only. Inspect the existing export and run
+before proposing recomputation. A new run or forced refresh needs execution
+authority and may spend again; completed receipt reuse is not a free-rerun
+guarantee. See `deepline plays run --help` and `deepline runs rerun --help`.
 
 ### CLI-only debug posture
 
-- If you need to inspect or re-execute, use these CSV commands directly.
-- If you need to add columns or add providers, switch back to [enriching-and-researching.md](enriching-and-researching.md) instead of extending this page.
+- Use these commands for local inspection, not re-execution. Deterministic
+  processing is allowed; preserve the original and label derived outputs.
+- If you need to add columns or add providers, use a prebuilt play from `deepline search` or a custom play instead of extending this page.

@@ -8,7 +8,7 @@
 
 Gates:
   1 counts reconcile by key at every hand-off
-  2 controlled vocabulary and size/cannot-buy guardrails
+  2 controlled vocabulary, company size, and cannot-buy guardrails
   3 dash, banned-word, jargon, trope, and cell-length lint
   4 domain match for committee and import emails; collisions resolved
   5 CRM facts applied (status text, owner, HubSpot email)
@@ -194,7 +194,7 @@ def gate1(run_dir, stage="S9"):
 ENUMS = {
     "action": C.ACTIONS, "verdict": C.VERDICTS, "account_strength": C.STRENGTHS,
     "confidence": C.CONFIDENCE, "email_status": C.EMAIL_STATUSES, "hiring_status": C.HIRING_STATUSES,
-    "size_band": C.SIZE_BANDS, "intent": C.INTENT_LEVELS, "title_group": C.TITLE_GROUPS,
+    "size_band": C.SIZE_BANDS, "company_size": C.COMPANY_SIZES, "intent": C.INTENT_LEVELS, "title_group": C.TITLE_GROUPS,
     "crm_state": C.CRM_STATES,
 }
 FACT_ENUMS = {
@@ -222,6 +222,10 @@ def gate2(run_dir):
     g = Gate(2, "controlled vocabulary and guardrails")
     codes = C.reason_codes()
     q = C.read_csv(C.work(run_dir, "05-qualified.csv"))
+    as_of = C.parse_date(C.load_run(run_dir).get("as_of"))
+    keys = {r["lead_id"]: r["company_key"] for r in C.read_csv(C.work(run_dir, "02-pass1.csv"))}
+    facts = L.load_facts(run_dir)
+    L.apply_overrides(facts)
     for r in q:
         for f, allowed in ENUMS.items():
             if r.get(f, "") not in allowed:
@@ -238,16 +242,23 @@ def gate2(run_dir):
             g.fail(f"{r['lead_id']}: TINY_NO_BUDGET without a counted A/B headcount and a job list that was read")
         if "CANNOT_BUY" in rc and emp is not None and emp > 50:
             g.fail(f"{r['lead_id']}: CANNOT_BUY with {emp} employees")
-        if "OVER_2000" in rc and not (emp is not None and ((r["size_tier"] in ("A", "B") and emp >= 2000) or emp >= 5000)):
-            g.fail(f"{r['lead_id']}: OVER_2000 without a tier A/B figure >= 2,000 or an estimate >= 5,000")
-        if r["verdict"] == "Qualified" and r["size_tier"] not in ("A", "B"):
-            g.fail(f"{r['lead_id']}: Qualified with size tier '{r['size_tier']}'")
+        # size never drops or lowers a row (JK ruling 2026-10-12)
+        if set(rc + [r["primary_code"]]) & (C.RETIRED_SIZE_CODES | {"OPEN_SIZE", "INS_SIZE_UNKNOWN"}):
+            g.fail(f"{r['lead_id']}: row lowered for size ({r['reason_codes']}); size is a descriptive tier only")
+        if r.get("company_size") == "Growth startup":
+            c, _, _ = L.company_facts_for(keys.get(r["lead_id"], ""), facts) if keys.get(r["lead_id"]) else ({}, "", [])
+            funded = [s for s in L.parse_signals(c.get("need_signals")) if s["type"] == "funding" and
+                      L.months_ago(s["ym"], as_of) is not None and L.months_ago(s["ym"], as_of) <= C.STARTUP_FUNDING_MONTHS]
+            if not funded or emp is None or emp >= C.MIDMARKET_MIN:
+                g.fail(f"{r['lead_id']}: Growth startup without a funding signal in the last "
+                       f"{C.STARTUP_FUNDING_MONTHS} months and a figure under {C.MIDMARKET_MIN:,}")
         hard = set(L.ABSOLUTE) | set(L.COMPANY_CODES) | (set(L.PERSON_CODES) - L.SOFT_PERSON_CODES) | {"INS_NO_COMPANY"}
         if r["action"] == "Drop" and not (set(rc) & hard):
-            confirmed = r["hiring_status"] in ("No open roles found", "Hiring, non-tech only") and \
-                r["size_status"] in ("verified_under", "likely_under", "verified_over") and r["us_company"] in ("yes", "no")
-            if not confirmed:
-                g.fail(f"{r['lead_id']}: Drop on missing evidence (hiring {r['hiring_status']}, size {r['size_status']}, "
+            if r.get("company_size") == "Enterprise":
+                g.fail(f"{r['lead_id']}: Enterprise row dropped without a hard disqualifier; size never drops a row")
+            elif not (r["hiring_status"] in ("No open roles found", "Hiring, non-tech only") and
+                      r["us_company"] in ("yes", "no")):
+                g.fail(f"{r['lead_id']}: Drop on missing evidence (hiring {r['hiring_status']}, "
                        f"US {r['us_company']}); missing evidence must park the row, not drop it")
         if r["label_warnings"]:
             target = g.fail if "not yet deep-researched" in r["label_warnings"] else g.warn
@@ -266,10 +277,12 @@ def gate2(run_dir):
     for r in C.read_many(C.glob_work(run_dir, "03-triage-")):
         if C.clean(r.get("triage")).lower() not in ("keep", "drop"):
             g.fail(f"triage {r.get('company_key')}: triage must be Keep or Drop")
-        if C.clean(r.get("triage")).lower() == "drop" and r.get("drop_code") not in L.TRIAGE_CODES:
-            g.fail(f"triage {r.get('company_key')}: drop_code '{r.get('drop_code')}' not allowed")
-    facts = L.load_facts(run_dir)
-    L.apply_overrides(facts)
+        if C.clean(r.get("triage")).lower() == "drop":
+            code = C.canonical_code(r.get("drop_code"))
+            if code in C.RETIRED_SIZE_CODES:  # an old file still loads; label.py ignores the drop
+                g.warn(f"triage {r.get('company_key')}: retired size drop '{r.get('drop_code')}' read as not a drop")
+            elif code not in L.TRIAGE_CODES:
+                g.fail(f"triage {r.get('company_key')}: drop_code '{r.get('drop_code')}' not allowed")
     for w in facts["warnings"]:
         (g.fail if "override" in w else g.warn)(w)
     return g

@@ -90,7 +90,7 @@ JK exports the Leads list from the exec-analytics app (List tab, Export CSV): `l
 - Social rows carry no email (`email_origin = none`), so they reach Qualified only after research or enrichment finds a qualifying work email.
 - Follower and connection counts are never evidence.
 - Touch dates are scraper batch dates, so `normalize.py` does not profile zero-row days for social runs; say "scraper batch dates" in the summary's caveats.
-- The export has no company size. A company name in `large-companies.txt` (JPMorgan Chase, Deloitte, and similar) sends that company to knowledge triage first, which confirms it and drops it before any deep research.
+- The export has no company size. A company name in `large-companies.txt` (JPMorgan Chase, Deloitte, and similar) sends that company to knowledge triage first, which confirms its size and identity; size never drops it.
 
 ### Campaign or any other CSV
 

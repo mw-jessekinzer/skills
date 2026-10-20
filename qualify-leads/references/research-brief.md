@@ -11,8 +11,8 @@ Both briefs return **typed facts in a fixed vocabulary, never labels**. A worker
 ```
 You are researching companies for Midwestern Interactive's lead qualification run.
 
-Midwestern (Carthage, MO) sells three things to US companies under 2,000 employees:
-recruiting (direct-hire placement of software, product, design, and IT talent),
+Midwestern (Carthage, MO) sells three things to US companies of any size, from startups
+to enterprises: recruiting (direct-hire placement of software, product, design, and IT talent),
 embedded talent (engineers, designers, PMs placed onto a client team), and scoped
 projects (software builds, product and design work, legacy modernization, cloud,
 data, AI). Source data is noisy: RB2B size, industry, and website fields are often
@@ -48,6 +48,11 @@ Rules
 - Watch for name collisions: two companies can share a name (Pulley is withpulley.com,
   construction permitting; pulley.com is a cap-table company). Every person you tie to
   a company must match its domain.
+- Size never disqualifies a company; it only sets a descriptive tier. Enterprise light pass
+  (5,000+ employees): confirm the person's role and business unit, whether they buy or could
+  route us to the buyer, and the parent (parent_name, parent_employees, parent_centralized).
+  Skip job board counts: set hiring_checked = not_checked (the script never reads role counts
+  at that scale). Still record any dated need signal you find.
 - Never describe what a person did beyond the intent phrase in 02-pass1.csv. RB2B
   proves a page view only: no one "submitted", "requested", or "filled out" anything
   unless the source says the touch was a form fill.
@@ -128,7 +133,10 @@ Company fields (one row per company_key in the batch)
                          funding, new_tech_leader, launch, acquisition, modernization,
                          growth, contraction, ai_initiative. Undated items are left out.
                          Signals from the last 18 months count as a need; contraction never does.
-                         Always look for the latest funding round and its month.
+                         funding = an equity raise (venture, growth equity, or private equity)
+                         with its month; grants, loans, and IPO follow-ons are growth.
+                         Always look for the latest funding round and its month (under 500
+                         employees, a round in the last 24 months makes it a Growth startup).
   strength_downgrade     blank or PARENT_UNCLEAR | CONTRACTION | ROLES_STALE (explain in service_fit_why)
   service_fit            Recruiting | Embedded | Scoped | None   (rules below)
   service_fit_why        100 characters or fewer
@@ -156,7 +164,8 @@ language; Scoped for a build, modernization, data, or AI project with no matchin
 None when no need was found. Tie-break Recruiting, then Embedded, then Scoped.
 
 Calibration (facts, not labels)
-- A 1,771 figure from memory is size_tier C. Say so; do not round it to "over 2,000".
+- A 1,771 figure from memory is size_tier C. Say so; record the number, never round it up into a bigger band.
+- Deloitte (about 543,000) is an Enterprise company and a real prospect: run the light pass, never skip it.
 - MoMA (about 900) is a museum: structural_no_need may be yes; can_buy is not "no".
 - An accounting firm is not a competitor. A web and marketing agency is.
 - A county MIS Director is a technology buyer at a public body: public_body = yes, buyer_role = partial or yes.
@@ -176,8 +185,8 @@ Report back in under 200 words: companies done, anything unresolved, paid calls 
 ```
 You are triaging companies for Midwestern Interactive's lead qualification run, mostly
 from your own knowledge plus at most one quick web check per company. Midwestern sells
-recruiting, embedded talent, and scoped software projects to US companies under 2,000
-employees.
+recruiting, embedded talent, and scoped software projects to US companies of any size.
+Size never drops a company.
 
 Your batch: <run>/work/02-batch-<batch>.csv. Person detail: <run>/work/02-pass1.csv.
 Append one row per company (every company in the batch) with:
@@ -196,14 +205,14 @@ drop_code is required for Drop and must be one of:
                         why must state the business-model cause, never "no need found"
                         (that is not evidence: Keep the company instead)
   NOT_US                not a US company and no US buying team
-  OVER_2000             ONLY for a recognizable enterprise you estimate at 5,000 or more
   UNIDENTIFIABLE        you cannot tell which company this is
+There is no size drop code: a large company is never dropped for its size.
 
 Guardrails (the script rejects anything else)
-- Any estimate from 1,000 to 4,999 is Keep: it needs real research.
 - CANNOT_BUY only at 50 or fewer employees. A mid-size company with no need is STRUCTURAL_NO_NEED.
-- A row flagged rb2b_size_flag = rb2b_says_over or known_large: confirm it is a recognizable
-  large enterprise (Drop OVER_2000 at 5,000+) or Keep it. RB2B's size is not evidence.
+- A row flagged rb2b_size_flag = rb2b_says_over or known_large: confirm which company it is and
+  record your size estimate, then Keep it (unless another drop code applies). RB2B's size is
+  not evidence.
 - An MSP, IT services firm, dev shop, or consultancy is COMPETITOR_STAFFING (peer vendor).
 - When unsure whether a real company could buy, Keep.
 

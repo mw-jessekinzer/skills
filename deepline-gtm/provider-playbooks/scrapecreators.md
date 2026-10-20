@@ -2,7 +2,7 @@
 
 Use ScrapeCreators when the research plan needs public social evidence that generic web search cannot capture well: Reddit comments, TikTok videos/comments, Instagram Reels, and YouTube transcripts/search.
 
-For local-business or restaurant contact recovery, ScrapeCreators is an optional candidate route when the row already has a Facebook or Instagram URL/handle, when Maps/website data is thin, or when a pilot suggests public profile contact fields are where the email lives. Do not make it a required step for every SMB workflow; test it on a tiny sample and keep Maps + website extraction as the default first pass.
+For local-business or restaurant contact recovery, ScrapeCreators is an optional candidate route when the row already has a Facebook or Instagram URL/handle, when Maps/website data is thin, or when a pilot suggests public profile contact fields are where the email lives. Do not make it a required step for every SMB workflow; keep Maps + website extraction as the default first pass. For larger or uncertain authorized recovery work, test the route on a tiny sample before scaling. A small supplied Play needs no extra pilot or repeated approval, and inspecting its results does not authorize paid recovery or repair.
 
 Good candidate tools:
 
@@ -14,9 +14,8 @@ Good candidate tools:
 Tool discovery nuance: profile/contact endpoints are research candidates, but if an installed SDK still categorizes them outside `research`, run an unfiltered ScrapeCreators search as a fallback:
 
 ```bash
-deepline tools search "facebook profile email scrapecreators" --json
-deepline tools search "instagram profile bio email scrapecreators" --json
-deepline tools search scrapecreators --json
+deepline search "Facebook page URL -> profile and contact email" --type tools --json
+deepline search "Instagram handle -> profile bio and email" --type tools --json
 ```
 
 When using social profile data for SMB contact email recovery, require identity evidence before accepting the result: match at least two of business name, address, phone, website/menu/booking link, or Google Maps profile. Return the source platform, profile URL, extracted email/contact field, timestamp, and identity evidence columns so the result can be audited.

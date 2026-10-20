@@ -17,7 +17,7 @@
 - When heroes or footers have edge-to-edge typography, use `fontSize="auto-fit(100%)"` — do not set `width="auto"`, set `width="100%"` and let `fontSize` auto-fit scale the text
 - Use `fontSize="auto-fit(100%)"` only for static text. If text must be bound to a string variable or component control, use a fixed px/rem `fontSize` instead. For rich text variables, do not use root `fontSize`; use per-tag presets such as `stylePresetHeading1` and `stylePresetParagraph`
 - When using `fontSize="auto-fit(100%)"`, use `lineHeight="1"`
-- For paragraphs and taglines, use `textWrapBalance`
+- For paragraphs and taglines, use `textWrap`
 - Avoid too many unique font sizes for a design, less is more
 - Use consistent font weights for similarly sized text
 - Use tabular numbers (`openTypeFontFeatures.tnum="on"`) for data, stats, and pricing

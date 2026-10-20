@@ -56,7 +56,7 @@ Dropleads geo filters (`personalCountries` / `personalStates` / `personalCities`
 
 - Run `dropleads_email_finder` for contacts that passed the discovery pass.
 - Run `dropleads_mobile_finder` only when phone is required for the workflow.
-- Keep pilots small first, then scale after quality checks pass.
+- For larger or uncertain authorized enrichment, use a small representative pilot and check quality before scaling. Do not add a pilot run or repeat approval for a small supplied Play; inspect its existing results without paid repair.
 
 ## 3) Gate outbound with verifier status
 
@@ -69,11 +69,11 @@ Dropleads geo filters (`personalCountries` / `personalStates` / `personalCities`
 1. Count segment (`dropleads_get_lead_count`).
 2. Sample segment (`dropleads_search_people`).
 3. Pre-score titles with `run_javascript` if looking for a specific profile (e.g. founders, GTM engineers).
-4. Retrieve LinkedIn profiles with `harvestapi_get_profile` for structured work history and signals. Use Apify only when native HarvestAPI does not expose the required LinkedIn shape.
-5. Extract signals with `run_javascript` from the structured HarvestAPI output (e.g. founder detection, hiring signals).
+4. Validate work history and signals against data from an authorized source or a user-provided export.
+5. Extract signals with `run_javascript` from that data (e.g. founder detection, hiring signals).
 6. Enrich emails via waterfall (`dropleads_email_finder` first, then other providers).
 7. Verify candidate emails (`dropleads_email_verifier` or `leadmagic_email_validation`).
-8. Expand only after pilot quality is confirmed.
+8. For larger or uncertain work, expand within the authorized scope after the sample quality is confirmed. This sequence is planning guidance, not a requirement to run extra discovery or enrichment when inspecting a supplied Play or its results.
 
 ## 5) Account discovery boundary
 

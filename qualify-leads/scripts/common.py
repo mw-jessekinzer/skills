@@ -37,8 +37,27 @@ QUALIFYING_EMAIL = {"From HubSpot", "Given by the person", "Verified",
 HIRING_STATUSES = ["Hiring tech roles", "Hiring tech roles, none in US",
                    "Hiring, non-tech only", "No open roles found",
                    "Not checked", "Unknown"]
+# Company size is a descriptive tier, never a disqualifier (JK ruling 2026-10-12: no
+# size cap; Enterprise companies stay). label.py computes it from employees_best (any
+# source tier) and need_signals.
+ENTERPRISE_MIN = 5000          # Enterprise: 5,000+ employees
+MIDMARKET_MIN = 500            # Mid-market: 500 to 4,999
+STARTUP_FUNDING_MONTHS = 24    # under 500 with a funding signal this recent: Growth startup
+COMPANY_SIZES = ["Enterprise", "Mid-market", "Growth startup", "Small business", "Unknown"]
+# Retired size drop codes. Read only so triage files written before 2026-10-12 still
+# load; label.py ignores such a drop with a warning, because size never drops a row.
+CODE_ALIASES = {"OVER_2000": "OVER_SIZE_CAP"}
+RETIRED_SIZE_CODES = {"OVER_SIZE_CAP", "OVER_2000"}
+
+
+def canonical_code(code):
+    """A reason code as read from a worker file, with old names mapped to current ones."""
+    code = clean(code)
+    return CODE_ALIASES.get(code, code)
+
+
 SIZE_BANDS = ["1-10", "11-50", "51-200", "201-500", "501-1,000",
-              "1,001-1,999", "2,000+", "Unknown"]
+              "1,001-1,999", f"2,000-{ENTERPRISE_MIN - 1:,}", f"{ENTERPRISE_MIN:,}+", "Unknown"]
 TITLE_GROUPS = ["No title", "Primary: technology/product",
                 "Primary: design/creative", "Primary: recruiting/people",
                 "Primary: operations/transformation", "Secondary influencer",

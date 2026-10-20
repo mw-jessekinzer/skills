@@ -1,6 +1,20 @@
+---
+name: deepline-org-chart
+description: 'Build an interactive account org chart, leadership map, buying committee, or manager/report neighborhood around a person. Use for decision makers, reporting-line candidates, stakeholder mapping, and warm intro paths. Skip standalone email lookup and unrelated cross-company prospecting.'
+---
+
 # Account Org Chart Builder
 
 Build an interactive HTML org chart for account mapping: find decision makers, map reporting structures, identify the buying committee, and surface warm intro paths.
+
+## Contents
+
+- [Inputs and deal context](#inputs)
+- [Mapping modes and reporting evidence](#two-modes---pick-before-you-start)
+- [Discovery pipeline](#pipeline)
+- [HTML chart and data contract](#4-generate-html-org-chart)
+- [Priority scoring](#priority-scoring)
+- [Manager prediction](#manager-prediction-scoring)
 
 ## When to use
 
@@ -21,71 +35,42 @@ If only a name is given with no company context, ask before proceeding.
 
 ### Deal context intake
 
-Before running the waterfall, capture the deal context that changes who matters. If the user already gave enough context, proceed and do not interrogate them. If key context is missing, ask at most 1-2 critical questions before execution.
+Capture product, deal stage, existing CRM relationships, target function, company size, and known champions/blockers/buyers. Reuse supplied context; ask at most 1-2 questions that change execution.
 
-| Context field                              | Why it matters                                                                            |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| Product or service being sold              | Changes the owning function, technical evaluator, and likely blocker                      |
-| Deal stage                                 | Prospecting, single-threaded, active evaluation, or stuck deal changes the entry strategy |
-| Existing contacts or CRM relationships     | Preserves warm paths and avoids buying data already owned                                 |
-| Target function                            | Keeps the committee focused instead of mapping every executive                            |
-| Company size or account segment            | Right-sizes the committee and prevents over-threading small accounts                      |
-| Known champion, blocker, or economic buyer | Anchors the output around real deal evidence, not title guesses                           |
-
-Right-size the target committee:
-
-| Segment    | Target committee size |
-| ---------- | --------------------- |
-| SMB        | 2-3 people            |
-| Mid-market | 4-6 people            |
-| Enterprise | 6-12 people           |
+Target 2-3 committee members for SMB, 4-6 for mid-market, and 6-12 for enterprise. These are committee sizes, not roster limits.
 
 ## Two modes - pick before you start
 
-The waterfall below defaults to **company-wide mapping** (domain to every employee). But a lot of requests are actually **person-centric** ("build a 2-up / 2-down around this person"). They need different handling, and confusing them spends user budget and produces a worse chart.
-
-| Signal in the request                                                                                | Mode               | What changes                                                                                                                                                       |
-| ---------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| "map the GTM org at Acme", "who are the decision makers at Acme", a bare domain                      | **company-wide**   | Run the full Section 2 waterfall. Hierarchy is inferred org-wide from title tiers.                                                                                 |
-| "build an org chart around Jane Doe", "Jane's manager and her reports", a single LinkedIn URL/person | **person-centric** | Do NOT run the full company waterfall. At a 100k-person enterprise it floods you with thousands of irrelevant people. Use the focused flow in **§2-person** below. |
-
-**Why this matters:** the company-wide waterfall is built to maximize coverage. Person-centric work needs the opposite: a tight neighborhood around one node. Running the wrong mode is the single most common way this recipe disappoints.
+- **Company-wide:** a domain or request for the account's GTM org/decision makers. Use Section 2 within the agreed scope and fill coverage gaps.
+- **Person-centric:** a person, LinkedIn URL, or manager/report request. Use **§2-person** for a focused 2-up/2-down neighborhood; do not run the full company waterfall.
 
 ### The hard truth about reporting chains
 
-No data source Deepline can reach, including PDL, Dropleads, HarvestAPI, Apify, the Edges.run (`edges`) family, or Sales Navigator, exposes a real "reports to" / manager field. LinkedIn does not publish reporting chains, and neither does Sales Nav. It improves _who you can find_, not _who reports to whom_. So **every reporting edge in any org chart this recipe produces is inferred, not retrieved.**
+People search usually establishes employment and titles, not reporting chains. Treat title/team/location-based edges as hypotheses. A dated official announcement, explicit manager field with provenance, or user-supplied org chart can support a sourced edge; record that evidence instead of claiming all edges are necessarily inferred.
 
-That means:
-
-- The names, titles, LinkedIn URLs, and emails can be high-confidence (they come from real lookups).
-- The _edges between them_ are a best guess from title tier + team + location + tenure overlap. At a small startup this guess is usually right. At a 100k-person enterprise it can be ~10-20% confident, because dozens of same-title managers exist in the same city.
-- **Be honest about this in the output.** Put a confidence badge on every inferred edge and a one-line disclaimer ("reporting lines inferred from title/team/location, not from LinkedIn data"). Never present an inferred chain as if it were verified. A rep who trusts a wrong chain and name-drops the wrong manager on a call burns the account.
+Label every edge as `inferred`, `sourced`, or `manual`, with its basis and qualitative confidence. Confidence describes evidence strength, not a calibrated probability. Keep ambiguous people in **Needs review** with `parent_id: null`; never attach them to the CEO just to make a connected tree. Manual corrections are user assertions, not independently verified facts.
 
 ## Quick reference
 
-| Step | What                       | Source                                                              | Spend posture                  |
-| ---- | -------------------------- | ------------------------------------------------------------------- | ------------------------------ |
-| 1    | Resolve target             | `leadmagic_profile_search` or `prebuilt/person-linkedin-to-email`   | Metered Deepline action        |
-| 2a   | Deepline Native search     | `deepline_native_search_contact` (4 title tiers)                    | Metered Deepline action        |
-| 2b   | Dropleads search           | `dropleads_search_people`                                           | Free or bundled when available |
-| 2c   | HarvestAPI employee search | `harvestapi_search_leads` filtered by current company               | Metered Deepline action        |
-| 2d   | Icypeas people search      | `icypeas_find_people`                                               | Metered Deepline action        |
-| 2e   | PDL gap-fill (optional)    | `peopledatalabs_person_search` CXO+VP only                          | Metered Deepline action        |
-| 3    | Classify + infer           | Title-based seniority + tenure + recency signals + Claude reasoning | No provider action             |
-| 4    | Generate output            | HTML org chart file                                                 | No provider action             |
+| Step | What             | Source                                                              |
+| ---- | ---------------- | ------------------------------------------------------------------- |
+| 1    | Resolve target   | A profile lookup tool, found with `deepline search`                 |
+| 2    | Find employees   | `prebuilt/company-to-contact`, then people-search tools from search |
+| 3    | Classify + infer | Title-based seniority + tenure + recency signals + Claude reasoning |
+| 4    | Generate output  | HTML org chart file                                                 |
 
-Typical run: 150-250 people found, 3-8 minutes. When the user asks about spend, show only Deepline-facing credits or estimates from the tool catalog. Do not discuss supplier-side cost structure.
+When the user asks about spend, show only Deepline-facing credits or estimates from the tool catalog. Do not discuss supplier-side cost structure.
 
-**Spend-safe order:** CRM first, then bundled/free sources, then broad paid sources, then surgical paid gap-fill for missing senior people only. Each step deduplicates against prior results so you do not pay to rediscover data the customer already owns.
+**Spend-safe order:** CRM first, then free sources, then broad paid sources, then surgical paid gap-fill for missing senior people only. Each step deduplicates against prior results so you do not pay to rediscover data the customer already owns. `deepline tools describe <tool> --pricing-only` shows what each tool costs.
 
 **Before running any paid source:** check your CRM for contacts already at this company. If HubSpot, Salesforce, or another CRM is connected, discover the live CRM tool contract first instead of guessing operation names:
 
 ```bash
-deepline tools search --categories crm --search_terms "contacts,account,company"
-deepline tools describe TOOL_ID_FROM_SEARCH
+deepline search "company domain -> CRM account and its contacts" --categories crm
+deepline describe TOOL_ID_FROM_SEARCH
 ```
 
-Then execute the discovered CRM contact/account query with the exact schema from `tools describe`. Pull name, title, email, phone, LinkedIn URL, account/company, owner, lifecycle or stage, and last activity when the CRM exposes them.
+Then execute the discovered CRM contact/account query with the exact schema from `deepline describe`. Pull name, title, email, phone, LinkedIn URL, account/company, owner, lifecycle or stage, and last activity when the CRM exposes them.
 
 Merge CRM results first. In the org chart, give CRM contacts a **CRM badge** and `+50` priority score, because you have verified data and a relationship. No need to re-enrich them. If no CRM is connected or no contact-search operation is available, skip this and start at Source 1.
 
@@ -93,63 +78,62 @@ Merge CRM results first. In the org chart, give CRM contacts a **CRM badge** and
 
 ### 1. Resolve target identity
 
+Resolve the target company to its official domain and stable company identity (provider ID and canonical LinkedIn company URL when available). A shared domain, similar company name, or acquisition alone does not prove the same employer. Keep parent, subsidiary, franchise, region, and business-unit scopes separate unless the user requests a combined map. Ask only when multiple plausible entities would change the roster.
+
+Preserve each source record and retrieval time. Prefer the experience/current-position record tied to the resolved employer over a headline or stale CRM title. Keep conflicting current roles visible for review. Normalize LinkedIn URLs by removing tracking parameters/trailing slashes, without changing profile identity.
+
+Agree on the requested function/seniority and a bounded first pass (default up to 30 people for a leadership map). An all-employee request can use a larger stated bound. Inspect a small first page before scaling. Stop once the requested coverage is met; a waterfall is a set of gap-fill options, not an instruction to exhaust every provider. Save provider cursors/session IDs and query scope so an “add more” request resumes instead of repurchasing the same pages.
+
 This recipe orchestrates ONE account (or one person). Run the calls below
 directly with real values. Building org charts across a LIST of accounts, or
 rerunning this weekly? Author the pipeline once as a custom play
-([deepline-plays.md](deepline-plays.md)) — each step below becomes one column,
+(`deepline plays --help`) — each step below becomes one column,
 and the tier pulls become `ctx.runPlay('prebuilt/company-to-contact', ...)`.
 
-**If LinkedIn URL given:**
+**If LinkedIn URL given:** find a profile lookup tool and read the target's
+identity off its result, using the getters `deepline describe` documents:
 
 ```bash
-deepline tools execute leadmagic_profile_search --input '{"profile_url": "'"$LINKEDIN_URL"'"}'
+deepline search "a person's LinkedIn profile URL -> their name, title, company and location"
 ```
 
-Read the target's identity off the result (prefer the documented getters from
-`deepline tools describe leadmagic_profile_search`): name = `first_name` +
-`last_name`, title = `current_position` falling back to `headline`, company =
-`current_company`, plus `location`. These four drive every matching signal
-downstream.
+Name, title, company, and location drive every matching signal downstream. If
+the company domain is missing, resolve it with a search for the company's
+website, and prefer the domain a later enrichment result reports over one you
+inferred.
 
-Then resolve domain if missing:
+Verify the candidate is the official company website before taking its domain; the first search result alone is not identity evidence.
 
-```bash
-deepline tools execute exa_search --input '{"query": "'"$COMPANY"' official website", "numResults": 1}'
-```
-
-Take the registrable domain from the top result's URL — and prefer the domain
-a later enrichment result reports over one you inferred.
-
-**If name + company given:** resolve the LinkedIn URL first with
-`prebuilt/person-to-linkedin-harvestapi` (see §2-person step 2), or go straight
-to the company-wide waterfall with the domain.
+**If name + company given:** resolve the LinkedIn URL first
+(`deepline search "person name and company -> LinkedIn profile URL"` lists the prebuilt for it), or
+go straight to the company-wide search with the domain.
 
 ### §2-person. Person-centric flow (2-up / 2-down around one person)
 
-Use this instead of the company-wide waterfall when the request centers on one individual. The goal is a tight neighborhood, not a roster.
+Use this instead of the company-wide search when the request centers on one individual. The goal is a tight neighborhood, not a roster.
 
-1. **Resolve and verify the anchor.** Confirm the person currently works where the request claims with `harvestapi_get_profile` and read the returned `element.currentPosition` array (the key is singular). This live-verification step catches stale data. Capture their exact team/sub-function, title, location, and tenure; these are the matching signals for the rest of the flow.
+1. **Resolve and verify the anchor.** Confirm the person currently works where the request claims by fetching their live profile and reading the current position. This live-verification step catches stale data. Capture their exact team/sub-function, title, location, and tenure; these are the matching signals for the rest of the flow.
 
 2. **Find ±1 / ±2 candidates by constrained search, not full-company scrape.** Search for people at the same company filtered to the anchor's function + location + the adjacent title tiers:
    - **+1 (manager):** one tier up, same team, same metro. e.g. anchor is "Principal Engineer, Austin" then search "Engineering Manager" / "Senior Manager Engineering" at that company in Austin.
    - **+2 (director):** two tiers up, same function.
    - **−1 (reports):** one tier down, same team + a shared specialty signal if you have one (e.g. same sub-discipline).
 
-   Use `dropleads_search_people` (free when available) and `deepline_native_search_contact` with title filters first; fall back to `exa_search` / Google-style queries for enterprises that index poorly. Keep each search scoped. You want ~3-8 candidates per tier, not hundreds.
+   Use people-search tools with title filters, free ones first; fall back to web search for enterprises that index poorly. Keep each search scoped. You want ~3-8 candidates per tier, not hundreds.
 
-   **Resolving a candidate's LinkedIn URL from a name:** don't reach for `leadmagic_profile_search` because it is for the reverse direction, hydrating a profile when you already have the URL. For name to LinkedIn URL, use the **Serper to HarvestAPI validate** pattern from the sibling [`linkedin-url-lookup`](linkedin-url-lookup.md) recipe: `serper_google_search` with a `site:linkedin.com/in` query, then validate the top hit with `harvestapi_get_profile` and a mandatory name-match gate. Or call `prebuilt/person-to-linkedin-harvestapi`, which wraps this maintained route without changing the older `prebuilt/person-to-linkedin` compatibility play.
+   **Resolving a candidate's LinkedIn URL from a name:** a profile lookup tool goes the other way (URL to profile). For name to URL, search for a LinkedIn URL lookup and check that the name on the returned profile matches before using it.
 
-3. **Rank the inferred edges, don't assert them.** For each candidate, score the likelihood they're the actual manager/report using the Manager prediction scoring table below (seniority gap + team match + geo + experience delta + tenure overlap). Surface the top 1-2 per tier _with their score shown as a confidence badge_. When several same-title managers tie (common at big enterprises), show them as parallel candidates rather than picking one. The rep can disambiguate.
+3. **Rank the inferred edges, don't assert them.** For each candidate, rank the manager/report candidates using the Manager prediction scoring table below (seniority gap + team match + geo + experience delta + tenure overlap). Surface the top 1-2 per tier _with the ranking score separate from evidence confidence_. When several same-title managers tie (common at big enterprises), show them as parallel candidates rather than picking one. The rep can disambiguate.
 
-4. **Enrich the neighborhood.** Run emails/phones only on the final shortlist via the `prebuilt/person-linkedin-to-email` play, using verified providers like Prospeo. Watch for non-obvious corporate domains (e.g. a company named "Acme Corporation" may use `@acme.io`, not `@acmecorporation.com`); take the domain from the enrichment result, don't assume it.
+4. **Enrich the neighborhood when requested.** Run emails/phones only on the approved final shortlist via the `prebuilt/person-linkedin-to-email` play. Watch for non-obvious corporate domains (e.g. a company named "Acme Corporation" may use `@acme.io`, not `@acmecorporation.com`); take the domain from the enrichment result, don't assume it.
 
 5. **Render** the same HTML chart as §4, but centered on the anchor with the inferred edges badged by confidence and the §"hard truth" disclaimer shown prominently.
 
-**Honest expectation:** emails and LinkedIn URLs from this flow are solid; the reporting edges at a large enterprise are a ranked guess (~10-20% on any single edge). That's the ceiling of title+geo inference without privileged data. Set the rep's expectation accordingly rather than over-claiming.
+**Honest expectation:** validate identity and contact results before outreach. A manager ranking is a heuristic, not a measured probability; ties and missing team evidence remain unresolved.
 
-### 2. Find ALL employees (cost-optimal waterfall)
+### 2. Find people within the agreed scope
 
-> Company-wide mode only. For a single-person 2-up/2-down, use **§2-person** above instead. Running this full waterfall on a 100k-employee company buries the one neighborhood you care about.
+> Company-wide mode only. For a single-person 2-up/2-down, use **§2-person** above instead. Running this full search on a 100k-employee company buries the one neighborhood you care about.
 
 Run sources cheapest-first. Each step deduplicates against prior results - only net-new people advance.
 
@@ -162,75 +146,28 @@ echo "company_domain,company_name" > "$WORK_DIR/accounts.csv"
 echo "\"$DOMAIN\",\"$COMPANY\"" >> "$WORK_DIR/accounts.csv"
 ```
 
-**Source 1: role-targeted contact discovery**
-
-The prebuilt covers this step — one call per seniority tier:
+**Source 1: role-targeted contact discovery.** The prebuilt covers this step, one call per seniority tier:
 
 ```bash
 deepline plays run prebuilt/company-to-contact --input '{"domain": "'"$DOMAIN"'", "roles": ["CEO", "CTO", "CFO", "COO", "CMO", "CRO", "Founder"], "seniority": "C-Level"}'
 deepline plays run prebuilt/company-to-contact --input '{"domain": "'"$DOMAIN"'", "roles": ["VP", "SVP"], "seniority": "VP"}'
 ```
 
-Need exact tier control the play's contract doesn't expose (custom title
-filters, more tiers)? Call the underlying tool directly:
-
-```bash
-deepline tools execute deepline_native_search_contact --input '{"domain": "'"$DOMAIN"'", "title_filters": [{"name": "dir", "filter": "Head OR Director OR Senior Director"}, {"name": "mgr", "filter": "Manager OR Senior Manager"}]}'
-```
-
 Expected: ~25-35 people.
 
-**Source 2: Dropleads (FREE)**
+**Source 2: the wider roster.** Find the people-search and employee-list tools and prebuilts for a company, and confirm each one's current Deepline credits before running it:
 
 ```bash
-deepline tools execute dropleads_search_people --input '{"filters": {"companyDomains": ["'"$DOMAIN"'"]}, "pagination": {"page": 1, "limit": 100}}'
+deepline search "a company domain -> the people who work there, with titles and LinkedIn URLs"
 ```
 
-Expected: +60-80 net new.
+Each tool's `deepline describe` output carries its paging and billing notes; read them before requesting large pages.
 
-**Source 3: LinkedIn employee scrape**
+**Source 3: surgical gap-fill, ONLY for missing senior people.** After building the initial hierarchy, identify gaps (e.g., "5 Sales Directors but no VP Sales") and search for that seniority at that company with a small limit. Fetch another small page only if the specific gap remains: a broad page followed by deduplication still spends credits on duplicates.
 
-Prefer the maintained native prebuilt for repeatable roster enrichment:
+Merge by stable provider ID within a provider, then canonical LinkedIn URL across providers. Name plus employer is only a candidate match: retain same-name people separately until another signal confirms identity. Keep all merged source IDs and field provenance.
 
-```bash
-deepline plays describe prebuilt/company-domain-to-linkedin-employees-harvestapi
-deepline plays run prebuilt/company-domain-to-linkedin-employees-harvestapi \
-  --input '{"domain":"acme.com","max_items":250}'
-```
-
-Use the underlying tools directly only when the prebuilt's stable employee-row
-shape does not fit the workflow. Resolve the company's LinkedIn page from the
-domain first, then search the native HarvestAPI provider after confirming the
-live contract:
-
-```bash
-deepline tools describe harvestapi_get_company
-deepline tools execute harvestapi_get_company --payload '{"url":"LINKEDIN_COMPANY_URL"}'
-deepline tools describe harvestapi_search_leads
-deepline tools execute harvestapi_search_leads --payload '{"currentCompanies":"LINKEDIN_COMPANY_URL","sessionId":"STABLE_RANDOM_SESSION_ID","page":1}'
-```
-
-Generate one random `sessionId` before page 1 and pass that same value on every later page so the result set stays pinned to one upstream resource. HarvestAPI matches `currentCompanies` by company name even when given a URL or ID, so retain only rows whose `currentPositions[].companyId` equals the target `element.id` returned by `harvestapi_get_company`. Then deduplicate and write the final roster into `"$WORK_DIR/li-employees.csv"` or add it as an enrichment pass. Use Apify only if the native HarvestAPI search contract cannot express the requested roster.
-
-**Source 4: Icypeas people search**
-
-```bash
-deepline tools execute icypeas_find_people --payload '{"query":{"currentCompanyWebsite":{"include":["DOMAIN"]}},"pagination":{"size":100}}'
-```
-
-Expected: +80-100 net new.
-
-**Source 5: PDL surgical gap-fill - ONLY for missing senior people**
-
-After building initial hierarchy, identify gaps (e.g., "5 Sales Directors but no VP Sales"):
-
-```bash
-deepline tools execute peopledatalabs_person_search --payload '{"size":5,"query":{"bool":{"filter":[{"term":{"job_company_website":"DOMAIN"}},{"terms":{"job_title_levels":["cxo","vp"]}},{"exists":{"field":"linkedin_url"}}]}}}'
-```
-
-Pull at most five CXO+VP profiles, then dedupe. Fetch another small page only if the specific hierarchy gap remains. PDL bills every returned profile, so a broad page followed by deduplication still spends credits on duplicates.
-
-Merge all results, deduplicate by slugified name.
+Record counts for retrieved rows, duplicate rows merged, out-of-scope exclusions (with reasons), and retained unique people. Show whether pagination is exhausted or coverage is partial; retained is not total company headcount. Unknown-employer records stay in a review set. A sparse result is valid, not permission to invent people.
 
 ### 3. Classify seniority + infer hierarchy
 
@@ -252,25 +189,18 @@ Merge all results, deduplicate by slugified name.
 | 11   | senior      | "senior", "sr."                               |
 | 12   | ic          | everything else                               |
 
-**Tenure-weighted seniority adjustment:**
+**Title scope and tenure:**
 
-A title alone is a weak signal. Adjust effective influence after initial classification:
+Classify the exact current title and its scope. Field/deputy/fractional CTO, regional President, board member, and former executive do not establish global C-suite authority. Principal/Staff roles do not by themselves establish people-management responsibility. Preserve the title; use function lanes only for navigation.
 
-| Condition                           | Adjustment                                                          |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| Manager/Director, tenure < 6 months | -1 effective rank (treat as 1 level below)                          |
-| Manager/Director, tenure >= 2 years | +1 effective rank (treat as 1 level above)                          |
-| VP/C-level, tenure < 3 months       | flag as `newly_hired_exec = true` (see priority scoring)            |
-| IC/Senior, tenure >= 5 years        | flag as `long_tenured_ic = true` (informal influence, worth noting) |
+Store `role_start_date` separately from `company_start_date`, each nullable and sourced. A promotion resets role tenure, not company tenure. Label a recent role as “new in role”; call someone a new hire only when company-start evidence supports it. Do not change their hierarchy rank because of tenure. Long company tenure can inform an influence hypothesis without changing their title.
 
-Tenure = months since `start_date` at current company. If `start_date` is unavailable, skip adjustment (don't guess).
-
-**For display, simplify to 4 levels** (use effective rank after tenure adjustment):
+**For display, simplify title tiers to 4 levels:**
 
 - **exec**: ceo, c-level, evp, svp, vp -> color #a78bfa
 - **director**: sr-director, director -> color #60a5fa
-- **manager**: sr-manager, manager, principal, lead -> color #34d399
-- **ic**: senior, ic -> color #525252
+- **manager**: sr-manager, manager -> color #34d399
+- **ic**: principal, staff, lead (unless management is evidenced), senior, ic -> color #525252
 
 **Team consolidation (if >8 teams):**
 
@@ -287,30 +217,11 @@ Tenure = months since `start_date` at current company. If `start_date` is unavai
 
 Infer teams from title patterns (text after comma).
 
-### 3b. Hiring velocity & staleness risk
+### 3b. Freshness and company context
 
-After classifying all people, compute per-department hiring velocity to flag stale sections of the chart:
+Show `checked_at` and source dates for the roster. Count verified recent company starts separately from recent role starts. Show unknown dates and the number of records with usable dates; a partial leadership sample cannot establish company hiring velocity or growth. Recent changes can justify a targeted refresh, not a claim that the chart is a fixed number of days stale.
 
-```
-For each team/department:
-  recent_hires = count of people with tenure < 90 days
-  total_headcount = count of people in team
-  velocity_ratio = recent_hires / total_headcount
-```
-
-| velocity_ratio | Staleness risk              | Display                                       |
-| -------------- | --------------------------- | --------------------------------------------- |
-| >= 0.30        | HIGH, chart may be outdated | amber `⚡ Growing fast` badge on team sidebar |
-| 0.15 - 0.29    | MEDIUM, some churn expected | no badge                                      |
-| < 0.15         | LOW                         | no badge                                      |
-
-**Surfacing this in the UI:**
-
-- Add a `⚡ Growing fast` amber badge next to any team in the left sidebar with HIGH velocity
-- In the warm path banner (if shown), append: _"Note: [Team] is growing fast, contacts may have changed recently."_
-- In the stats bar, add a clickable chip: `"N new hires (<90 days)"` that filters to recently-joined people
-
-This tells the rep: if Sales has 35% new hires, the org chart you're looking at is probably 30-60 days stale for that team. Re-verify before a big send.
+When news is requested, use a stated date window (default three months), verify publication dates and article URLs, and deduplicate syndicated coverage. Keep company news separate from reporting evidence; connect an article to a person by stable node ID only when it names them. Preserve an empty result with `checked_at` when no relevant news is found.
 
 ### 3c. Map the buying committee (what makes the chart actually sell)
 
@@ -386,7 +297,10 @@ Reflect this in the chart (§4): show `committee_role`, `disposition`, `access_l
 - **Warm path banner** at top if user has a connection (amber highlight, "Show warm connections" CTA)
 - **Priority score column** (0-100): see scoring below
 - **Clickable stats bar**: "234 with email (18%)" filters to email=true on click; "N new hires (<90 days)" filters to recently joined
-- **Team sidebar** (left): collapsed teams with counts + `⚡ Growing fast` badges where applicable, click to filter
+- **Team sidebar** (left): collapsed function lanes with counts, click to filter; lanes are not reporting relationships
+- **Hierarchy view**: readable top-down chart, leadership-only toggle, and person focus showing manager candidates and reports; keep the table as an alternate view
+- **Needs review**: visible unplaced people and ambiguous manager candidates; filters must not make unresolved people disappear from coverage counts
+- **Corrections**: editable manager with keyboard-accessible selection, optional drag/drop, cycle/self-link rejection, and exportable manual overrides keyed by stable person IDs
 - **Table layout**: sortable by priority, columns = Priority | Name/Title | Committee Role | Disposition | Access | Team | Level | Tenure | Contact | Next Action
 - **Committee coverage panel**: immediate contacts, monitor contacts, and ask-champion questions
 - **Evidence drawer**: click a role or edge to see the source and why Deepline inferred it
@@ -444,8 +358,13 @@ type OrgChartNode = {
     phone?: string;
     crm_badge?: boolean;
   };
+  source_ids: string[];
+  checked_at: string;
+  role_start_date: string | null;
+  company_start_date: string | null;
   reporting_edge: {
-    inferred: true;
+    inferred: boolean; // Retain for existing chart consumers.
+    basis: 'inferred' | 'sourced' | 'manual';
     confidence: 'high' | 'medium' | 'low';
     evidence: string[];
   } | null;
@@ -453,7 +372,15 @@ type OrgChartNode = {
 };
 ```
 
-Keep `reporting_edge` separate from `committee_role`. Reporting lines are inferred hierarchy guesses. Committee roles are deal hypotheses based on title, context, CRM, and signal evidence.
+Keep `reporting_edge` separate from `committee_role`. Set `inferred` to true only for `basis: inferred`; sourced and manual edges carry their distinct evidence. A null parent has no selected reporting edge, even when candidates exist. Committee roles are deal hypotheses based on title, context, CRM, and signal evidence.
+
+**Incremental updates and verification:**
+
+Save the normalized dataset, scope, cursors, exclusion reasons, candidate edges, and manual overrides beside the HTML. Refresh by stable identity and preserve overrides; flag a departed/missing manager instead of silently rewiring. Export edits because browser-local storage does not follow a shared file. Build the chart from saved data without repeating paid discovery.
+
+Escape provider strings and allow only safe HTTP(S) links when generating HTML; render titles/names as text. Keep credentials out of the artifact. Contact enrichment is optional and requires a real authenticated action with the selected person and Deepline credit estimate visible. A standalone HTML file should export selected IDs or provide a follow-up prompt, not pretend it can run a connector.
+
+Before delivery, verify no duplicate node IDs, dangling selected parents, self-links, or cycles; every visible edge has a basis; every retained person is placed or in review; counts reconcile. Exercise search, filters, focus, empty states, correction persistence/export, and a refresh that preserves manual edits. Use fixtures with same-name people, a promotion, a subsidiary employee, a scoped CTO, and tied manager candidates. Report what was actually exercised; a skill description alone does not prove a working viewer.
 
 **What to avoid (AI slop tells):**
 
@@ -472,23 +399,23 @@ Save to `deepline/data/{company-slug}-orgchart/{company}-orgchart.html` (same de
 score = title_score + contact_score + warm_score + recency_bonus + champion_potential_bonus
 ```
 
-| Factor                 | Condition                                        | Score                             |
-| ---------------------- | ------------------------------------------------ | --------------------------------- |
-| Title                  | exec level                                       | +40                               |
-| Title                  | director level                                   | +25                               |
-| Title                  | manager level                                    | +10                               |
-| Contact                | has email                                        | +25                               |
-| Contact                | has phone                                        | +10                               |
-| Warm                   | warm connection                                  | +30                               |
-| **Job change recency** | newly_hired_exec = true (exec, tenure < 90 days) | **+20 bonus**                     |
-| **Job change recency** | any level, tenure < 30 days                      | **+10 bonus**                     |
-| Champion potential     | champion_potential_score >= 45                   | +15                               |
-| Champion potential     | champion_potential_score >= 30                   | +8                                |
-| Tenure (negative)      | tenure < 6 months AND manager/director level     | -5 (lower influence, less stable) |
+| Factor                 | Condition                                                     | Score                             |
+| ---------------------- | ------------------------------------------------------------- | --------------------------------- |
+| Title                  | exec level                                                    | +40                               |
+| Title                  | director level                                                | +25                               |
+| Title                  | manager level                                                 | +10                               |
+| Contact                | has email                                                     | +25                               |
+| Contact                | has phone                                                     | +10                               |
+| Warm                   | warm connection                                               | +30                               |
+| **Job change recency** | exec with verified company start < 90 days                    | **+20 bonus**                     |
+| **Job change recency** | verified company start < 30 days                              | **+10 bonus**                     |
+| Champion potential     | champion_potential_score >= 45                                | +15                               |
+| Champion potential     | champion_potential_score >= 30                                | +8                                |
+| Tenure (negative)      | verified company tenure < 6 months AND manager/director level | -5 (lower influence, less stable) |
 
-**Why newly-hired execs get a +20 bonus:** A new VP of Sales or CTO is actively remapping their vendor stack in the first 90 days. They have the most buying authority and the lowest incumbent loyalty. This is the highest-value outreach window in the sales cycle.
+**Why prioritize recent hires:** a new executive may be reviewing vendors. Treat this as an outreach hypothesis to validate, not proof of budget or intent.
 
-Display `🆕` badge in the Name column for anyone with tenure < 90 days so reps can spot them instantly without sorting.
+Display a “New hire” badge only for verified company starts within 90 days; display “New in role” separately for recent role starts. Leave unknown tenure unscored. Clamp priority scores to 0–100 and champion-potential scores to 0–60; these are ranking aids, not verified authority.
 
 ## Champion and hidden influencer scoring
 
@@ -533,9 +460,9 @@ score = seniority_gap + team_match + geo + experience_delta
 | Geo           | Same city             | +2    |
 | Experience    | 3+ more years         | +2    |
 
-Highest score wins. Min threshold: 5.
+Use this score only to order candidates, never as a probability or automatic edge threshold. Require compatible employer scope, plausible seniority, and affirmative team evidence before selecting an inferred parent. Ties, missing team evidence, or conflicting sources stay in Needs review with the candidates visible. Neither a matching city nor a title tier alone establishes a manager. Reject self-links and cycles before saving any inferred or manually edited edge.
 
 ## When NOT to use
 
-- User already has a CSV and wants enrichment -> use enriching-and-researching.md
+- User already has a CSV and wants enrichment -> run the matching prebuilt play from `deepline search`
 - User needs email/phone for outreach -> this recipe maps orgs, use enrichment recipes for contact info after

@@ -1,332 +1,92 @@
 ---
 name: midwestern-design-system
-description: Apply Midwestern brand guidelines to any output — HTML/CSS components, copy, data visualizations, presentations, or documents. Use whenever the task requires on-brand visual design or producing content that represents the Midwestern brand.
+description: Midwestern brand design for decks, slides, presentations, one-pagers, proposals, SOWs, case studies, reports and documents. On-brand templates, fonts, colors, logos.
 ---
 
-# Midwestern Design System
+# Midwestern design system
 
-## Overview
+Use this for anything visual that carries the Midwestern brand: slide decks, one-pagers and leave-behinds, proposals and SOWs, case studies, internal reports, and other documents. It gives you finished templates in one style, Swiss editorial, so the person asking does not need design knowledge. Your job is to pick the right template, fill it with good copy, and check it before you hand it over.
 
-This skill encodes Midwestern's complete brand system: colors, typography, voice, component patterns, and more. Apply it whenever producing anything that represents Midwestern externally or internally.
+## Load only what the task needs
 
-**Keywords**: Midwestern brand, on-brand, style guide, brand colors, typography, brand voice, design system, components
-
----
-
-## 1. Colors
-
-### Brand Philosophy
-
-Midwestern uses a minimal, high-contrast palette: black and white as the foundation, with blue as the primary accent and green as a secondary accent. This keeps things clean and flexible for impactful design.
-
-### Base Palette
-
-| Token | Hex | Use |
+| Task | Read | Start from |
 |---|---|---|
-| `--white` | `#F6F7FE` | Light mode backgrounds, primary surface |
-| `--black` | `#010313` | Light mode typography, dark mode backgrounds |
-| `--blue` | `#2237F1` | Primary accent color — CTAs, interactive elements |
-| `--green` | `#C7FA50` | Secondary accent — used very sparingly |
-
-### Semantic Tokens
-
-| Token | Value | Use |
-|---|---|---|
-| `--background` | `#F6F7FE` | Page/surface backgrounds |
-| `--foreground` | `#010313` | Primary text and UI elements |
-| `--inverse` | `#F6F7FE` | Text on dark/foreground surfaces |
-| `--more-muted` | `#666666` | Muted text, subtle borders, dividers |
-
-### The 60–30–10 Rule
-
-**Light mode applications:**
-- 60% White (`#F6F7FE`) — Background surfaces
-- 25% Black (`#010313`) — Typography, UI elements
-- 10% Blue (`#2237F1`) — Accents, interactive elements
-- 5% Green (`#C7FA50`) — Secondary accents (sparingly)
-
-**Dark mode applications:**
-- 60% Black (`#010313`) — Background surfaces
-- 25% White (`#F6F7FE`) — Typography, UI elements
-- 10% Blue (`#2237F1`) — Accents, interactive elements
-- 5% Green (`#C7FA50`) — Secondary accents (sparingly)
-
-### CSS Custom Properties
-
-```css
-:root {
-  --white:      #F6F7FE;
-  --black:      #010313;
-  --blue:       #2237F1;
-  --green:      #C7FA50;
-
-  /* Semantic */
-  --background:  #F6F7FE;  /* light mode default */
-  --foreground:  #010313;
-  --inverse:     #F6F7FE;  /* text on dark surfaces */
-  --more-muted:  #666666;  /* muted text / borders */
-}
-
-/* Dark mode override */
-[data-theme="dark"] {
-  --background: #010313;
-  --foreground: #F6F7FE;
-  --inverse:    #010313;
-}
-```
-
-### Color Usage Rules
-
-- **Never** use blue or green as a background color for large surfaces — reserve them for accents only
-- **Always** use white text (`--inverse`) on blue or black backgrounds
-- **Always** use black text (`--black`) on white or green backgrounds
-- Green (`#C7FA50`) is the rarest color — if it appears frequently, pull back
-
----
-
-## 2. Typography
-
-### Typeface
-
-Midwestern uses a single typeface across all applications: **TT Hoves**. Available in Regular, Medium, and Bold weights. Do not use Light. 
-
-```css
---font-primary: 'TT Hoves', sans-serif;
-```
-
-### Core Rules
-
-- **Sentence case always** — never title case or all-caps (e.g. "This is headline text", not "This Is Headline Text")
-- **All text in TT Hoves** — no mixing in other typefaces
-- **Blue (`#2237F1`) for overlines, CTAs, and hierarchy labels** — never for body copy
-- **Regular weight** for long-form body paragraphs and for headings and UI
-- Use bold and Medium sparingly. These are used to define a solid hierarchy within body copy and subheadings. Never for H1 headings.
-- **On dark (#010313) backgrounds, body copy may be set to 60% opacity** (`rgba(246,247,254,0.6)`) to create hierarchy contrast with full-white headings. Use this when the heading needs to dominate and the body should recede. Never apply opacity to headings — only body copy. Full white body copy is also valid.
-
----
-
-### Type Scale
-
-#### Display — attention-grabbing hero titles, LH 1.2
-
-| Style | Size | Letter Spacing | Line Height |
-|---|---|---|---|
-| Display XL | 128px | 0 | 1.2 |
-| Display Large | 96px | 0 | 1.2 |
-| Display Medium | 88px | 0 | 1.2 |
-
-#### Heading — section and content titles, LH 1.2
-
-| Style | Size | Letter Spacing | Line Height |
-|---|---|---|---|
-| Heading XL | 72px | -1px | 1.2 |
-| Heading Large | 60px | -1px | 1.2 |
-| Heading Medium | 48px | -1px | 1.2 |
-| Heading Small | 40px | 0 | 1.2 |
-| Heading XS | 36px | 0 | 1.2 |
-
-#### Body — running text blocks, LH 1.5
-
-| Style | Size | Letter Spacing | Line Height |
-|---|---|---|---|
-| Body XL | 40px | 0 | 1.5 |
-| Body Large | 24px | 0 | 1.5 |
-| Body Medium | 20px | 0 | 1.5 |
-| Body Small | 16px | 0 | 1.5 |
-
-#### Extras
-
-| Style | Size | Letter Spacing | Line Height |
-|---|---|---|---|
-| Overline / Badge | 60px | -1px | 1.2 |
-| CTA | 40px | -1px | 1.2 |
-| Link | 16px | 0 | normal |
-| Caption | 14px | 0 | 1.5 |
-| Legal | 12px | 0 | 1.5 |
-
----
-
-### Hierarchy in Practice
-
-The type hierarchy follows a 60px base-unit proportional system:
-
-- **Overline** (1.5× body) — small label above a headline, rendered in blue
-- **Headline** (3.5× body) — primary attention grab, largest text on the page
-- **Subheadline** (1.5× body) — supporting title below headline
-- **Body Copy** — TT Hoves Regular, -1px LS, 1.75× line height
-- **CTA** (1× body) — rendered in blue (`--highlight: #2237F1`), same size as body
-
-### CSS Quick Reference
-
-```css
-/* Display */
-.display-xl    { font-family: 'TT Hoves', sans-serif; font-size: 128px; font-weight: 400; line-height: 1.2; letter-spacing: 0; }
-.display-large { font-family: 'TT Hoves', sans-serif; font-size: 96px;  font-weight: 400; line-height: 1.2; letter-spacing: 0; }
-
-/* Headings */
-.heading-xl     { font-family: 'TT Hoves', sans-serif; font-size: 72px; font-weight: 400; line-height: 1.2; letter-spacing: -1px; }
-.heading-large  { font-family: 'TT Hoves', sans-serif; font-size: 60px; font-weight: 400; line-height: 1.2; letter-spacing: -1px; }
-.heading-medium { font-family: 'TT Hoves', sans-serif; font-size: 48px; font-weight: 400; line-height: 1.2; letter-spacing: -1px; }
-.heading-small  { font-family: 'TT Hoves', sans-serif; font-size: 40px; font-weight: 400; line-height: 1.2; letter-spacing: 0; }
-.heading-xs     { font-family: 'TT Hoves', sans-serif; font-size: 36px; font-weight: 400; line-height: 1.2; letter-spacing: 0; }
-
-/* Body */
-.body-xl     { font-family: 'TT Hoves', sans-serif; font-size: 40px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
-.body-large  { font-family: 'TT Hoves', sans-serif; font-size: 24px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
-.body-medium { font-family: 'TT Hoves', sans-serif; font-size: 20px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
-.body-small  { font-family: 'TT Hoves', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
-
-/* Extras */
-.overline { font-family: 'TT Hoves', sans-serif; font-size: 60px; font-weight: 400; line-height: 1.2; letter-spacing: -1px; color: #2237F1; }
-.cta      { font-family: 'TT Hoves', sans-serif; font-size: 40px; font-weight: 400; line-height: 1.2; letter-spacing: -1px; color: #2237F1; }
-.caption  { font-family: 'TT Hoves', sans-serif; font-size: 14px; font-weight: 400; line-height: 1.5; }
-.legal    { font-family: 'TT Hoves', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.5; }
-.link     { font-family: 'TT Hoves', sans-serif; font-size: 16px; font-weight: 400; color: #2237F1; }
-
-/* Dark background body opacity variant */
-.body-muted { color: rgba(246, 247, 254, 0.6); } /* use on body copy on #010313 backgrounds only */
-```
-
----
-
-## 3. Border Radius
-
-**Always 0. Midwestern uses sharp corners on all elements — no exceptions.**
-
-```css
-* { border-radius: 0; }
-```
-
-This applies to: buttons, cards, inputs, modals, badges, images, containers, chips — everything. Never round any corner unless explicitly overriding for a specific technical reason (e.g. a circle avatar).
-
----
-
-## 4. Spacing
-
-### System
-
-Midwestern uses an **8pt grid system**. Base unit is 8px (token `5`). All spacing, padding, margin, and gap values must come from this scale — never use arbitrary values.
-
-### Scale
-
-| Token | px | Multiple | Common use |
-|---|---|---|---|
-| `--0` | 0px | 0 | No spacing |
-| `--1` | 1px | 0.125 | Hairlines, borders |
-| `--2` | 2px | 0.25 | Fine borders |
-| `--3` | 4px | 0.5 | Tight internal gaps |
-| `--4` | 6px | 0.75 | Small icon padding |
-| `--5` | 8px | **1 (Base)** | Default tight gap |
-| `--6` | 12px | 1.5 | Compact padding |
-| `--7` | 16px | 2 | Small padding, inline gaps |
-| `--8` | 20px | 2.5 | Button padding (y-axis) |
-| `--9` | 24px | 3 | Component internal padding |
-| `--10` | 32px | 4 | Section element gaps |
-| `--11` | 40px | 5 | Generous padding |
-| `--12` | 48px | 6 | Section padding, page insets |
-| `--13` | 56px | 7 | Large section gaps |
-| `--14` | 64px | 8 | Page-level padding, hero spacing |
-
-### CSS Custom Properties
-
-```css
-:root {
-  --0:  0px;
-  --1:  1px;
-  --2:  2px;
-  --3:  4px;
-  --4:  6px;
-  --5:  8px;   /* base unit */
-  --6:  12px;
-  --7:  16px;
-  --8:  20px;
-  --9:  24px;
-  --10: 32px;
-  --11: 40px;
-  --12: 48px;
-  --13: 56px;
-  --14: 64px;
-}
-```
-
-### Usage Rules
-
-- **Only use tokens from this scale** — never hardcode arbitrary px values like `10px`, `15px`, `18px`
-- **8px is the default minimum** comfortable spacing between distinct UI elements
-- **Page-level padding** uses `--12` (48px) or `--14` (64px)
-- **Component internal padding** uses `--9` (24px) or `--10` (32px)
-- **Tight inline gaps** (icon + label, badge spacing) use `--5` (8px) or `--6` (12px)
-
----
-
-## 5. Deck / Presentation Rules
-
-### Background
-Decks are always **dark mode** — full `#010313` background on every slide. No light slides.
-
-### Slide Anatomy
-
-Every slide follows the same structure:
-
-**Top-left — Slide title**
-- Section label: 20px TT Hoves, `rgba(246,247,254,0.5)` — sits just above the title
-- Title: 60px TT Hoves Regular, white `#F6F7FE`, tracking -1px
-
-**Bottom — Footer bar (present on every slide)**
-- Thin top border: `1px rgba(246,247,254,0.4)`
-- Left: slide number · deck name · section name at 50% opacity — all TT Hoves, 16px
-- Right: Midwestern logo mark
-
-**Content area — full bleed between title and footer**
-
-### Colors in Decks
-
-- **Primary text**: white `#F6F7FE`
-- **Secondary / muted text**: `rgba(246,247,254,0.5)` — 50% opacity white
-- **Descriptive body text**: `rgba(246,247,254,0.6)` — 60% opacity white
-- **Accent highlight** (key numbers, callout values): green `#C7FA50`
-- **Accent blocks** (image backgrounds, feature panels): blue `#2237F1`
-- **Step/numbered badges**: green `#C7FA50` fill, black `#010313` text
-- **Label chips**: `rgba(246,247,254,0.1)` semi-transparent fill, white text
-
-### Cards & Containers
-- Borders: `0.75px solid rgba(246,247,254,0.5)`
-- No border-radius — sharp corners always
-- Internal padding: 40px
-
-### Typography in Decks
-- Everything is TT Hoves — Regular for body/headings and supporting text, Medium for emphasis
-- No DM Mono, DM Sans, Space Grotesk, or any other typeface
-
-### Layout Patterns
-
-**Card grid** — the most common layout. Equal-width cards side by side (2, 3, or 4 columns), each with: small label chip top-left, title, supporting text, optional illustration or stat at bottom. Cards use `0.75px border rgba(246,247,254,0.5)`.
-
-**Numbered row groups** — content grouped into rows (01/02/03), each row separated by a thin `rgba(246,247,254,0.6)` horizontal line. Large muted number (48px, 50% opacity) anchors left, cards or tiles fill the right.
-
-**Split layout** — left column has title + body text, right area has the primary content (cards, diagrams, charts). Common ratio is roughly 40/60 or 30/70.
-
-**Stat + diagram** — large percentage or number (60px) on the left with a category label, dashed connector line leading to a diagram or chart filling the right side.
-
-**Timeline / Gantt** — horizontal phase bars on a vertical dashed-line grid. Blue bars = primary/active phases, white = completed, grey = future/secondary. Labels above bars.
-
-**Blue full-bleed content block** — blue (`#2237F1`) fills a large content area (not the whole slide) for process diagrams or featured visuals. White TT Hoves text sits on top.
-
-### Illustration Style
-Midwestern uses a **line art / technical drawing** style — thin white strokes, minimal fill, geometric shapes. Precise, clean, organized. Used as the lower-half visual in cards and as full diagram slides. No gradients, no 3D renders, no drop shadows.
-
----
-
-## How to Apply This Skill
-
-**For HTML/CSS components**: Reference the color tokens above. Default to light mode (white background, black text). Use blue for interactive/accent elements. Use green only for the rarest highlights.
-
-**For dark mode**: Swap `--background` to `#010313` and `--foreground` to `#F6F7FE`. Keep blue and green accent usage the same.
-
-**For data viz / charts**: Use white background, black for primary data, blue for the highlighted/key series, green only for the single most important callout value.
-
-**For typography**: Always TT Hoves. Sentence case only. Use Display/Heading styles for titles (LH 1.2), Body styles for paragraphs (LH 1.5). Color overlines, CTAs, and links in blue (`#2237F1`). Never use headings in all-caps or title case.
-
-**For border radius**: Always 0. No rounded corners on anything.
-
-**For spacing**: Only use values from the spacing scale. Reference tokens (`--5` through `--14`) rather than hardcoding px values. Page padding = `--12`/`--14`. Component padding = `--9`/`--10`. Tight gaps = `--5`/`--6`.
+| Any task with copy (all of them) | `references/brand.md` first: "What we sell", voice, the three kinds of content, placeholders | |
+| Deck, slides, presentation, pitch | `references/decks.md` | `templates/deck.html` |
+| One-pager, leave-behind, handout, service sheet | `references/documents.md` | `templates/one-pager.html` |
+| Proposal, SOW, pricing, project plan | `references/documents.md` | `templates/proposal.html` |
+| Case study, client story | `references/documents.md` | `templates/case-study.html` |
+| Internal report, metrics summary, review | `references/documents.md` | `templates/report.html` |
+| Other document (memo, brief, agenda) | `references/documents.md` | closest document template |
+| PowerPoint, Google Slides, Google Docs, Word | `decks.md` or `documents.md` (conversion tables at the end), `references/fonts.md` | same layouts |
+| Font question or font trouble | `references/fonts.md` | |
+| Colors, logo, voice, what to call things | `references/brand.md` | |
+| Unsure whether something is on-style | `references/style.md` (rules and the avoid list) | |
+| Setting up Claude Design | `references/claude-design.md` | |
+
+Do not read every file. The templates already carry the styles; you only need the reference for the medium you are building. `templates/mw.css` holds the same CSS as the templates and is only needed when no template fits.
+
+## Build rules
+
+1. **Start from a template.** Copy the template file and fill it. Never write a Midwestern deck or document from a blank page, and never restyle a template.
+2. **Pick a layout per slide or page from the catalog.** Choose by what the content is (one number, a process, a comparison), not by what looks full.
+3. **One idea per slide, one section per page.** Titles go at the top and state the point.
+4. **Stay inside the word budget in each SLOT comment.** When copy does not fit, cut words first, then split into two slides or pages. Never shrink type, tighten spacing, or add columns to make it fit.
+5. **Never go below the minimum size.** Documents: 10.5px for any content. Slides: 24px for any content. The footer is the only smaller text.
+6. **Use the markers.** SLOT = replace the text. REPEAT = copy or delete the whole block within its count. OPTIONAL = delete the block cleanly if you have nothing true to put in it. DATA = change the number in the style attribute and retype the printed value.
+7. **Only real content, in three kinds.** **User facts** (anything in the request: client, team size, price, dates, results) are real: use them, never replace them with a Placeholder. **Draft content** (phases, deliverables, features, approach, team roles, a story consistent with the user facts, recommendations, a milestone split of a sample price) is yours to write plainly and list in the handover as draft to confirm. **Midwestern facts** (proof points, company figures, terms on a real price, named people, contacts, quotes, client names, guarantees, response times) are never invented. Sample status follows the number. The proof points, typical delivery windows and never guarantees, written "in under" or "typically": embedded talent placed onto a team **in under 2 weeks (under 10 business days)**; recruiting, client-facing, **"fill a role in under 20 days"** (internal form: full-time roles in under 3 weeks, under 15 business days). A missing Midwestern fact is "Placeholder: what is missing" at body or label size on one line, never in a title, statement, display or lead slot; if a title would have to be a Placeholder, delete the slide or block or ask. Sample numbers are marked in the footer name (", sample data") and the first kicker where they appear, nowhere else. Notes for the user go in the handover, never on the page. Never invent a number to fill a page. A sample breakdown of user totals is allowed only when the user said sample data is acceptable; label it on the block itself ("Detail, sample split" in the kicker or a caption "Sample split of September totals") and list it in the handover. The ask (the action you want the reader to take) is draft content: write it for client decks and one-pagers. The contact is a Midwestern fact: use the user's or write "Placeholder: name, email, phone" at body size. Internal decks end on their last content slide unless the user named the decision.
+8. **Check the page does not spill.** Open or render the file. A red frame on a page or slide means its content overflows: cut copy until no frame shows.
+9. **Say each fact once, never by deleting substance.** A number or claim appears at most twice in a piece. The headline states the outcome in words; the figure carries the number, with its qualifier and unit, and its label says what was measured. That pairing is one mention, and it is the default for covers, one-pagers and case studies ("Full-time engineers hired before the roadmap slips" over a figure "Under 20 days", labelled "typical time to fill a role"). A figure row and a chart on one page never show the same numbers: turn the repeat into a rate. If deleting a repeat would leave a page without its figure, table or chart, reword the headline instead. Never pad; never go below an explicit count without saying so.
+10. **Titles state the finding.** "Design roles take longest to fill", not "By role family". Replace every sample title in the template.
+
+## The style in brief
+
+Swiss editorial: type on a strict grid, a lot of designed white space, flush-left ragged-right text, one weight, one accent with one meaning. Hierarchy comes from size and space, never from boxes, lines or bold.
+
+- **Grid.** Documents: US Letter, 4 columns of 164px, 16px gutters, 56px margins. Slides: 1920 x 1080, 12 columns, 32px gutters, 96px sides. Everything starts on a column line.
+- **Type.** Short fixed scales (documents 8.5 to 80px, slides 20 to 280px), Regular weight only, sentence case, tabular figures.
+- **Color.** Documents on white paper `#FFFFFF`; decks dark `#010313` by default. Blue `#2237F1` means the decision or next step, nothing else (the ask, the closing slide, the investment page; a cover field is the one exception). The key bar in a chart is near-black on paper, green on dark. Green `#C7FA50` is one highlight on a dark slide, at most. Never blue on near-black.
+- **Lines.** 0.5pt, only in real tables and one chart axis.
+- **Color pages.** A document gets at most 1 dark and 2 blue pages; a deck at most 2 blue slides. They carry the most important content.
+- **Numbers.** A big numeral only when the number is the message; its unit small and muted beside it.
+- **Logo.** The inline wordmark in `currentColor`: top right on covers, bottom left in footers, never on blue or green.
+
+Never produce: card grids of bordered boxes, rounded corners, gradients, shadows, blur, emoji or icon-in-circle rows, pill badges, centered layouts, boxes around blocks, lines between every row, rules heavier than 0.5pt, blue overlines on headings, stock-photo placeholders, KPI tiles, decorative shapes, bold, ALL CAPS or Title Case. The full list with fixes is in `references/style.md`.
+
+## Fonts
+
+- Stack everywhere: `'TT Hoves', 'DM Sans', 'Helvetica Neue', Arial, sans-serif`.
+- TT Hoves is the brand font and loads only from the viewer's installed copy (`local()`). Never embed, bundle, upload or ask for the TT Hoves file: the license forbids it.
+- DM Sans is the approved fallback, loaded from Google Fonts in HTML and bundled in `assets/fonts/dm-sans/` for offline, PDF and sandbox use. The templates tune it to TT Hoves widths so layouts do not reflow. Never edit the MW FONTS block; for offline use, copy the font beside the HTML (see Delivering).
+- **Never refuse DM Sans, and never substitute any other font.**
+- PPTX, Google Slides, Docs, Word: set TT Hoves only if the user has it installed; otherwise DM Sans (built into Google Slides and Docs).
+
+## Delivering
+
+- **claude.ai artifact:** output the filled template as a single HTML artifact. Nothing to do for fonts: Google Fonts loads DM Sans. For a PDF, tell the user: open the file in Chrome, Print, Save as PDF, margins None, background graphics on.
+- **Any render in a sandbox, Claude Code or Cowork (HTML to PDF or PNG):** first copy `assets/fonts/dm-sans/DMSans-Variable.ttf` into a `fonts/` folder next to the HTML (the sandbox may have no network). Then render with headless Chrome, look at the result, and hand over.
+- **Before handover:** delete the SLOT, REPEAT, OPTIONAL and DATA comments.
+- **Say what you did not fill:** every Placeholder, sample number, and missing image, plus the draft content to confirm.
+
+## Self-check before you present
+
+Run every line. Fix and re-check anything that fails.
+
+- [ ] Built from a template; every slide or page uses a catalog layout.
+- [ ] Font stack is `'TT Hoves', 'DM Sans', 'Helvetica Neue', Arial, sans-serif`; the MW FONTS block is untouched; no TT Hoves file is embedded or linked.
+- [ ] No banned style: no boxes, cards, pills, icons, rounded corners, shadows, gradients, centered blocks, lines between rows, rules over 0.5pt, decorative shapes.
+- [ ] Regular weight only; no bold, no italic.
+- [ ] Nothing below the minimum size (documents 10.5px, slides 24px; footer excepted), and no inline font-size overrides.
+- [ ] Every block starts on a grid column (`at-N` / `w-N` classes, no pixel nudges or inline margins).
+- [ ] No red spill frame on any page or slide; no page ends with 1 or 2 stray lines; PDF page count equals frame count.
+- [ ] Sentence case on every title, heading and label. Titles at the top, stating the point.
+- [ ] Blue used for one meaning; no blue on near-black; green at most once per dark slide; color pages within their limit.
+- [ ] Logo present (cover and footers), in `currentColor`, not on blue or green.
+- [ ] Proof points in their approved form ("under 20 days" for client-facing recruiting), never as a guarantee; user facts used, not replaced; no invented Midwestern facts; sample data in the footer name and first kicker only; "Midwestern", never "MWI"; website `midwestern.com`.
+- [ ] Every Placeholder is at body or label size on one line; none in a title, statement, display or lead slot.
+- [ ] Every document page carries a figure, table, chart or real rows, or is a deliberate cover or statement page; no page ends above the midline with an empty tail.
+- [ ] No contrast framing ("X, not Y", "rather than") and no parentheses in titles or display type.
+- [ ] No number or claim appears more than twice; no figure repeats the title or the chart; no two slides say the same thing.
+- [ ] No title is a topic label; each title could be the only line a reader sees.
+- [ ] One logo per page; nothing pinned to the page foot with a void above it; no notes to the user on the page.
+- [ ] Every SLOT filled, no leftover template sample text (Larkspur Freight, Priya Natarajan, sample titles), unused OPTIONAL blocks deleted.

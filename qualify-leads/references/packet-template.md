@@ -6,7 +6,9 @@ Target: one screen plus the committee table, about 250 to 450 words of prose. Sm
 
 **Never include:** connection notes, LinkedIn messages, email drafts, DMs, call scripts, a numeric score. If JK asks for a message in a given run, that is a separate one-off request.
 
-**Facts come from the work files, not memory:** headcount, roles, and CRM text from `work/05-qualified.csv` and the research rows; committee emails and **email status copied from `python3 <skill>/scripts/committee_status.py --run <run> --company <company_key_final>`** (read only). That is the same string the CSV and `08-committee-status.csv` carry: the visitor's status comes from the visitor's CSV row, and a committee member already in HubSpot reads "From HubSpot". Packet workers never run `assemble.py`; the orchestrator runs it once after all packets, and gate 4 compares every packet email and status with it.
+An Enterprise company gets a packet only when it is in Tier 1 as Contact now; an Enterprise account play goes to the HubSpot owner with no packet.
+
+**Facts come from the work files, not memory:** headcount, Company size, roles, and CRM text from `work/05-qualified.csv` and the research rows; committee emails and **email status copied from `python3 <skill>/scripts/committee_status.py --run <run> --company <company_key_final>`** (read only). That is the same string the CSV and `08-committee-status.csv` carry: the visitor's status comes from the visitor's CSV row, and a committee member already in HubSpot reads "From HubSpot". Packet workers never run `assemble.py`; the orchestrator runs it once after all packets, and gate 4 compares every packet email and status with it.
 
 **Copy rules:** brand voice from the Marketing Hub's Messaging Patterns note. No "brokers", "staffing firm", "staffing partner", or "outsource". No em dashes, en dashes, or " -- ". No contrast flips ("didn't X; it Y"), no "isn't X, it's Y", no validation openers. Quote "How this account reached us" verbatim from the `What they did` column; RB2B proves a page view only, so never write "submitted", "requested", or "filled out" unless the touch was a form fill. Use the proof points from the Hub's Proof Points note as written: full-time roles recruited in under 3 weeks (under 15 business days); embedded talent placed onto a team in under 2 weeks (under 10 business days).
 
@@ -31,6 +33,7 @@ For [[<Owner>]] as of YYYY-MM-DD. Action: <Contact now | Account play>.
 
 ## Overview
 <2 to 3 sentences: what they do, domain, HQ, headcount with its source and month.>
+Company size: <Company size from the CSV, e.g. Mid-market>.
 How this account reached us: <What they did, verbatim>, <touch date>.
 <The CRM status sentence from the CSV.>
 

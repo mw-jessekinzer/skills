@@ -85,7 +85,7 @@ class SizeAndCodes(unittest.TestCase):
         rows = p1(run)
         self.assertEqual(rows[lid(1)]["rb2b_size_flag"], "rb2b_says_over")
         self.assertEqual(rows[lid(2)]["rb2b_size_flag"], "")
-        self.assertNotIn("OVER_2000", rows[lid(1)]["pass1_codes"])
+        self.assertNotIn("OVER", rows[lid(1)]["pass1_codes"])
         comp = {c["company_key"]: c for c in C.read_csv(C.work(run, "02-companies.csv"))}
         self.assertEqual(comp["name:acme"]["triage_first"], "yes")
 

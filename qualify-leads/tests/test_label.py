@@ -11,37 +11,156 @@ import checks
 
 
 class Cyera(unittest.TestCase):
-    """About 1,771 from knowledge must never read as over 2,000."""
+    """About 1,771 from knowledge is a Mid-market company; size never drops it."""
 
     def setUp(self):
         self.run = run_rb2b([rb2b(237, "Dan McLaughlin", "Federal Civilian Sales Director", "Cyera",
                                   website="https://cyera.com", employees="1001-5000")])
         self.key = "name:cyera"
 
-    def test_triage_over_2000_on_1771_is_rejected(self):
+    def test_old_triage_size_drop_is_ignored(self):
         triage(self.run, self.key, company_name="Cyera", employees_best="1771", employees_text="about 1,771",
                us_company="yes", triage="Drop", drop_code="OVER_2000", why="About 1,771 in Mar 2026")
         r = label(self.run)[0][lid(237)]
-        self.assertNotIn("OVER_2000", r["reason_codes"])
-        self.assertNotIn("2,000 cap", r["why"])
-        self.assertEqual(r["size_status"], "straddles")
-        self.assertIn("OVER_2000 ignored", r["label_warnings"])
+        self.assertNotIn("OVER", r["reason_codes"])
+        self.assertNotEqual(r["action"], "Drop")
+        self.assertEqual(r["company_size"], "Mid-market")
+        self.assertIn("triage size drop ignored: size never drops; research it", r["label_warnings"])
 
-    def test_knowledge_1771_straddles_and_tier_b_1550_is_under(self):
+    def test_knowledge_1771_is_mid_market_and_strong(self):
         company(self.run, self.key, company_key_final="cyera.com", domains="cyera.com", us_company="yes",
                 employees_best="1771", employees_text="about 1,771", size_tier="C", hiring_checked="ats_api",
                 open_roles_total="12", open_tech_roles="9", open_tech_roles_us="4")
         person(self.run, lid(237), works_there="likely", buyer_role="no", buyer_role_why="federal sales")
         r = label(self.run)[0][lid(237)]
-        self.assertEqual(r["size_status"], "straddles")
-        self.assertEqual(r["account_strength"], "Weak")
-        self.assertNotIn("OVER_2000", r["reason_codes"])
-        self.assertEqual(r["action"], "Low priority")  # size unconfirmed is a gap, not a Drop
-        override(self.run, "company", "cyera.com", "employees_best", "1550")
-        override(self.run, "company", "cyera.com", "size_tier", "B")
-        r = label(self.run)[0][lid(237)]
-        self.assertEqual(r["size_status"], "verified_under")
+        self.assertEqual((r["company_size"], r["account_strength"]), ("Mid-market", "Strong"))
         self.assertEqual((r["verdict"], r["action"], r["primary_code"]), ("Not qualified", "Account play", "UNRELATED_TITLE"))
+
+
+class CompanySize(unittest.TestCase):
+    """JK ruling 2026-10-12: no size cap. Size is a descriptive tier; Enterprise reaches
+    Tier 1 only as Contact now."""
+
+    def size(self, emp, signals=""):
+        return L.company_size(emp, L.parse_signals(signals), C.parse_date(AS_OF))
+
+    def test_constants(self):
+        self.assertEqual((C.ENTERPRISE_MIN, C.MIDMARKET_MIN, C.STARTUP_FUNDING_MONTHS), (5000, 500, 24))
+        self.assertEqual(C.COMPANY_SIZES, ["Enterprise", "Mid-market", "Growth startup", "Small business", "Unknown"])
+        for gone in ("SIZE_CAP", "SIZE_OVER_ESTIMATE", "SIZE_VERIFY_FROM", "OVER_CODE"):
+            self.assertFalse(hasattr(C, gone), gone)
+        self.assertFalse(hasattr(L, "size_status"))
+
+    def test_tier_boundaries(self):
+        self.assertEqual(self.size(499), "Small business")
+        self.assertEqual(self.size(500), "Mid-market")
+        self.assertEqual(self.size(4999), "Mid-market")
+        self.assertEqual(self.size(5000), "Enterprise")
+        self.assertEqual(self.size(543000), "Enterprise")
+        self.assertEqual(self.size(None), "Unknown")
+
+    def test_growth_startup_funding_window(self):
+        # as of 2026-09: 2024-10 is 23 months back, 2024-08 is 25
+        self.assertEqual(self.size(120, "2024-10 funding: $20M Series A (press)"), "Growth startup")
+        self.assertEqual(self.size(120, "2024-08 funding: $20M Series A (press)"), "Small business")
+        self.assertEqual(self.size(120, "2026-01 launch: new product (press)"), "Small business")
+        self.assertEqual(self.size(800, "2026-01 funding: $50M Series C (press)"), "Mid-market")
+
+    def test_tier_c_figure_counts_and_bands(self):
+        run = run_rb2b([rb2b(1, "A B", "CTO", "Bigco")])
+        company(run, "name:bigco", **dict(GOOD, employees_best="12000", size_tier="C"))
+        r = label(run)[0][lid(1)]
+        self.assertEqual((r["company_size"], r["size_band"]), ("Enterprise", "5,000+"))
+        self.assertEqual(L.size_band(4999), "2,000-4,999")
+        self.assertEqual(L.size_band(None), "Unknown")
+
+    def test_parent_rule_is_enterprise_any_tier(self):
+        def ent(emp, tier):
+            return L.parent_enterprise({"parent_centralized": "yes", "parent_employees": str(emp), "parent_tier": tier})
+        self.assertFalse(ent(4999, "A"))
+        self.assertTrue(ent(5000, "C"))
+        self.assertTrue(ent(14000, "B"))
+
+    def test_triage_size_drop_is_not_a_drop(self):
+        for code in ("OVER_2000", "OVER_SIZE_CAP"):
+            run = run_rb2b([rb2b(1, "A B", "Sales Manager", "Bigco")])
+            triage(run, "name:bigco", company_name="Bigco", employees_best="543000", employees_text="about 543,000",
+                   us_company="yes", triage="Drop", drop_code=code, why="Large enterprise")
+            r = label(run)[0][lid(1)]
+            self.assertEqual((r["company_size"], r["action"]), ("Enterprise", "Low priority"), code)
+            self.assertIn("triage size drop ignored: size never drops; research it", r["label_warnings"])
+            g = checks.gate2(run)
+            self.assertEqual([f for f in g.fails if "drop_code" in f or "size" in f], [], code)
+
+    def test_research_beats_a_triage_size_drop(self):
+        run = run_rb2b([rb2b(1, "A B", "CTO", "Bigco")])
+        triage(run, "name:bigco", company_name="Bigco", employees_best="12000", us_company="yes",
+               triage="Drop", drop_code="OVER_2000", why="Large enterprise")
+        company(run, "name:bigco", **GOOD)
+        r = label(run)[0][lid(1)]
+        self.assertEqual(r["company_size"], "Small business")
+        self.assertEqual(r["label_warnings"], "")
+
+    def enterprise(self, title="Sales Manager", buyer="no", signals="2026-06 launch: new platform (press)", **extra):
+        run = run_rb2b([rb2b(1, "A B", title, "Deloitte", email="ab@deloitte.com")])
+        company(run, "name:deloitte", **dict(GOOD, **dict(dict(
+            company_key_final="deloitte.com", domains="deloitte.com", employees_best="543000",
+            employees_text="about 543,000", need_signals=signals), **extra)))
+        person(run, lid(1), works_there="confirmed", buyer_role=buyer, email_found="ab@deloitte.com",
+               email_risk="A", email_validated_at="2026-09-10")
+        return run
+
+    def test_enterprise_account_play_goes_to_the_owner(self):
+        run = self.enterprise()
+        crm_company(run, "deloitte.com", hs_company_id="5", match_type="domain", owner_name="Derris Butler",
+                    owner_active="yes")
+        rows, roll, tier1 = label(run)
+        r = rows[lid(1)]
+        self.assertEqual((r["account_strength"], r["action"]), ("Medium", "Tell account owner"))
+        self.assertEqual(r["next_step"], "Route to Derris Butler, the HubSpot owner; enterprise account, no packet.")
+        self.assertEqual(tier1, [])
+        self.assertEqual(roll[0]["company_size"], "Enterprise")
+
+    def test_enterprise_without_owner(self):
+        r = label(self.enterprise())[0][lid(1)]
+        self.assertEqual(r["action"], "Tell account owner")
+        self.assertEqual(r["next_step"], "Enterprise account: find the owner or AE before any outreach.")
+
+    def test_enterprise_contact_now_enters_tier_1(self):
+        rows, _, tier1 = label(self.enterprise(title="CTO", buyer="yes"))
+        self.assertEqual((rows[lid(1)]["verdict"], rows[lid(1)]["action"]), ("Qualified", "Contact now"))
+        self.assertEqual([(t["company_key_final"], t["tier1_reason"]) for t in tier1], [("deloitte.com", "Contact now")])
+
+    def test_enterprise_strength_ignores_role_counts(self):
+        r = label(self.enterprise(signals="", open_tech_roles="400", open_tech_roles_us="300"))[0][lid(1)]
+        self.assertEqual(r["account_strength"], "Weak")
+        self.assertEqual(r["action"], "Low priority")  # never a Drop for size
+        r = label(self.enterprise(signals="", hiring_checked="not_checked", open_roles_total="",
+                                  open_tech_roles="", open_tech_roles_us=""))[0][lid(1)]
+        self.assertNotIn("GAP_HIRING", r["reason_codes"])
+        self.assertEqual(r["action"], "Low priority")
+        run = self.enterprise(signals="")
+        label(run)
+        self.assertEqual([f for f in checks.gate2(run).fails if "Enterprise" in f or "Drop" in f], [])
+
+    def test_qualified_needs_no_a_b_size(self):
+        run = run_rb2b([rb2b(5, "Pat Lee", "CTO", "Acme Robotics", email="pat@acmerobotics.com")])
+        company(run, "name:acme robotics", company_key_final="acmerobotics.com", domains="acmerobotics.com",
+                **dict(GOOD, size_tier="C", need_signals="2025-06 funding: $12M Series A (press)"))
+        person(run, lid(5), works_there="confirmed", buyer_role="yes", email_found="pat@acmerobotics.com",
+               email_risk="A", email_validated_at="2026-09-10")
+        r = label(run)[0][lid(5)]
+        self.assertEqual((r["verdict"], r["action"], r["company_size"]), ("Qualified", "Contact now", "Growth startup"))
+        self.assertEqual([f for f in checks.gate2(run).fails if lid(5) in f], [])
+
+    def test_gate_catches_a_growth_startup_without_funding(self):
+        run = run_rb2b([rb2b(1, "A B", "CTO", "Acme")])
+        company(run, "name:acme", **GOOD)
+        label(run)
+        rows = C.read_csv(C.work(run, "05-qualified.csv"))
+        rows[0]["company_size"] = "Growth startup"
+        C.write_csv(C.work(run, "05-qualified.csv"), rows, L.QUALIFIED_FIELDS)
+        self.assertTrue(any("Growth startup" in f for f in checks.gate2(run).fails))
 
 
 class MoMA(unittest.TestCase):
@@ -74,7 +193,8 @@ class MoMA(unittest.TestCase):
                triage="Drop", drop_code="STRUCTURAL_NO_NEED", why="Museum with no tech hiring need found.")
         r = label(self.run)[0][lid(320)]
         self.assertNotIn("STRUCTURAL_NO_NEED", r["reason_codes"])
-        self.assertEqual(r["action"], "Low priority")
+        # only hiring is open at a US company, so Review (a tier C size is no longer a gap, JK 2026-10-12)
+        self.assertEqual(r["action"], "Review")
         self.assertIn("STRUCTURAL_NO_NEED ignored", r["label_warnings"])
 
 
@@ -305,10 +425,13 @@ class MissingEvidenceNeverDrops(unittest.TestCase):
         self.assertIn("Hiring not checked", r["why"])
         self.assertIn("before deciding on an account play", r["next_step"])
 
-    def test_unreadable_board_and_unknown_size_go_to_low_priority(self):
+    def test_unreadable_board_reviews_and_unknown_us_base_parks(self):
+        # a tier C size is no longer a gap (JK 2026-10-12): only hiring is open, so Review
         r = self.row(hiring_checked="none_found", employees_best="1771", size_tier="C")
-        self.assertEqual(r["action"], "Low priority")
+        self.assertEqual(r["action"], "Review")
         self.assertIn("GAP_HIRING_UNREAD", r["reason_codes"])
+        r = self.row(hiring_checked="none_found", us_company="unknown")
+        self.assertEqual(r["action"], "Low priority")
 
     def test_confirmed_absence_is_drop(self):
         r = self.row(hiring_checked="ats_api", open_roles_total="0", open_tech_roles="0", open_tech_roles_us="0")

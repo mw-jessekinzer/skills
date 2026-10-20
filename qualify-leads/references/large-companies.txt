@@ -1,7 +1,8 @@
-# Well-known employers with 5,000+ staff. A lead whose company name matches one of
-# these (after normalizing) goes to knowledge triage first, which confirms it and drops it
-# as OVER_2000 or keeps it for research. Used for sources with no size field (social,
-# campaign lists). One name per line; add variants people actually type.
+# Well-known enterprises. A lead whose company name matches one of these (after normalizing)
+# goes to knowledge triage first, only to confirm the company's size and identity. Size never
+# drops a company: these are real prospects (Enterprise tier, light research pass). Used for
+# sources with no size field (social, campaign lists). One name per line; add variants people
+# actually type.
 Amazon
 Amazon Web Services
 AWS
@@ -84,7 +85,6 @@ Disney
 The Walt Disney Company
 Netflix
 Uber
-Lyft
 FedEx
 UPS
 General Motors

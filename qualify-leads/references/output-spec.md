@@ -6,10 +6,11 @@
 
 UTF-8 with BOM, one row per canonical row, sorted by rank, plain-English headers:
 
-Rank, Action, Verdict, Account strength, Why this verdict, Next step, Watch-outs, Name, Title, Company, Website, What the company does, Employees, Size band, Headcount source, US company, Hiring, Open tech roles (US), Example open roles, Need signals, Best service fit, Source, What they did, Touch date, Intent, CRM status, HubSpot owner, Suggested owner, Buyer to target, Email, Email status, LinkedIn, Confidence, City, State, Sources, Reason code, Lead ID.
+Rank, Action, Verdict, Account strength, Why this verdict, Next step, Watch-outs, Name, Title, Company, Website, What the company does, Employees, Company size, Size band, Headcount source, US company, Hiring, Open tech roles (US), Example open roles, Need signals, Best service fit, Source, What they did, Touch date, Intent, CRM status, HubSpot owner, Suggested owner, Buyer to target, Email, Email status, LinkedIn, Confidence, City, State, Sources, Reason code, Lead ID.
 
 - `Name` is "(company only)" on company rows; `Company` is never blank ("(unidentified)").
 - `What they did` is the template phrase from `classify.py`, word for word.
+- `Company size` is one of Enterprise (5,000+), Mid-market (500 to 4,999), Growth startup (under 500 with an equity round in the last 24 months), Small business (under 500, no recent round), Unknown. It describes the account; it never drops or lowers a row. An Enterprise account play reads `Tell account owner` with the HubSpot owner in Next step, and gets no packet.
 - `Watch-outs` carries script notes a rep should see (today: tech roles that are all outside the US, which point to embedded global talent).
 - `Suggested owner` is the active HubSpot owner, else "Jesse Kinzer" with the segment owner in brackets (fintech Kent Richeson; banks, insurance, wealth Derris Butler; Faith and Flourishing Spencer Hahn; proptech and construction Blake Fisher; cloud infrastructure Shiley Johnson; other Derris Butler). Blank on Drop rows.
 - `Email status` uses only the ten statuses in `label-spec.md`; the word "verified" appears only for qualifying statuses.
@@ -57,7 +58,7 @@ Sections, in this order (headings start at `##`):
 7. **CRM follow-ups**: `- [ ]` checkboxes from `crm_followups` (inactive owners, unowned records, name-only matches, contacts left out of the import).
 8. **Data caveats**: the actual date range and zero-row days, what the source proves (RB2B: one page view per row, no UTMs, no submissions; social: reactions carry no timestamp; lists: how people joined), anything not checked.
 9. **Vendor spend**: the `ledger.py summary` table.
-10. **Rulings used**: the defaults JK can flip (personal email rule, TA titles are buyers, company-only rows cap at Insufficient data, ad landing pages from paid referrers read as Low intent, 18-month need window, offshore-only tech hiring counts as demand, missing evidence parks a row instead of dropping it, Tier 1 cap of 8).
+10. **Rulings used**: the defaults JK can flip (personal email rule, TA titles are buyers, company-only rows cap at Insufficient data, ad landing pages from paid referrers read as Low intent, 18-month need window, offshore-only tech hiring counts as demand, missing evidence parks a row instead of dropping it, no size cap (Company size is descriptive; Enterprise reaches Tier 1 only as Contact now), Tier 1 cap of 8).
 11. **How this was built**: one paragraph.
 
 Tier 1 companies in `enrichment_skipped` (from `work/06-enrich-skipped.csv`) are listed in the Account plays table with the reason and no packet link. Zero-row days are only reported when `run.json` profiled them; for social runs say the touch dates are scraper batch dates.

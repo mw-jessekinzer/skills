@@ -311,13 +311,13 @@ class T5LabelFixes(unittest.TestCase):
 
     def test_reason_text_uses_the_number_and_never_cuts_a_sentence(self):
         run = run_rb2b([rb2b(597, "K R", "Sales", "Knock"), rb2b(594, company="Project Return")])
-        company(run, "name:knock", us_company="yes", employees_best="6500", employees_text="Knock unit small; parent large",
-                size_tier="A")
+        company(run, "name:knock", us_company="yes", employees_best="45", employees_text="Knock unit small; parent large",
+                size_tier="A", can_buy="no")
         triage(run, "name:project return", company_name="Project Return Peer Support Network", employees_best="40",
                us_company="yes", triage="Drop", drop_code="STRUCTURAL_NO_NEED",
                why="County funded peer support nonprofit with no tech, product, or design need, and no software budget of any kind")
         rows = label(run)[0]
-        self.assertIn("about 6,500 employees", rows[lid(597)]["why"])
+        self.assertIn("(about 45 people)", rows[lid(597)]["why"])
         self.assertTrue(rows[lid(594)]["why"].endswith("nonprofit with no tech."))
 
 

@@ -2,6 +2,28 @@
 
 Every Clay action maps to a specific Deepline CLI tool or native play. Use actual tool IDs in every generated script — never generic descriptions.
 
+## Legacy payload reference — not runnable Play syntax
+
+The string-form `.withColumn(alias, tool, payload)` snippets below retain
+historical payloads, prompts, field paths, provider order, and validation
+semantics. They are **not** current callback-based Play examples. Do not paste
+them into a Play.
+Translate a selected recipe using `deepline plays --help`:
+`withColumn(alias, async (row, rowCtx) => ...)`, `rowCtx.tools.execute` with
+stable `id`, `tool`, typed `input`, and `description`, or `rowCtx.runPlay` for a
+prebuilt. Replace brace interpolation with typed row reads and use declared
+getters rather than assuming historical `.output.body` wrappers still exist.
+
+Unmigrated blocks remain below for person enrichment, cross-table filesystem
+joins, email waterfalls/validation/permutations, company-source Python passes,
+normalization, classification/AI/Octave prompts, campaign writes, and field
+interpolation. Their output getters, staging, and side-effect semantics need
+case-by-case contract validation before conversion; no faithful runnable
+replacement is claimed here. Retain their payload knowledge, but use
+[build, run and retrieve](../SKILL.md) in the GTM skill for authority and
+retrieval. Campaign writes require explicit authority; a provider miss does not
+authorize adding the fallback routes listed here.
+
 ## ⚠️ Tool Discovery Protocol — Read First
 
 **This mapping is a starting-point reference, not a guarantee.** Deepline adds new tools, native plays, and provider integrations continuously. The right mental model:
@@ -9,17 +31,17 @@ Every Clay action maps to a specific Deepline CLI tool or native play. Use actua
 **For every Clay action, the selection order is:**
 
 1. **Native play first** — check if a native Deepline play covers the action (they're stable, multi-provider, and cost-optimized). Current native plays: `name-and-domain-to-email-waterfall`, `company-to-contact`, and `person-to-phone`.
-2. **Search for a dedicated tool** — `deepline tools search "<intent>"` before hardcoding any individual provider tool. New tools are added regularly. Examples: `deepline tools search "qualify person ICP"`, `deepline tools search "octave"`, `deepline tools search "email verify"`, `deepline tools search "add leads campaign"`.
-3. **Verify the tool exists** - `deepline tools describe <tool_id>`. If it errors, the tool doesn't exist yet - use the `deeplineagent` fallback from this doc.
+2. **Search for a dedicated tool** — `deepline search "<input you have -> result you need>" --type tools` before hardcoding any individual provider tool. New tools are added regularly. Examples: `deepline search "person profile -> ICP qualification" --type tools`, `deepline search "email -> validation status" --type tools`, `deepline search "lead list -> leads added to a campaign" --type tools`.
+3. **Verify the tool exists** - `deepline describe <tool_id>`. If it errors, the tool doesn't exist yet - use the `deeplineagent` fallback from this doc.
 4. **Use the mapping below as a fallback** — when no native play or dedicated tool exists.
 
 ```bash
 # Standard discovery pattern before writing any play column
-deepline tools search "<action intent>"     # find current options
-deepline tools describe <candidate_tool_id> # verify it exists + see payload schema
+deepline search "<input you have -> result you need>" --type tools     # find current options
+deepline describe <candidate_tool_id> # verify it exists + see payload schema
 ```
 
-**Why this matters:** Deepline may add a native `octave_qualify_person`, `instantly_send_email`, or other integration at any time. Searching first means your script gets the better tool automatically — instead of being locked into a `deeplineagent` approximation.
+**Why this matters:** Deepline may add a native tool for a Clay action at any time. Searching first means your script gets the better tool automatically — instead of being locked into a `deeplineagent` approximation.
 
 ---
 
@@ -36,34 +58,34 @@ deepline tools describe <candidate_tool_id> # verify it exists + see payload sch
 
 ## Complete Action → Tool Mapping
 
-| Clay action key                                             | Deepline tool / native play                                                                                                                                                                                                                                                                                                                       | Notes                                                                                         |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `find-lists-of-companies-with-mixrank-source` (source type) | **Pass 1**: `crustdata_v3_company_search` — filters by location, employee count, industry, funding, and investors. Returns company name, domain, LinkedIn URL, HQ, funding, and firmographic fields. **Pass 2** (optional): `prospeo_enrich_company` — adds `description`, `employee_count`, `industry`, `type`. See Company Source section below. | Use `crustdata_v3_company_search_autocomplete` first for canonical filter values             |
-| `enrich-person-with-mixrank-v2`                             | `leadmagic_profile_search` → `crustdata_v3_person_enrich` waterfall                                                                                                                                                                                                                                                                               | See Person Enrichment section                                                                 |
-| `lookup-company-in-other-table`                             | `run_javascript` (local CSV join)                                                                                                                                                                                                                                                                                                                 | Export company table to CSV first                                                             |
-| `lookup-multiple-rows-in-other-table`                       | `run_javascript` (local CSV join)                                                                                                                                                                                                                                                                                                                 | Same pattern                                                                                  |
-| `chat-gpt-schema-mapper`                                    | `deeplineagent`; use `jsonSchema` when you need structured extraction                                                                                                                                                                                                                                                                             | Single-value classification                                                                   |
-| `normalize-company-name`                                    | `deeplineagent` or `run_javascript`                                                                                                                                                                                                                                                                                                               | JS preferred for pure string ops                                                              |
-| `generate-email-permutations`                               | `run_javascript`                                                                                                                                                                                                                                                                                                                                  | Pure compute, no provider                                                                     |
-| `validate-email` (all instances)                            | `leadmagic_email_validation` (one final gate)                                                                                                                                                                                                                                                                                                     | Skip per-step validation; validate once after waterfall                                       |
-| `wiza-find-email`                                           | `dropleads_email_finder` (waterfall step 1)                                                                                                                                                                                                                                                                                                       | Part of native play                                                                           |
-| `find-email-v2` (Hunter)                                    | `hunter_email_finder` (waterfall step 2)                                                                                                                                                                                                                                                                                                          | Part of native play                                                                           |
-| `leadmagic-find-work-email`                                 | `leadmagic_email_finder` (waterfall step 3)                                                                                                                                                                                                                                                                                                       | Part of native play                                                                           |
-| `findymail-find-work-email`                                 | `dropleads_email_finder` (waterfall fallback)                                                                                                                                                                                                                                                                                                     | Covered by native play                                                                        |
-| `enrich-person` (PDL)                                       | `peopledatalabs_enrich_contact` (waterfall step)                                                                                                                                                                                                                                                                                                  | Covered by native play                                                                        |
-| `dropcontact-enrich-person`                                 | `dropleads_email_finder` (waterfall step)                                                                                                                                                                                                                                                                                                         | Covered by native play                                                                        |
-| **Entire email waterfall group**                            | `name-and-domain-to-email-waterfall`                                                                                                                                                                                                                                                                                                              | One play replaces all 6 finders when you have a domain; include `linkedin_url` when available |
-| `use-ai` (no web, simple)                                   | `deeplineagent`                                                                                                                                                                                                                                                                                                                                   | Match model tier                                                                              |
-| `use-ai` (no web, structured)                               | `deeplineagent` + `jsonSchema`                                                                                                                                                                                                                                                                                                                    |                                                                                               |
-| `use-ai` (claygent + web)                                   | Pass 1: `exa_search` → Pass 2: `deeplineagent`                                                                                                                                                                                                                                                                                                    | Always split research and synthesis                                                           |
-| `octave-qualify-person`                                     | `deeplineagent`, ICP scoring prompt, `jsonSchema`                                                                                                                                                                                                                                                                                                 | See Octave section                                                                            |
-| `octave-enrich-person`                                      | `exa_search` + `deeplineagent`                                                                                                                                                                                                                                                                                                                    |                                                                                               |
-| `octave-run-sequence-runner`                                | Pass 1: `deeplineagent` (signals) → Pass 2: `deeplineagent` (email)                                                                                                                                                                                                                                                                               | Always 2 passes                                                                               |
-| `social-posts-get-post-activity-posts-and-shares`           | `harvestapi_get_profile_posts`                                                                                                                                                                                                                                                                                                                    | Run-as-button in Clay — omit unless user needs posts                                          |
-| `score-your-data` (unconfigured)                            | `run_javascript` keyword scoring                                                                                                                                                                                                                                                                                                                  | See Scoring section                                                                           |
-| `add-lead-to-campaign` (Smartlead)                          | `smartlead_add_leads_to_campaign`                                                                                                                                                                                                                                                                                                                 |                                                                                               |
-| `add-lead-to-campaign` (Instantly)                          | `instantly_add_contacts_to_campaign`                                                                                                                                                                                                                                                                                                              |                                                                                               |
-| `exa_search` (Clay native)                                  | `exa_search`                                                                                                                                                                                                                                                                                                                                      | Direct equivalent                                                                             |
+| Clay action key                                             | Deepline tool / native play                                                                                                                                                                                                                                                                                                                        | Notes                                                                                         |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `find-lists-of-companies-with-mixrank-source` (source type) | **Pass 1**: `crustdata_v3_company_search` — filters by location, employee count, industry, funding, and investors. Returns company name, domain, LinkedIn URL, HQ, funding, and firmographic fields. **Pass 2** (optional): `prospeo_enrich_company` — adds `description`, `employee_count`, `industry`, `type`. See Company Source section below. | Use `crustdata_v3_company_search_autocomplete` first for canonical filter values              |
+| `enrich-person-with-mixrank-v2`                             | `leadmagic_profile_search` → `crustdata_v3_person_enrich` waterfall                                                                                                                                                                                                                                                                                | See Person Enrichment section                                                                 |
+| `lookup-company-in-other-table`                             | `run_javascript` (local CSV join)                                                                                                                                                                                                                                                                                                                  | Export company table to CSV first                                                             |
+| `lookup-multiple-rows-in-other-table`                       | `run_javascript` (local CSV join)                                                                                                                                                                                                                                                                                                                  | Same pattern                                                                                  |
+| `chat-gpt-schema-mapper`                                    | `deeplineagent`; use `jsonSchema` when you need structured extraction                                                                                                                                                                                                                                                                              | Single-value classification                                                                   |
+| `normalize-company-name`                                    | `deeplineagent` or `run_javascript`                                                                                                                                                                                                                                                                                                                | JS preferred for pure string ops                                                              |
+| `generate-email-permutations`                               | `run_javascript`                                                                                                                                                                                                                                                                                                                                   | Pure compute, no provider                                                                     |
+| `validate-email` (all instances)                            | `leadmagic_email_validation` (one final gate)                                                                                                                                                                                                                                                                                                      | Skip per-step validation; validate once after waterfall                                       |
+| `wiza-find-email`                                           | `dropleads_email_finder` (waterfall step 1)                                                                                                                                                                                                                                                                                                        | Part of native play                                                                           |
+| `find-email-v2` (Hunter)                                    | `hunter_email_finder` (waterfall step 2)                                                                                                                                                                                                                                                                                                           | Part of native play                                                                           |
+| `leadmagic-find-work-email`                                 | `leadmagic_email_finder` (waterfall step 3)                                                                                                                                                                                                                                                                                                        | Part of native play                                                                           |
+| `findymail-find-work-email`                                 | `dropleads_email_finder` (waterfall fallback)                                                                                                                                                                                                                                                                                                      | Covered by native play                                                                        |
+| `enrich-person` (PDL)                                       | `peopledatalabs_enrich_contact` (waterfall step)                                                                                                                                                                                                                                                                                                   | Covered by native play                                                                        |
+| `dropcontact-enrich-person`                                 | `dropleads_email_finder` (waterfall step)                                                                                                                                                                                                                                                                                                          | Covered by native play                                                                        |
+| **Entire email waterfall group**                            | `name-and-domain-to-email-waterfall`                                                                                                                                                                                                                                                                                                               | One play replaces all 6 finders when you have a domain; include `linkedin_url` when available |
+| `use-ai` (no web, simple)                                   | `deeplineagent`                                                                                                                                                                                                                                                                                                                                    | Match model tier                                                                              |
+| `use-ai` (no web, structured)                               | `deeplineagent` + `jsonSchema`                                                                                                                                                                                                                                                                                                                     |                                                                                               |
+| `use-ai` (claygent + web)                                   | Pass 1: `exa_search` → Pass 2: `deeplineagent`                                                                                                                                                                                                                                                                                                     | Always split research and synthesis                                                           |
+| `octave-qualify-person`                                     | `deeplineagent`, ICP scoring prompt, `jsonSchema`                                                                                                                                                                                                                                                                                                  | See Octave section                                                                            |
+| `octave-enrich-person`                                      | `exa_search` + `deeplineagent`                                                                                                                                                                                                                                                                                                                     |                                                                                               |
+| `octave-run-sequence-runner`                                | Pass 1: `deeplineagent` (signals) → Pass 2: `deeplineagent` (email)                                                                                                                                                                                                                                                                                | Always 2 passes                                                                               |
+| `social-posts-get-post-activity-posts-and-shares`           | User-provided post export                                                                                                                                                                                                                                                                                                                          | Run-as-button in Clay — omit unless user needs posts                                          |
+| `score-your-data` (unconfigured)                            | `run_javascript` keyword scoring                                                                                                                                                                                                                                                                                                                   | See Scoring section                                                                           |
+| `add-lead-to-campaign` (Smartlead)                          | `smartlead_push_to_campaign`                                                                                                                                                                                                                                                                                                                       |                                                                                               |
+| `add-lead-to-campaign` (Instantly)                          | `instantly_add_to_campaign`                                                                                                                                                                                                                                                                                                                        |                                                                                               |
+| `exa_search` (Clay native)                                  | `exa_search`                                                                                                                                                                                                                                                                                                                                       | Direct equivalent                                                                             |
 
 ---
 
@@ -87,12 +109,7 @@ Key output paths: `.output.body.full_name`, `.output.body.work_experience[0].com
 
 Key output paths: `.output.body.matches[0].person_data.basic_profile.name`, `.output.body.matches[0].person_data.contact.business_emails[0].email`, `.output.body.matches[0].person_data.experience.employment_details.current[0].company_website_domain`
 
-**Work history / posts** — native HarvestAPI:
-
-```bash
-deepline tools execute harvestapi_get_profile --payload '{"url":"<linkedin_url>"}' --json
-deepline tools execute harvestapi_get_profile_posts --payload '{"profile":"<linkedin_url>","page":1}' --out linkedin-posts.csv
-```
+For work history and posts, use an authorized source or a user-provided export. Do not collect private LinkedIn pages or saved searches without established source-platform permission.
 
 ---
 
@@ -133,7 +150,7 @@ The entire Clay waterfall group collapses to one native play. Pick based on avai
 
 ```
 
-Compiles to: `dropleads_email_finder → hunter_email_finder → leadmagic_email_finder → deepline_native_enrich_contact → crustdata_v3_person_enrich → peopledatalabs_enrich_contact`
+Compiles to: `dropleads_email_finder → hunter_email_finder → leadmagic_email_finder → enrich_contact → crustdata_v3_person_enrich → peopledatalabs_enrich_contact`
 
 **Have name + company only**:
 
@@ -149,13 +166,13 @@ Compiles to: `dropleads_email_finder → hunter_email_finder → leadmagic_email
 
 ```
 
-Compiles to: `leadmagic_email_validation (first.last@, firstlast@, first_last@) → dropleads_email_finder → hunter_email_finder → leadmagic_email_finder → deepline_native_enrich_contact → peopledatalabs_enrich_contact`
+Compiles to: `leadmagic_email_validation (first.last@, firstlast@, first_last@) → dropleads_email_finder → hunter_email_finder → leadmagic_email_finder → enrich_contact → peopledatalabs_enrich_contact`
 
-**Alternative individual providers** (use `deepline tools search "email"` to see current list):
+**Alternative individual providers** (use `deepline search "name and company domain -> work email" --type tools` to see current list):
 
 - `icypeas_email_search` — 700M+ profiles, strong LinkedIn coverage; useful as a step if native play misses
 - `dropleads_email_finder` — included in native plays; available standalone too
-- Run `deepline tools describe icypeas_email_search` to verify tool exists before using
+- Run `deepline describe icypeas_email_search` to verify tool exists before using
 
 **Final validation gate** (replaces all per-step Clay `validate-email` calls):
 
@@ -191,7 +208,7 @@ Alternative — `dropleads_email_verifier` (cheapest option):
 .withColumn('email_valid', 'dropleads_email_verifier', { email: "{{work_email}}" })
 ```
 
-Run `deepline tools search "email validation"` to see all current options.
+Run `deepline search "email -> validation status" --type tools` to see all current options.
 
 ---
 
@@ -395,12 +412,11 @@ Reference structured output fields in downstream passes as `{{col_name.field}}`.
 Octave `ca_*` agents are proprietary Clay integrations. Before defaulting to `deeplineagent`, check whether Deepline has added a native equivalent:
 
 ```bash
-deepline tools search "qualify person ICP"
-deepline tools search "octave"
-deepline tools search "sequence runner email"
+deepline search "person profile -> ICP qualification" --type tools
+deepline search "prospect and messaging -> generated email sequence" --type tools
 ```
 
-If a native tool exists (e.g. `octave_qualify_person`, `octave_sequence_runner`), use it directly — it will be faster and more accurate than the `deeplineagent` fallbacks below. The patterns below are **fallbacks for when no native tool is available**.
+If search finds a native tool for the action, use it directly — it will be faster and more accurate than the `deeplineagent` fallbacks below. The patterns below are **fallbacks for when no native tool is available**.
 
 ### `octave-qualify-person`
 
@@ -440,17 +456,7 @@ Two passes:
 
 ### `social-posts-get-post-activity-posts-and-shares`
 
-Skip for automation unless explicitly needed (run-as-button in Clay). Two options when needed:
-
-**HarvestAPI (profile-URL-specific):**
-Use when you need posts for a specific person's profile URL. Run it per profile inside the owned Play:
-
-```bash
-deepline tools describe harvestapi_get_profile_posts --schema-only
-deepline tools execute harvestapi_get_profile_posts --payload '{"profile":"<linkedin_url>","page":1}' --out linkedin-posts.csv
-```
-
-There is no supported CrustData post-search replacement. Use `harvestapi_get_profile_posts` only when the target profile URL is known.
+Use a user-provided post export that the user is authorized to access and process. If one is unavailable, leave this step unresolved. Do not substitute a scraper or browser-session collection workflow.
 
 ---
 
@@ -489,36 +495,33 @@ Clay ships 27 HubSpot actions plus a Salesforce package, and this file does not 
 
 ### `add-lead-to-campaign` (Smartlead)
 
-`smartlead_add_leads_to_campaign` does **not** exist. Use `smartlead_api_request` to POST to the leads endpoint:
+Use `smartlead_push_to_campaign`:
 
 ```bash
-deepline tools execute smartlead_api_request --payload '{
-  "method": "POST",
-  "path": "/v1/campaigns/<campaign_id>/leads",
-  "body": {
-    "lead_list": [
-      {
-        "email": "{{final_email}}",
-        "first_name": "{{first_name}}",
-        "last_name": "{{last_name}}",
-        "company_name": "{{company_name}}",
-        "linkedin_url": "{{linkedin_url}}"
-      }
-    ]
-  }
+deepline tools execute smartlead_push_to_campaign --payload '{
+  "campaign_id": "<campaign_id>",
+  "lead_list": [
+    {
+      "email": "{{final_email}}",
+      "first_name": "{{first_name}}",
+      "last_name": "{{last_name}}",
+      "company_name": "{{company_name}}",
+      "linkedin_profile": "{{linkedin_url}}"
+    }
+  ]
 }'
 ```
 
 Or as a play column:
 
 ```ts
-.withColumn('campaign_push', 'smartlead_api_request', { method: 'POST', path: '/v1/campaigns/<campaign_id>/leads', body: { lead_list: [{ email: '{{final_email}}', first_name: '{{first_name}}', last_name: '{{last_name}}', company_name: '{{company_name}}' }] }, })
+.withColumn('campaign_push', 'smartlead_push_to_campaign', { campaign_id: '<campaign_id>', lead_list: [{ email: '{{final_email}}', first_name: '{{first_name}}', last_name: '{{last_name}}', company_name: '{{company_name}}' }] })
 
 ```
 
 ### `add-lead-to-campaign` (Instantly)
 
-Correct tool name is `instantly_add_to_campaign` (not `instantly_add_contacts_to_campaign`):
+Use `instantly_add_to_campaign`:
 
 ```bash
 deepline tools execute instantly_add_to_campaign --payload '{
@@ -529,11 +532,11 @@ deepline tools execute instantly_add_to_campaign --payload '{
 
 ### Other campaign platforms
 
-| Platform                       | Tool                                            | Notes                       |
-| ------------------------------ | ----------------------------------------------- | --------------------------- |
-| HeyReach (LinkedIn sequences)  | `heyreach_add_to_campaign`                      | LinkedIn outreach sequences |
-| Lemlist                        | `lemlist_add_to_campaign`                       | Multi-channel sequences     |
-| Smartlead (verify tool schema) | `deepline tools describe smartlead_api_request` | Use API request endpoint    |
+| Platform                      | Tool                         | Notes                       |
+| ----------------------------- | ---------------------------- | --------------------------- |
+| HeyReach (LinkedIn sequences) | `heyreach_add_to_campaign`   | LinkedIn outreach sequences |
+| Lemlist                       | `lemlist_add_to_campaign`    | Multi-channel sequences     |
+| Smartlead                     | `smartlead_push_to_campaign` | Email sequences             |
 
 ---
 

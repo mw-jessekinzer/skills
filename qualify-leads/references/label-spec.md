@@ -2,7 +2,7 @@
 
 `scripts/label.py` implements everything here. Read this to know what a fact does to a label, to brief a worker, or to review output. To change a label, change a fact (in a worker file or `work/overrides.csv`), then rerun `label.py`. Never edit a label cell by hand.
 
-Reason-code wording lives in `reason-codes.csv`. Page intent lives in `page-intent.csv`, referrer channels in `referrer-hosts.csv`, compliance and competitor names in `exclusions.csv`, tech-role titles in `tech-roles.txt`, well-known large employers in `large-companies.txt`. JK can edit those tables; the scripts read them on every run.
+Reason-code wording lives in `reason-codes.csv`. Page intent lives in `page-intent.csv`, referrer channels in `referrer-hosts.csv`, compliance and competitor names in `exclusions.csv`, tech-role titles in `tech-roles.txt`, well-known enterprises (triage first to confirm size and identity, never to drop) in `large-companies.txt`. JK can edit those tables; the scripts read them on every run.
 
 ## JK rulings built in (2026-09-28)
 
@@ -14,6 +14,7 @@ Reason-code wording lives in `reason-codes.csv`. Page intent lives in `page-inte
 - Need signals count for 18 months.
 - Missing evidence parks a row (Review or Low priority); it never drops one.
 - HubSpot import: new contacts only; owner is the company's active owner, else Jesse Kinzer.
+- JK ruling 2026-10-12 (supersedes the 5,000 cap ruling the same day): no size cap. Enterprise companies stay (Midwestern just landed Deloitte, about 543,000 employees). Size is a descriptive tier: Enterprise 5,000+; Mid-market 500 to 4,999; Growth startup under 500 with a venture round in the last 24 months; Small business under 500 with no recent round. Enterprise reaches Tier 1 only as Contact now; enterprise account plays go to the HubSpot owner, no packet. The thresholds are `ENTERPRISE_MIN`, `MIDMARKET_MIN`, and `STARTUP_FUNDING_MONTHS` in `scripts/common.py`. The retired triage codes `OVER_2000` and `OVER_SIZE_CAP` still load, but such a drop is ignored with a warning.
 
 ## Two layers
 
@@ -58,21 +59,29 @@ The email checked is, in order: a HubSpot contact email at the company's domain,
 
 A committee member who is the visitor carries the visitor's CSV status, word for word; packets and `08-committee-status.csv` use the same string.
 
-## Size
+## Company size
 
-`size_tier`: `A` = filing, company-stated figure, LinkedIn company page count or band; `B` = PitchBook, Tracxn, Crunchbase, LeadIQ, RocketReach, ZoomInfo, Revelio, MoltSets company record; `C` = model knowledge, inference, RB2B.
+Size never drops, disqualifies, or lowers a row. It is a descriptive tier, `company_size`, shown in the CSV's Company size column and in packets.
 
-| Status | Rule |
+`size_tier` records source quality only: `A` = filing, company-stated figure, LinkedIn company page count or band; `B` = PitchBook, Tracxn, Crunchbase, LeadIQ, RocketReach, ZoomInfo, Revelio, MoltSets company record; `C` = model knowledge, inference. It feeds Confidence and the `TINY_NO_BUDGET` evidence rule, nothing else.
+
+`company_size` comes from `employees_best` from any source tier (A, B, or C) and the dated need signals:
+
+| Company size | Rule |
 |---|---|
-| `verified_over` | tier A or B and `employees_best >= 2000`, or tier C `>= 5000` |
-| `verified_under` | tier A or B and under 2,000 |
-| `likely_under` | tier C under 1,000 (adds `OPEN_SIZE`) |
-| `straddles` | tier C from 1,000 to 4,999 (adds `INS_SIZE_UNKNOWN`: verify, never drop) |
-| `unknown` | no figure, or only RB2B's field |
+| `Enterprise` | `employees_best` 5,000 or more |
+| `Mid-market` | 500 to 4,999 |
+| `Growth startup` | under 500, and a `funding` need signal dated within 24 months of the run's as-of date |
+| `Small business` | under 500, no such funding signal |
+| `Unknown` | no `employees_best` |
 
-Size belongs to the operating company the person works for. A parent is recorded (`parent_name`, `parent_employees`, `parent_centralized`); when the parent is over 2,000 and the unit's tech or hiring runs through it (`parent_centralized = yes`), the row gets the `OPEN_PARENT` open item and a one-step strength downgrade. That is a Review, never a Drop.
+Size bands (a finer display): `1-10`, `11-50`, `51-200`, `201-500`, `501-1,000`, `1,001-1,999`, `2,000-4,999`, `5,000+`, `Unknown`.
 
-RB2B's employee field never sets a size; its `5001+` values, and a company name in `large-companies.txt` (for sources with no size field), only send the company to knowledge triage first. Reason text quotes `employees_best` as a number ("about 6,500 employees"), never the worker's free text.
+Size belongs to the operating company the person works for. A parent is recorded (`parent_name`, `parent_employees`, `parent_centralized`); when the parent is Enterprise (5,000+ employees, any source tier) and the unit's tech or hiring runs through it (`parent_centralized = yes`), the row gets the `OPEN_PARENT` open item and a one-step strength downgrade. That is a Review, never a Drop.
+
+**Enterprise light pass.** Hiring is not checked at Enterprise scale on purpose: open-role counts never lift an Enterprise company's strength, and the `GAP_HIRING_*` codes never apply to it. An Enterprise row is never a Drop for want of hiring evidence; with no fresh need signal it parks in Low priority.
+
+RB2B's employee field never sets a size; its `5001+` values, and a company name in `large-companies.txt` (for sources with no size field), only send the company to knowledge triage first, to confirm its size and identity. Reason text quotes `employees_best` as a number ("about 120 people"), never the worker's free text.
 
 ## Hiring
 
@@ -89,16 +98,16 @@ A **need** is found when there is at least one open tech role (any location) or 
 Precedence is the order below; the first code that applies is the primary code and drives "Why this verdict".
 
 - **Absolute** (always Drop): `COMPLIANCE_DNC`, `INTERNAL`.
-- **Company** (kills the account): `COMPETITOR_STAFFING`, `NOT_US`, `OVER_2000`, `PUBLIC_BODY_NON_BUYER`, `CONSUMER_SELF_EMPLOYED`, `CANNOT_BUY`, `STRUCTURAL_NO_NEED`, `TINY_NO_BUDGET`.
+- **Company** (kills the account): `COMPETITOR_STAFFING`, `NOT_US`, `PUBLIC_BODY_NON_BUYER`, `CONSUMER_SELF_EMPLOYED`, `CANNOT_BUY`, `STRUCTURAL_NO_NEED`, `TINY_NO_BUDGET`. There is no size code.
 - **Person**: hard (an excluded audience) `VENDOR_SELLING`, `JOB_SEEKER`, `STUDENT_EDUCATOR`, `EXCLUDED_TITLE`, `PERSONAL_EMAIL_SUBMITTED`; soft (about the buying role only) `NOT_AT_COMPANY`, `UNRELATED_TITLE`. Either kind allows an Account play at a Strong or Medium account; only soft codes are protected by the missing-evidence rule and routed to the owner at a live deal.
-- **Insufficient data**: `INS_NO_PERSON`, `INS_NO_COMPANY`, `INS_NO_TITLE`, `INS_SIZE_UNKNOWN`, `INS_US_UNKNOWN` (only when `us_company` is unknown; `no` is `NOT_US`).
-- **Possible-match open items**: `OPEN_PARENT`, `OPEN_AUTHORITY`, `OPEN_NEED`, `OPEN_EMPLOYMENT`, `OPEN_EMAIL`, `OPEN_SIZE`, `OPEN_TINY`.
-- **Account evidence gaps** (an Action reason, never a Verdict): `GAP_HIRING_NOT_CHECKED` ("Hiring not checked."), `GAP_HIRING_UNREAD` ("Job board not found or not readable, so hiring is unknown."), plus `INS_SIZE_UNKNOWN` and `INS_US_UNKNOWN` reused as gaps.
+- **Insufficient data**: `INS_NO_PERSON`, `INS_NO_COMPANY`, `INS_NO_TITLE`, `INS_US_UNKNOWN` (only when `us_company` is unknown; `no` is `NOT_US`).
+- **Possible-match open items**: `OPEN_PARENT`, `OPEN_AUTHORITY`, `OPEN_NEED`, `OPEN_EMPLOYMENT`, `OPEN_EMAIL`, `OPEN_TINY`.
+- **Account evidence gaps** (an Action reason, never a Verdict): `GAP_HIRING_NOT_CHECKED` ("Hiring not checked."), `GAP_HIRING_UNREAD` ("Job board not found or not readable, so hiring is unknown."), plus `INS_US_UNKNOWN` reused as a gap. The hiring gaps never apply to an Enterprise company.
 
 Guardrails the script enforces:
 - `CANNOT_BUY` is ignored (with a warning) when `employees_best > 50`.
 - `TINY_NO_BUDGET` fires only on evidence: under 11 people from a tier A or B source, and a job list that was actually read (job board, careers page, LinkedIn Jobs) with no tech role and no fresh signal. Otherwise a tiny company gets `OPEN_TINY` and stays reviewable.
-- A triage `OVER_2000` is ignored unless the estimate is 5,000 or more.
+- A triage Drop with a retired size code (`OVER_2000` or `OVER_SIZE_CAP`, from files written before 2026-10-12) is not a drop: the row gets the warning "triage size drop ignored: size never drops; research it", parks like any Keep never researched, and `classify.py keeps` queues the company for research. Research facts always win over a triage row.
 - **Peer vendors are excluded by default**: MSPs, IT services firms, dev shops, and consultancies are `COMPETITOR_STAFFING` (research sets `sells_staffing_or_dev = yes`). The one exception: research confirms the firm buys recruiting for its own staff (`peer_buys_recruiting = yes`) AND the row is that buyer (a recruiting or people title, or `buyer_role = yes`). Named competitors and staffing names from `exclusions.csv` never qualify.
 - An accounting firm or a museum is never a competitor. It is `STRUCTURAL_NO_NEED` only when the facts state a business-model cause ("museum; no software product; IT run by an outside vendor"). A reason that rests on not finding anything ("no tech hiring need found", "none found") is an absence of evidence: the code is ignored with a warning and the row is parked (Low priority, or Review for a buyer), never dropped.
 - `PUBLIC_BODY_NON_BUYER` does not apply to a technology or operating buyer at a public body.
@@ -113,15 +122,16 @@ else any OPEN_* item                         -> Possible match
 else                                         -> Qualified
 ```
 
-Open items: `OPEN_PARENT` (buying may sit with a parent over 2,000), `OPEN_AUTHORITY` (Secondary title, or buyer role partial or unknown), `OPEN_NEED` (no need found), `OPEN_EMPLOYMENT` (not confirmed and no qualifying email), `OPEN_EMAIL` (email does not qualify), `OPEN_SIZE` (tier C estimate under 1,000), `OPEN_TINY` (1 to 10 people).
+Open items: `OPEN_PARENT` (buying may sit with an Enterprise parent), `OPEN_AUTHORITY` (Secondary title, or buyer role partial or unknown), `OPEN_NEED` (no need found), `OPEN_EMPLOYMENT` (not confirmed and no qualifying email), `OPEN_EMAIL` (email does not qualify), `OPEN_TINY` (1 to 10 people).
 
-So Qualified needs: a named buyer, confirmed size under 2,000 from an A or B source, a US company, a need, and a qualifying email. Company-only rows are never Qualified.
+So Qualified needs: a named buyer, a US company, a need, and a qualifying email. There is no size condition. Company-only rows are never Qualified.
 
 ## Account strength
 
 - `None`: any absolute or company code, or the company can't be identified.
-- `Strong`: verified under 2,000, 11+ people, US, and either 3+ open tech roles (any location) or 1+ with a need signal from the last 18 months.
-- `Medium`: verified or likely under 2,000, US, and at least one open tech role or a fresh need signal.
+- **Enterprise** company: `Medium` when US with a need signal from the last 18 months, else `Weak`. Open-role counts never lift it.
+- `Strong`: 11+ people, US, and either 3+ open tech roles (any location) or 1+ with a need signal from the last 18 months.
+- `Medium`: US, and at least one open tech role or a fresh need signal.
 - `Weak`: everything else.
 
 Then one step down (never up, once) for a big centralized parent, or a worker's `PARENT_UNCLEAR`, `CONTRACTION`, or `ROLES_STALE`. Any other downgrade value (including the retired `ENG_OFFSHORE`) is ignored.
@@ -138,11 +148,14 @@ From `04-crm-*.csv`, in this precedence: `possible_match` (name-only match; owne
 4. Qualified: `Contact now` (routed to the active HubSpot owner when there is one).
 5. Not qualified or Insufficient data, Account strength Strong or Medium, no company code, not an open deal or customer, and the only codes are person codes or `INS_NO_PERSON` / `INS_NO_TITLE`: `Account play`.
 6. Possible match: `Review`.
-7. **Missing evidence never drops.** Not qualified or Insufficient data, only soft person codes (or none), a company is identified, and the account has an evidence gap (hiring not checked or unreadable with no fresh signal, headcount unconfirmed, or US base unknown): `Review` when the only gap is hiring and the company is a confirmed US company verified under 2,000 by an A or B source; otherwise `Low priority`. Why gets "Account open item: Hiring not checked." and Next step reads "Check hiring at <company> before deciding on an account play."
-8. Insufficient data: `Low priority`.
-9. Otherwise: `Drop`.
+7. **Missing evidence never drops.** Not qualified or Insufficient data, only soft person codes (or none), a company is identified, and the account has an evidence gap (hiring not checked or unreadable with no fresh signal, or US base unknown): `Review` when the only gap is hiring and the company is a confirmed US company; otherwise `Low priority`. Why gets "Account open item: Hiring not checked." and Next step reads "Check hiring at <company> before deciding on an account play."
+8. An Enterprise company with only soft person codes (or none), not an open deal or customer: `Low priority` (its hiring is not checked on purpose, so no need found is not a confirmed absence).
+9. Insufficient data: `Low priority`.
+10. Otherwise: `Drop`.
 
-So `Drop` means a hard disqualifier (absolute, company, or hard person code, or an unidentifiable company) or a confirmed absence of need (hiring read with no tech roles, no fresh signal, size and US base known). `checks.py` gate 2 fails any other Drop, and any `TINY_NO_BUDGET` without its evidence.
+**Enterprise routing.** An Enterprise company never takes an account play slot. When rules 1 to 10 give an Enterprise row `Account play`, its Action becomes `Tell account owner` and Next step reads "Route to <owner>, the HubSpot owner; enterprise account, no packet." (the active HubSpot company owner), or "Enterprise account: find the owner or AE before any outreach." when there is none. An Enterprise company reaches Tier 1 only through Contact now.
+
+So `Drop` means a hard disqualifier (absolute, company, or hard person code, or an unidentifiable company) or a confirmed absence of need at a company that is not Enterprise (hiring read with no tech roles, no fresh signal, US base known). Size never drops a row. `checks.py` gate 2 fails any other Drop, and any `TINY_NO_BUDGET` without its evidence.
 
 ## Confidence
 
@@ -152,7 +165,7 @@ So `Drop` means a hard disqualifier (absolute, company, or hard person code, or 
 
 Rows sort by Action, then Account strength, then Verdict, then the rest of the company tuple: tech role bucket, all locations (11+, 6 to 10, 3 to 5, 1 to 2, 0); best intent at the company; age of the freshest need signal; CRM cleanliness (not found or unowned first, active owner last); newest touch; company key; lead id. Strength comes before Verdict so Rank agrees with the Tier 1 order.
 
-Tier 1 = every company whose best Action is Contact now, plus the top Account plays by the same tuple: 5 at most, and the Tier 1 size in total (`label.py --tier1-max N`, 1 to 8, default 8, saved in `run.json`; above 8 is an error, JK's hard limit). Each Tier 1 row carries a per-company budget projection scaled so the whole list fits the run's caps, and the exact `packet_file` name. When a cap divided by the Tier 1 count falls below the per-company plan (MoltSets 7.5 tokens, Deepline 1.25 credits, set so the default caps fit a full Tier 1 of 8 exactly; observed spend was about 1.1 to 1.2 Deepline credits and 2 MoltSets tokens per company), `label.py` prints a warning and `ledger.py check` repeats it: cut the size, skip companies, or ask JK to raise the cap. More Contact now companies than the size: stop and ask JK which to enrich. A Tier 1 company the runner decides not to enrich (budget, JK's call) goes in `work/06-enrich-skipped.csv` with a reason; the gates report it and the summary lists it. Tier 1 freezes when `label.py --freeze-tier1` runs; later runs write `06-tier1-candidates.csv`, and a company that only reaches Contact now after enrichment is listed as "upgraded after enrichment, no packet built".
+Tier 1 = every company whose best Action is Contact now (Enterprise included), plus the top Account plays by the same tuple (never an Enterprise company): 5 at most, and the Tier 1 size in total (`label.py --tier1-max N`, 1 to 8, default 8, saved in `run.json`; above 8 is an error, JK's hard limit). Each Tier 1 row carries a per-company budget projection scaled so the whole list fits the run's caps, and the exact `packet_file` name. When a cap divided by the Tier 1 count falls below the per-company plan (MoltSets 7.5 tokens, Deepline 1.25 credits, set so the default caps fit a full Tier 1 of 8 exactly; observed spend was about 1.1 to 1.2 Deepline credits and 2 MoltSets tokens per company), `label.py` prints a warning and `ledger.py check` repeats it: cut the size, skip companies, or ask JK to raise the cap. More Contact now companies than the size: stop and ask JK which to enrich. A Tier 1 company the runner decides not to enrich (budget, JK's call) goes in `work/06-enrich-skipped.csv` with a reason; the gates report it and the summary lists it. Tier 1 freezes when `label.py --freeze-tier1` runs; later runs write `06-tier1-candidates.csv`, and a company that only reaches Contact now after enrichment is listed as "upgraded after enrichment, no packet built".
 
 ## Buyer to target
 
@@ -182,9 +195,11 @@ Tie-break: Recruiting, then Embedded, then Scoped. A second fit goes in the pack
 | An accountant at an open-deal account | soft person code | Not qualified, Tell account owner |
 | PURE Insurance, John Burnsed | left in 2025; PURE tier A about 1,000 with 6 US tech roles | Not qualified (`NOT_AT_COMPANY`), Account play, Strong |
 | Net Health | company-only, about 575, hiring | Insufficient data (`INS_NO_PERSON`), Account play |
-| Cyera | 1,771 knowledge estimate | straddles, never `OVER_2000`; a tier B 1,550 figure makes it verified under |
+| Cyera | 1,771 knowledge estimate (tier C), 9 tech roles | Mid-market; the figure counts whatever its tier; Strong, Account play for a sales visitor; an old triage size drop is ignored with a warning |
 | Cyera, sales visitor | 1,550 (tier B), hiring not checked, no signal | Not qualified, `Review` with "Hiring not checked"; with a dated funding signal, Account play |
-| MoMA | about 900, museum | `STRUCTURAL_NO_NEED` only with a business-model cause; "no tech hiring need found" parks it in Low priority; never `CANNOT_BUY` |
+| Deloitte | about 543,000 (Enterprise) | a buyer with a need and a qualifying email is Contact now and Tier 1; a non-buyer at a Medium account (fresh signal) is `Tell account owner`, routed to the HubSpot owner, no packet; open-role counts never make it Strong |
+| A 120-person startup | Series A 20 months ago | Growth startup; Qualified on a tier C size when the buyer, need, and email are there |
+| MoMA | about 900, museum | `STRUCTURAL_NO_NEED` only with a business-model cause; "no tech hiring need found" parks it (Review when only hiring is open at a US company); never `CANNOT_BUY` |
 | Sensiba | accounting firm | the same rule; never a competitor |
 | 44i; a Joplin MSP | web agency; managed IT and dev | `COMPETITOR_STAFFING` (the MSP's confirmed recruiting buyer is the one exception) |
 | Chatham County MIS Director | public body, tech buyer, personal email from RB2B | Possible match, never `PUBLIC_BODY_NON_BUYER` |

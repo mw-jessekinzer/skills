@@ -237,3 +237,77 @@ After both jobs, you can backfill the missed weeks (Jul 10 to Sep 25). The calls
 Run the weekly-quote-miner skill with a date range starting 2026-07-10
 ```
 ===== 2026-09-25 09:15:35 CDT END (exit 0) =====
+
+===== 2026-10-02 09:15:05 CDT START =====
+The run did not work. The data source is still broken. I did not post to Slack.
+
+**Run summary, 2026-10-02**
+
+- Calls scanned: 0
+- Calls mined: 0
+- Skipped: 0
+- Candidates: none (A: 0, B: 0, C: 0)
+- Slack post: none
+- Reason: Airspeed MCP server failed to connect. The error is `HTTP 403 Forbidden`. This is a dead login token. The Airspeed server itself is fine. Our saved key is the problem.
+
+This is the 12th failed run in a row. Nothing has changed since July 17. The runner script writes to `run.log` on its own.
+
+I did not post a "none found" message. That would look like a quiet week. It was not a quiet week. The tool was broken. Posting a fake result would be wrong.
+
+The advisor tool is not available in this scheduled run. I could not consult it.
+
+**What you must do now**
+
+Two things are yours. Do them in this order.
+
+1. **Log in to Airspeed again.** Open a normal Claude Code session in Terminal. Type this command. Then pick `airspeed` and finish the browser login.
+
+```
+/mcp
+```
+
+2. **Fix one line in the skill file.** The skill names a Slack tool that does not exist in scheduled runs. The scheduled run cannot edit this file. Open a normal Claude Code session and paste this:
+
+```
+Edit /Users/jk/.claude/skills/weekly-quote-miner/SKILL.md: replace mcp__plugin_slack_slack__slack_send_message with mcp__claude_ai_Slack__slack_send_message
+```
+
+After both steps, run a catch-up. Paste this in a normal session:
+
+```
+Run the weekly-quote-miner skill with a date range starting 2026-07-10
+```
+
+That pulls all 11 missed weeks. The calls still live in Airspeed. Nothing is lost yet.
+===== 2026-10-02 09:16:03 CDT END (exit 0) =====
+
+===== 2026-10-09 09:15:05 CDT START =====
+**Run summary, weekly-quote-miner, 2026-10-09 (window Oct 2–8): failed. 0 calls scanned, 0 mined, 0 candidates, nothing posted to Slack.**
+
+The Airspeed connector didn't connect, so no Airspeed tools loaded and there was no transcript data to mine. I didn't post a "none found" digest to #client-quotes because that would report a broken data source as a quiet week. That makes 13 failed runs in a row since 07-17, and quotes from 07-10 through 10-08 are still uncollected. The calls are still in Glyphic, so they can be backfilled once the connection works.
+
+**The error is different this week.** Every earlier run got a 403, meaning a dead login token. This run got `ENDPOINT_NOT_FOUND` at `https://api.glyphic.ai`, the bare host with no `/mcp` path. My best guess is that someone edited the config, maybe during a reconnect attempt, and the URL lost its `/mcp` ending. I couldn't confirm that because the sandbox blocks reading `~/.claude.json`, where the URL is probably stored. I also found that `settings.local.json` pre-approves tools under a different server name, `mcp__glyphic__*`, but no server by that name loaded either.
+
+I updated the quote-miner memory note with the new error. The Slack step in SKILL.md still uses the old tool name. I can't fix that from a scheduled run because the sandbox blocks writes to the skills folder, and it will break the post even after Airspeed is fixed. No advisor tool was available in this run, so I skipped the advisor check.
+
+**What you need to do (in an interactive terminal, not a scheduled run):**
+
+1. See what URL and scope airspeed is set to:
+   ```
+   claude mcp get airspeed
+   ```
+2. If the URL is missing `/mcp`, remove the server and add it back. Use the scope that step 1 shows; `user` below is a guess:
+   ```
+   claude mcp remove airspeed -s user
+   claude mcp add --transport http -s user airspeed https://api.glyphic.ai/mcp
+   ```
+   If step 1 says no server is found, airspeed is probably a claude.ai connector. Fix the URL and reconnect it in your claude.ai connector settings, then skip step 3.
+3. Start `claude`, run `/mcp`, choose **airspeed**, then **Authenticate**, and finish the Glyphic login in your browser.
+4. Fix the Slack tool name in the skill:
+   ```
+   sed -i '' 's/mcp__plugin_slack_slack__slack_send_message/mcp__claude_ai_Slack__slack_send_message/' ~/.claude/skills/weekly-quote-miner/SKILL.md
+   ```
+5. Optional: once airspeed connects, ask me in a normal session to backfill quotes from 2026-07-10 to today.
+
+Until steps 1–3 are done, every Friday run will fail the same way.
+===== 2026-10-09 09:15:48 CDT END (exit 0) =====

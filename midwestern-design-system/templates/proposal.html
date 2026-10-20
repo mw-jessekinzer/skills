@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- SLOT: title for the browser tab and PDF. -->
+<title>Larkspur Freight, dispatch app proposal</title>
+<!--
+  Midwestern proposal / SOW. US Letter, 4 pages: cover, summary, plan,
+  investment (blue). Each section starts a new page. Fill the slots, keep
+  the structure. Never restyle.
+
+  SLOT      text to replace. Stay inside the word budget in the comment.
+  REPEAT    a block you copy or delete as a whole, within the count given.
+  OPTIONAL  a block you may delete, from the marker to its /OPTIONAL marker.
+  DATA      a graphic drawn from numbers in its style attribute.
+
+  Need more pages? Copy a whole <section class="page"> and fill it with rows.
+  A section that runs long gets its own page; never let 1 or 2 lines spill.
+  A red frame on screen means a page spills: cut copy, never shrink type.
+  Print: Chrome > Print > Save as PDF, margins None, background graphics on.
+-->
+<style>
+/* ==== MW FONTS: start ==== */
+/* TT Hoves is the brand font. It is used only where it is installed.
+   Never embed, bundle or link the TT Hoves font file: the desktop license
+   bars @font-face files and sharing the file. */
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 400;
+  src: local("TT Hoves Regular"), local("TTHoves-Regular"), local("TT Hoves Pro Regular"), local("TTHovesPro-Rg"); }
+@font-face { font-family: "TT Hoves"; font-style: normal; font-weight: 500;
+  src: local("TT Hoves Medium"), local("TTHoves-Medium"), local("TT Hoves Pro Medium"), local("TTHovesPro-Md"); }
+/* DM Sans is the approved fallback. Google Fonts first; offline, a fonts/
+   folder beside this HTML file (copy assets/fonts/dm-sans/DMSans-Variable.ttf
+   there), then the skill's own assets folder. Never edit this block.
+   With opsz 32 (set on html) and size-adjust 99% it sets close to TT Hoves
+   widths, so line breaks hold. */
+@font-face { font-family: "DM Sans"; font-style: normal; font-weight: 400 500; size-adjust: 99%;
+  src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format("woff2"),
+       url("fonts/DMSans-Variable.ttf") format("truetype"),
+       url("../assets/fonts/dm-sans/DMSans-Variable.ttf") format("truetype"),
+       local("DM Sans"); }
+:root { --font: "TT Hoves", "DM Sans", "Helvetica Neue", Arial, sans-serif; }
+/* ==== MW FONTS: end ==== */
+/* ==== MW BASE: start ==== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  font-family: var(--font);
+  font-weight: 400;
+  font-synthesis: none;
+  font-variation-settings: "opsz" 32;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+h1, h2, h3, h4, h5, h6, th, strong, b { font-weight: 400; }
+em, i { font-style: normal; }
+p, li, dd { text-wrap: pretty; }
+ul, ol { list-style: none; }
+img { display: block; max-width: 100%; }
+.logo { display: block; width: auto; aspect-ratio: 811 / 127; fill: currentColor; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.g { display: grid; column-gap: var(--gutter); align-items: start; }
+.at-1 { grid-column-start: 1; }  .at-2 { grid-column-start: 2; }  .at-3 { grid-column-start: 3; }
+.at-4 { grid-column-start: 4; }  .at-5 { grid-column-start: 5; }  .at-6 { grid-column-start: 6; }
+.at-7 { grid-column-start: 7; }  .at-8 { grid-column-start: 8; }  .at-9 { grid-column-start: 9; }
+.at-10 { grid-column-start: 10; } .at-11 { grid-column-start: 11; } .at-12 { grid-column-start: 12; }
+.w-1 { grid-column-end: span 1; }  .w-2 { grid-column-end: span 2; }  .w-3 { grid-column-end: span 3; }
+.w-4 { grid-column-end: span 4; }  .w-5 { grid-column-end: span 5; }  .w-6 { grid-column-end: span 6; }
+.w-7 { grid-column-end: span 7; }  .w-8 { grid-column-end: span 8; }  .w-9 { grid-column-end: span 9; }
+.w-10 { grid-column-end: span 10; } .w-11 { grid-column-end: span 11; } .w-12 { grid-column-end: span 12; }
+.end { align-self: end; }
+.right { justify-self: end; text-align: right; }
+
+.mt-1 { margin-top: var(--s1); } .mt-2 { margin-top: var(--s2); } .mt-3 { margin-top: var(--s3); }
+.mt-4 { margin-top: var(--s4); } .mt-5 { margin-top: var(--s5); } .mt-6 { margin-top: var(--s6); }
+.mt-7 { margin-top: var(--s7); } .mt-8 { margin-top: var(--s8); } .mt-9 { margin-top: var(--s9); }
+.mt-auto { margin-top: auto; }
+
+/* Type roles. Sizes come from the medium's tokens (document or deck). */
+.kicker { font-size: var(--t-small); line-height: 1.35; color: var(--muted); }
+.title { font-size: var(--t-title); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+.kicker + .title { margin-top: var(--s2); }
+.display { font-size: var(--t-display); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.lead { font-size: var(--t-lead); line-height: 1.38; }
+.body { font-size: var(--t-body); line-height: 1.45; }
+.small { font-size: var(--t-small); line-height: 1.45; }
+.label { font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+.text > * + * { margin-top: var(--s2); }
+
+/* Figures: a big number only where the number is the message. */
+.fig { font-size: var(--t-display); line-height: 1; letter-spacing: -0.03em; white-space: nowrap; }
+.fig .unit { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-left: 4px; }
+.fig .fig-pre { font-size: var(--t-body); letter-spacing: 0; color: var(--muted); margin-right: 4px; }  /* DM Sans has little sidebearing: keep a real gap */
+.fig--title { font-size: var(--t-title); letter-spacing: -0.015em; }
+.fig-label { margin-top: var(--s2); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+
+/* Honest tables: the only place hairlines repeat. */
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: 1.4; }
+.table th { text-align: left; color: var(--muted); padding: 0 var(--s3) var(--s2) 0; vertical-align: bottom; }
+.table td { border-top: var(--hair); padding: var(--row-pad) var(--s3) var(--row-pad) 0; vertical-align: top; }
+.table tr:last-child td { border-bottom: var(--hair); }
+.table .num { text-align: right; white-space: nowrap; }
+.table td:last-child, .table th:last-child { padding-right: 0; }
+.table .note { color: var(--muted); }
+
+/* Bars drawn to the data: --v on the bar, --max on the chart. */
+.chart-row { align-items: center; }
+.chart-row + .chart-row { margin-top: var(--s3); }
+.track { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.bar { flex: none; height: var(--bar-h); width: calc(var(--v) / var(--max) * (100% - 5em)); background: var(--data); }
+.bar.is-key { background: var(--key); }
+.bar-val { white-space: nowrap; }
+/* Spans on a time axis: --start and --len in units, --total on the chart. */
+.span-track { position: relative; height: var(--bar-h); }
+.span { position: absolute; top: 0; height: 100%; background: var(--data);
+  left: calc(var(--start) / var(--total) * 100%); width: calc(var(--len) / var(--total) * 100%); }
+.span.is-key { background: var(--key); }
+.axis { display: flex; justify-content: space-between; border-top: var(--hair); padding-top: var(--s1);
+  font-size: var(--t-small); color: var(--muted); }
+
+/* Numbered steps: no rules, no circles, space between. */
+.steps > li + li { margin-top: var(--s4); }
+.steps .n { color: var(--muted); font-size: var(--t-small); line-height: 1.4; }
+.page .steps .n { display: block; margin-bottom: var(--s1); }
+
+.quote { font-size: var(--t-quote); line-height: 1.22; letter-spacing: -0.01em; text-indent: -0.4em; text-wrap: balance; }
+.quote-by { margin-top: var(--s3); font-size: var(--t-small); line-height: 1.4; color: var(--muted); }
+/* ==== MW BASE: end ==== */
+/* ==== MW DOCUMENT: start ==== */
+:root {
+  /* color */
+  --paper: #FFFFFF;                        /* print white; #F6F7FE prints as a tint */
+  --ink: #010313;
+  --muted: #666666;                        /* labels, meta, captions, footer only */
+  --blue: #2237F1;
+  --accent: #2237F1;                       /* blue: the decision or next step only */
+  --key: #010313;                          /* the one key bar or span in a chart */
+  --night: #010313;
+  --on-color: #F6F7FE;
+  --on-color-muted: rgba(246, 247, 254, 0.72);
+  --data: #A8A8A8;                         /* bars that are not the key series */
+  --frame: #E9E9E9;                        /* image frame until the real image lands */
+  --hair: 0.5pt solid #010313;             /* the only line weight */
+  --row-pad: 7px;
+  --bar-h: 12px;
+
+  /* type: 8 sizes, px at 96 per inch (pt in brackets) */
+  --t-foot: 8.5px;     /* 6.4pt  footer only */
+  --t-small: 10.5px;   /* 7.9pt  labels, kickers, tables, captions */
+  --t-body: 11.5px;    /* 8.6pt  reading text */
+  --t-lead: 16px;      /* 12pt   standfirst, step titles, contact */
+  --t-quote: 24px;     /* 18pt   one pull quote per document */
+  --t-title: 36px;     /* 27pt   page title, always at the top */
+  --t-display: 64px;   /* 48pt   cover title, key figures, blue-page statement */
+  --t-hero: 80px;      /* 60pt   a short cover title, 2 lines at most */
+
+  /* page and grid: US Letter, 4 columns of 164px */
+  --page-w: 816px; --page-h: 1056px;
+  --m-top: 56px; --m-side: 56px; --m-foot: 88px; --gutter: 16px;
+
+  /* space */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+}
+@page { size: 8.5in 11in; margin: 0; }
+body { background: #E6E6E6; padding: 40px 0; color: var(--ink); font-size: var(--t-body); line-height: 1.45; }
+.page {
+  counter-increment: folio;
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 0 auto 40px;
+  padding: var(--m-top) var(--m-side) var(--m-foot);
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  break-after: page;
+}
+.page:last-of-type { break-after: auto; margin-bottom: 0; }
+@media print {
+  body { background: none; padding: 0; }
+  .page { margin: 0; }
+}
+.page .g { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Color pages carry the most important content: 1 dark and 2 blue at most. */
+.page--blue { background: var(--blue); }
+.page--dark { background: var(--night); }
+.page--blue, .page--dark {
+  --ink: #F6F7FE;
+  --muted: var(--on-color-muted);
+  --accent: #F6F7FE;
+  --key: #F6F7FE;
+  --data: rgba(246, 247, 254, 0.4);
+  --hair: 0.5pt solid rgba(246, 247, 254, 0.7);
+}
+.hero { font-size: var(--t-hero); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
+
+/* Footer inside every page: logo, document name, folio. */
+.runner { position: absolute; left: var(--m-side); right: var(--m-side); bottom: 40px;
+  font-size: var(--t-foot); line-height: 1.3; color: var(--muted); align-items: end; }
+.runner .logo { height: 9px; color: var(--ink); }
+.runner .doc-name::before { content: var(--doc-name, ""); }
+.runner .folio { justify-self: end; }
+.runner .folio::before { content: counter(folio); }
+.page--blue .runner .logo { visibility: hidden; }
+.page:first-of-type .runner .logo { visibility: hidden; }  /* the head logo is the page's one logo */
+.logo--head { height: 13px; justify-self: end; color: var(--ink); }
+
+/* Blue field with a line glyph drawn about one idea (the steps, the phases). */
+.field { position: relative; height: var(--field-h, 176px); background: var(--blue); color: #F6F7FE; }
+.field svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.field text { font-family: var(--font); font-size: 10.5px; fill: currentColor; }
+
+/* Image frame: square, no border. Only for a real image. */
+.frame { background: var(--frame); position: relative; overflow: hidden; }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Page head: kicker and title at the top (cols 1 to 3), result in col 4. */
+.head { align-items: end; }
+/* Hang rows: label in col 1, reading text in cols 2 to 3, aside in col 4. */
+.rows > * + * { margin-top: var(--s6); }
+.row-label { font-size: var(--t-body); line-height: 1.45; }
+
+.meta dt { color: var(--muted); font-size: var(--t-small); line-height: 1.4; }
+.meta dd { font-size: var(--t-small); line-height: 1.4; margin-bottom: var(--s3); }
+/* ==== MW DOCUMENT: end ==== */
+/* ==== MW CHECK: start ==== */
+/* On screen only: a red frame on any page or slide whose content spills.
+   Fix the copy until no frame shows. Nothing prints. */
+@media screen {
+  .is-spilling { outline: 6px solid #CC1838; outline-offset: -6px; }
+  .is-spilling::after { content: "Spills: cut copy on this page"; position: absolute; top: 0; right: 0;
+    background: #CC1838; color: #FFFFFF; font: 14px/1.4 Arial, sans-serif; padding: 4px 8px; }
+}
+/* ==== MW CHECK: end ==== */
+
+/* SLOT: document name for the footer, 45 characters or fewer. End it with
+   ", sample data" when any number is a sample. */
+:root { --doc-name: "Larkspur Freight proposal, sample data"; }
+.list li + li { margin-top: var(--s1); }
+.plan-row + .plan-row { margin-top: var(--s4); }
+</style>
+</head>
+<body>
+<!-- ==== MW LOGO: start ==== -->
+<svg class="sprite" aria-hidden="true" focusable="false"><symbol id="mw-logo" viewBox="0 0 811 127"><path d="M237.195 14.7881V126.504H184.69V73.7529L131.507 126.504H94.4023V89.665L184.69 0.112305H222.398L237.195 14.7881ZM546.984 69.6143C562.014 69.6143 573.79 81.4264 573.79 96.999C573.79 98.6142 573.589 99.9013 573.463 100.86L573.261 102.375H532.485C533.671 109.997 539.344 115.272 546.959 115.272C553.288 115.272 557.147 111.613 558.231 109.366H572.177L572.201 109.315C571.016 113.606 564.258 126.504 546.984 126.504C530.896 126.504 519.095 114.691 519.095 98.0586C519.095 81.4262 530.896 69.6144 546.984 69.6143ZM689.107 69.6143C704.137 69.6143 715.913 81.4264 715.913 96.999C715.913 98.6142 715.711 99.9013 715.585 100.86L715.384 102.375H674.607C675.793 109.997 681.467 115.272 689.082 115.272C695.411 115.272 699.27 111.613 700.354 109.366H714.299L714.324 109.315C713.139 113.606 706.381 126.504 689.107 126.504C673.019 126.504 661.218 114.691 661.218 98.0586C661.218 81.4261 673.019 69.6143 689.107 69.6143ZM432.248 125.419H420.446L419.361 119.513H418.832C417.748 120.901 416.461 122.087 414.974 123.046C412.402 124.762 408.317 126.478 402.744 126.479C388.799 126.479 377.527 115.197 377.526 98.0342C377.526 80.8715 388.799 69.5889 402.744 69.5889C408.216 69.589 411.973 71.4068 414.545 73.123C416.033 74.0821 417.344 75.2685 418.303 76.5557H418.832V50.2559H432.248V125.419ZM600.092 69.5889C616.079 69.589 623.165 80.8716 623.165 87.3076H610.279C610.279 83.9761 606.522 80.3409 600.092 80.3408C593.661 80.3408 590.434 83.4458 590.434 86.7773C590.434 89.3516 592.905 91.068 597.948 91.8252L607.076 93.2129C618.348 94.9292 624.249 100.078 624.249 109.846C624.249 118.856 616.634 126.478 600.646 126.479C580.272 126.479 577.043 112.522 577.043 108.761H589.904V108.786C589.905 111.462 593.233 115.752 600.621 115.752C608.01 115.752 610.809 113.177 610.809 109.846C610.809 106.514 609.296 104.697 603.294 103.738L594.721 102.35C583.449 100.532 577.018 95.9138 577.018 86.7773C577.018 77.6407 585.062 69.5889 600.092 69.5889ZM150.224 14.7881L37.1045 126.354H0V89.5146L90.25 0H135.289L150.224 14.7881ZM370.567 125.443H357.151V70.6748H370.567V125.443ZM459.053 106.641H461.196L470.325 70.6748H485.354L494.483 106.641H496.626L505.755 70.6748H519.7L505.755 125.443H488.053L478.924 90.0078H476.78L467.652 125.443H449.95L436.005 70.6748H449.925L459.053 106.641ZM646.213 70.6748H658.544V83.5713H646.213V109.871C646.213 112.345 647.499 113.632 649.971 113.632H658.544V125.443H646.743C637.615 125.443 632.798 120.724 632.798 112.547V83.5469H624.225V70.6494H632.798V55.1016H646.213V70.6748ZM788.891 69.5889C801.222 69.5889 810.35 78.7256 810.351 92.6826V125.443H796.935V93.7686C796.935 86.8026 792.093 81.9562 785.134 81.9561C778.174 81.9561 773.332 86.8025 773.332 93.7686V125.443H759.917V70.6748H772.248L773.332 76.0508H773.861C774.82 74.8645 776.105 73.8037 777.518 72.8193C779.989 71.204 783.746 69.5889 788.891 69.5889ZM327.647 69.5889C338.919 69.5889 348.023 79.2557 348.023 91.5977V125.419H334.607V92.6582C334.607 85.6924 330.951 81.9318 325.479 81.9316C319.478 81.9316 315.291 86.6512 315.291 92.6582V125.419H301.876V92.6582C301.876 85.6922 298.219 81.9316 292.747 81.9316C286.746 81.9318 282.56 86.6514 282.56 92.6582V125.419H269.195V70.6748H281.526L282.61 76.0508H283.14C283.997 74.8645 285.081 73.8037 286.367 72.8193C288.511 71.2041 291.739 69.5889 296.025 69.5889C301.497 69.5889 305.028 71.5324 307.499 73.3496C308.886 74.5358 310.071 75.7223 311.029 77.1104H311.56C312.619 75.7223 313.929 74.5357 315.417 73.3496C317.989 71.5324 321.949 69.5889 327.647 69.5889ZM756.134 83.5469H746.476C739.718 83.547 736.288 86.9791 736.288 93.7432V125.419H722.873V70.6748H734.17L735.229 75.4951H735.759C736.389 74.6371 737.146 73.8801 738.129 73.123C739.743 71.9368 742.088 70.6494 745.417 70.6494H756.134V83.5469ZM404.887 81.9561C396.742 81.9563 390.943 87.7615 390.942 98.0586C390.942 108.356 396.742 114.162 404.887 114.162C413.032 114.162 418.832 108.356 418.832 98.0586C418.832 87.7613 413.032 81.9561 404.887 81.9561ZM546.984 80.8711C538.84 80.8712 534.098 86.247 532.51 93.2129H560.4C559.215 86.2469 554.6 80.8711 546.984 80.8711ZM689.107 80.8711C680.962 80.8711 676.221 86.247 674.633 93.2129H702.522C701.337 86.247 696.723 80.8711 689.107 80.8711ZM371.097 62.0674H356.622V49.1963H371.097V62.0674Z" fill="currentColor"/></symbol></svg>
+<!-- ==== MW LOGO: end ==== -->
+
+<!-- PAGE: cover -->
+<section class="page">
+  <div class="g">
+    <!-- SLOT: document type, 3 words or fewer. -->
+    <p class="kicker at-1 w-3">Proposal, sample data</p>
+    <svg class="logo logo--head at-4 w-1" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+  </div>
+  <div class="g mt-9">
+    <!-- SLOT: title, the outcome in plain words, 9 words or fewer. A sentence that states the finding. A topic label ("What we propose", "Phases and team") fails. -->
+    <h1 class="display at-1 w-4">A dispatch app your drivers will actually use</h1>
+  </div>
+  <div class="g mt-8">
+    <div class="at-3 w-2">
+      <!-- SLOT: engagement type and client, 8 words or fewer. -->
+      <p class="lead">Scoped project for Larkspur Freight</p>
+      <dl class="meta mt-5">
+        <!-- REPEAT: meta pair, 3 or 4. -->
+        <dt>Prepared for</dt><dd>Priya Natarajan, VP Engineering</dd>
+        <!-- /REPEAT: meta pair -->
+        <dt>Prepared by</dt><dd>Placeholder: name, Midwestern</dd>
+        <dt>Date</dt><dd>September 30, 2026</dd>
+        <dt>Valid until</dt><dd>October 31, 2026</dd>
+      </dl>
+    </div>
+  </div>
+  <!-- OPTIONAL: blue field, the one approved decorative use of blue. Nodes are
+       evenly spaced, one per phase, each labeled with the phase name in one row
+       (x = 40, 188, 336, 484 for 4 phases; 40, 151, 262, 373, 484 for 5).
+       The to-scale timeline lives on the plan page. If the labels do not fit
+       one row, delete the field. -->
+  <div class="g mt-auto">
+    <div class="field at-2 w-3" style="--field-h: 200px">
+      <svg viewBox="0 0 524 200" aria-hidden="true">
+        <line x1="40" y1="96" x2="484" y2="96" stroke="currentColor" stroke-width="1"/>
+        <circle cx="40" cy="96" r="6" fill="currentColor"/>
+        <circle cx="188" cy="96" r="6" fill="currentColor"/>
+        <circle cx="336" cy="96" r="6" fill="currentColor"/>
+        <circle cx="484" cy="96" r="5.5" fill="#2237F1" stroke="currentColor" stroke-width="1"/>
+        <text x="34" y="124">Discovery</text>
+        <text x="182" y="124">Design</text>
+        <text x="330" y="124">Build</text>
+        <text x="490" y="124" text-anchor="end">Launch</text>
+      </svg>
+    </div>
+  </div>
+  <!-- /OPTIONAL -->
+  <footer class="runner g">
+    <svg class="logo at-1 w-1" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+    <span class="doc-name at-2 w-2"></span>
+    <span class="folio at-4 w-1"></span>
+  </footer>
+</section>
+
+<!-- PAGE: summary. Problem, approach, outcomes. About 300 words of rows. -->
+<section class="page">
+  <header class="g head">
+    <div class="at-1 w-3">
+      <p class="kicker">Summary</p>
+      <!-- SLOT: page title, 6 words or fewer. A sentence that states the finding. A topic label ("What we propose", "Phases and team") fails. -->
+      <h2 class="title">One app ends the re-keying</h2>
+    </div>
+    <!-- OPTIONAL: the headline number of the page. Delete it if the title or
+         standfirst already states it. -->
+    <div class="at-4 w-1">
+      <p class="fig fig--title">400<span class="unit">loads a day</span></p>
+      <p class="fig-label">Re-keyed by hand today</p>
+    </div>
+    <!-- /OPTIONAL -->
+  </header>
+  <div class="g mt-5">
+    <!-- SLOT: standfirst, 55 words or fewer. The whole proposal in one breath. -->
+    <p class="lead at-2 w-3">A native dispatch app for 140 drivers, built and launched for a fixed price. Loads flow from your TMS to the cab without re-keying, and your team owns the code from day one.</p>
+  </div>
+  <div class="rows mt-7">
+    <!-- REPEAT: row, 2 to 4. Label 3 words, text 90 words or fewer, aside 30 words or fewer. -->
+    <div class="g">
+      <h3 class="row-label at-1 w-1">The problem</h3>
+      <div class="text body at-2 w-2">
+        <p>The current driver app was built in 2017 and cannot read load changes from the TMS. Dispatchers re-key every change by hand, roughly 38 hours a week across four people.</p>
+        <p>Drivers work around it with texts and phone calls, so status in the TMS lags the road by hours.</p>
+      </div>
+      <p class="small muted at-4 w-1">Source: August ops review.</p>
+    </div>
+    <!-- /REPEAT: row -->
+    <div class="g">
+      <h3 class="row-label at-1 w-1">Our approach</h3>
+      <div class="text body at-2 w-2">
+        <p>We start with two weeks in your dispatch office and in the cab. Design is tested with drivers before build begins. Build runs in two-week releases to a pilot group of twelve drivers, then to the full fleet.</p>
+      </div>
+    </div>
+    <div class="g">
+      <h3 class="row-label at-1 w-1">What you get</h3>
+      <ul class="list body at-2 w-2">
+        <!-- REPEAT: item, 3 to 6, 12 words or fewer each. -->
+        <li>iOS and Android driver app with offline sync</li>
+        <!-- /REPEAT: item -->
+        <li>Two-way integration with your TMS load API</li>
+        <li>Dispatcher web view for live status</li>
+        <li>Source code, runbook and release pipeline in your accounts</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="runner g">
+    <svg class="logo at-1 w-1" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+    <span class="doc-name at-2 w-2"></span>
+    <span class="folio at-4 w-1"></span>
+  </footer>
+</section>
+
+<!-- PAGE: plan. Timeline drawn to scale, then the team. -->
+<section class="page">
+  <header class="g head">
+    <div class="at-1 w-3">
+      <p class="kicker">Plan</p>
+      <!-- SLOT: page title, 6 words or fewer. A sentence that states the finding. A topic label ("What we propose", "Phases and team") fails. -->
+      <h2 class="title">Four phases, one team throughout</h2>
+    </div>
+  </header>
+  <!-- DATA: --total = weeks on the axis. Each span: --start (weeks before it
+       starts) and --len (weeks). Mark a phase is-key only when the page title
+       names it; otherwise all spans stay neutral. -->
+  <div class="mt-7" style="--total: 12">
+    <!-- REPEAT: phase, 2 to 6. Name 3 words, text 20 words or fewer. -->
+    <div class="g plan-row">
+      <div class="at-1 w-1"><p class="body">Discovery</p><p class="label">Weeks 1 to 2</p></div>
+      <div class="at-2 w-3">
+        <div class="span-track"><div class="span" style="--start: 0; --len: 2"></div></div>
+        <p class="small mt-2">Ride-alongs, load handoff map, agreed scope and release plan.</p>
+      </div>
+    </div>
+    <!-- /REPEAT: phase -->
+    <div class="g plan-row">
+      <div class="at-1 w-1"><p class="body">Design</p><p class="label">Weeks 3 to 5</p></div>
+      <div class="at-2 w-3">
+        <div class="span-track"><div class="span" style="--start: 2; --len: 3"></div></div>
+        <p class="small mt-2">Screens tested with three drivers; API contract signed off.</p>
+      </div>
+    </div>
+    <div class="g plan-row">
+      <div class="at-1 w-1"><p class="body">Build</p><p class="label">Weeks 5 to 10</p></div>
+      <div class="at-2 w-3">
+        <div class="span-track"><div class="span" style="--start: 4; --len: 6"></div></div>
+        <p class="small mt-2">Two-week releases to twelve pilot drivers, then the full fleet.</p>
+      </div>
+    </div>
+    <div class="g plan-row">
+      <div class="at-1 w-1"><p class="body">Launch</p><p class="label">Weeks 11 to 12</p></div>
+      <div class="at-2 w-3">
+        <div class="span-track"><div class="span" style="--start: 10; --len: 2"></div></div>
+        <p class="small mt-2">Fleet rollout, training, handover of code and runbook.</p>
+      </div>
+    </div>
+    <div class="g mt-4">
+      <div class="axis at-2 w-3"><span>Week 1</span><span>Week 6</span><span>Week 12</span></div>
+    </div>
+  </div>
+
+  <div class="g mt-8">
+    <h3 class="row-label at-1 w-1">Team</h3>
+    <table class="table at-2 w-3">
+      <thead><tr><th>Role</th><th>Owns</th><th class="num">Time</th></tr></thead>
+      <tbody>
+        <!-- REPEAT: row, 2 to 8. Cells 6 words or fewer. -->
+        <tr><td>Engagement lead</td><td>Scope, budget, weekly review</td><td class="num">25%</td></tr>
+        <!-- /REPEAT: row -->
+        <tr><td>Senior mobile engineer (2)</td><td>Driver app, offline sync</td><td class="num">100%</td></tr>
+        <tr><td>Backend engineer</td><td>Load API, TMS integration</td><td class="num">100%</td></tr>
+        <tr><td>Product designer</td><td>Driver research, screens</td><td class="num">50%</td></tr>
+        <tr><td>QA engineer</td><td>Test plan, release checks</td><td class="num">50%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="runner g">
+    <svg class="logo at-1 w-1" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+    <span class="doc-name at-2 w-2"></span>
+    <span class="folio at-4 w-1"></span>
+  </footer>
+</section>
+
+<!-- PAGE: investment and next steps. Blue, because it carries the decision. -->
+<section class="page page--blue">
+  <header class="g">
+    <div class="at-1 w-4">
+      <p class="kicker">Investment</p>
+      <!-- SLOT: the price and term as one statement, 8 words or fewer. -->
+      <h2 class="display mt-2">$148,000, fixed, for twelve weeks.</h2>
+    </div>
+  </header>
+  <div class="g mt-8">
+    <h3 class="row-label at-1 w-1">Payments</h3>
+    <table class="table at-2 w-3">
+      <thead><tr><th>Milestone</th><th>Due</th><th class="num">Amount</th></tr></thead>
+      <tbody>
+        <!-- REPEAT: payment, 2 to 5. If the user gave the price, draft the
+             milestone split against the phases and list it as draft in the
+             handover. If the price is real and no schedule was given, keep the
+             milestone names and write "Placeholder: amount" in the amount cells. -->
+        <tr><td>Signed agreement</td><td>Week 1</td><td class="num">$44,400</td></tr>
+        <!-- /REPEAT: payment -->
+        <tr><td>Design sign-off</td><td>Week 5</td><td class="num">$44,400</td></tr>
+        <tr><td>Fleet launch</td><td>Week 12</td><td class="num">$59,200</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="g mt-7">
+    <h3 class="row-label at-1 w-1">Next steps</h3>
+    <ol class="steps at-2 w-3">
+      <!-- REPEAT: step, 2 to 4, 18 words or fewer each. Only steps the reader
+           takes or that the user confirmed. Never invent response times,
+           start dates or terms: write "Placeholder: ...". -->
+      <li><span class="n">01</span><p class="body">Send questions or changes to scope.</p></li>
+      <!-- /REPEAT: step -->
+      <li><span class="n">02</span><p class="body">Sign the agreement.</p></li>
+      <li><span class="n">03</span><p class="body">Placeholder: kickoff date, agreed with your engagement lead.</p></li>
+    </ol>
+  </div>
+  <div class="g mt-8">
+    <div class="at-2 w-3">
+      <!-- SLOT: contact, name, email, phone. Real contact at lead size; a
+           Placeholder at body size on one line. -->
+      <p class="body">Placeholder: name, email, phone</p>
+      <!-- SLOT: terms line, 25 words or fewer. Only terms the user gave. -->
+      <p class="small muted mt-2">Placeholder: payment terms and assumptions.</p>
+    </div>
+  </div>
+  <footer class="runner g">
+    <svg class="logo at-1 w-1" viewBox="0 0 811 127" role="img" aria-label="Midwestern"><use href="#mw-logo"/></svg>
+    <span class="doc-name at-2 w-2"></span>
+    <span class="folio at-4 w-1"></span>
+  </footer>
+</section>
+
+<!-- ==== MW CHECK SCRIPT: start ==== -->
+<script>
+/* MW CHECK: frames any page or slide whose content spills (screen only). */
+(function () {
+  function run() {
+    document.querySelectorAll('.page, .slide').forEach(function (p) {
+      p.classList.toggle('is-spilling', p.scrollHeight > p.clientHeight + 1 || p.scrollWidth > p.clientWidth + 1);
+    });
+  }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(run); } else { addEventListener('load', run); }
+})();
+</script>
+<!-- ==== MW CHECK SCRIPT: end ==== -->
+</body>
+</html>

@@ -29,7 +29,7 @@ FINAL_COLUMNS = [
     ("Account strength", "account_strength"), ("Why this verdict", "why"),
     ("Next step", "next_step"), ("Watch-outs", "watch_outs"), ("Name", "name"), ("Title", "title"),
     ("Company", "company"), ("Website", "website"), ("What the company does", "what_they_do"),
-    ("Employees", "employees_text"), ("Size band", "size_band"),
+    ("Employees", "employees_text"), ("Company size", "company_size"), ("Size band", "size_band"),
     ("Headcount source", "headcount_source"), ("US company", "us_company"),
     ("Hiring", "hiring_status"), ("Open tech roles (US)", "open_tech_roles_display"),
     ("Example open roles", "example_roles"), ("Need signals", "need_signals_display"),

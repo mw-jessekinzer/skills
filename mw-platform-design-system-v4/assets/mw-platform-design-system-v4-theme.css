@@ -1,0 +1,187 @@
+/*
+  MW Platform Design System v4 theme overrides
+  Preset: pnpm dlx shadcn@latest init --preset b1a0Rv7GV --template next
+  (Mira, Base UI, Zinc base, Blue theme, radius Small)
+
+  HOW TO APPLY
+  1. Run the preset init. It generates app/globals.css.
+  2. Replace the generated :root { } and .dark { } blocks with the two below.
+  3. Add the "MW Platform Design System v4 extensions" lines to the generated @theme inline { } block.
+  Leave everything else in the generated file alone (imports, custom variant,
+  existing @theme inline mappings, @layer base).
+
+  Comments mark each value as [preset] (unchanged from Mira/Zinc) or [MW].
+*/
+
+/* ---------------------------------------------------------------- */
+/* MW blue ramp primitives                                            */
+/* Hue locked to MW blue (267). 600 is the brand blue, exactly.      */
+/* ---------------------------------------------------------------- */
+:root {
+  --mw-blue-50:  oklch(0.969 0.014 264.499); /* #F0F5FF */
+  --mw-blue-100: oklch(0.930 0.033 266.932); /* #DEE8FF */
+  --mw-blue-200: oklch(0.881 0.057 265.659); /* #C6D8FF */
+  --mw-blue-300: oklch(0.808 0.096 266.609); /* #A4BFFF */
+  --mw-blue-400: oklch(0.704 0.154 266.891); /* #749AFF */
+  --mw-blue-500: oklch(0.590 0.219 266.961); /* #436DFD */
+  --mw-blue-600: oklch(0.480 0.268 267.086); /* #2237F1  MW Blue */
+  --mw-blue-700: oklch(0.424 0.235 267.046); /* #1B2ECB  (v2 "Navy" successor) */
+  --mw-blue-800: oklch(0.371 0.200 267.009); /* #1527A7 */
+  --mw-blue-900: oklch(0.310 0.160 267.070); /* #0F1F7F */
+  --mw-blue-950: oklch(0.239 0.114 266.964); /* #081554 */
+
+  --mw-black: oklch(0.108 0.043 266.625);    /* #010313  MW Black */
+  --mw-white: oklch(0.977 0.009 279.692);    /* #F6F7FE  MW White */
+}
+
+/* ---------------------------------------------------------------- */
+/* Light mode (default)                                               */
+/* ---------------------------------------------------------------- */
+:root {
+  --background: oklch(1 0 0);                          /* [preset] */
+  --foreground: var(--mw-black);                       /* [MW] */
+  --card: oklch(1 0 0);                                /* [preset] */
+  --card-foreground: var(--mw-black);                  /* [MW] */
+  --popover: oklch(1 0 0);                             /* [preset] */
+  --popover-foreground: var(--mw-black);               /* [MW] */
+  --primary: var(--mw-blue-600);                       /* [MW] */
+  --primary-foreground: var(--mw-white);               /* [MW] */
+  --secondary: oklch(0.967 0.001 286.375);             /* [preset] */
+  --secondary-foreground: var(--mw-black);             /* [MW] */
+  --muted: oklch(0.967 0.001 286.375);                 /* [preset] */
+  --muted-foreground: oklch(0.552 0.016 285.938);      /* [preset] */
+  --accent: oklch(0.967 0.001 286.375);                /* [preset] */
+  --accent-foreground: var(--mw-black);                /* [MW] */
+  --destructive: oklch(0.577 0.245 27.325);            /* [preset] */
+  --border: oklch(0.92 0.004 286.32);                  /* [preset] */
+  --input: oklch(0.92 0.004 286.32);                   /* [preset] */
+  --ring: oklch(0.705 0.015 286.067);                  /* [preset] */
+
+  --success: oklch(0.531 0.151 135.427);               /* [MW] #407E0B, 4.99:1 on white */
+  --success-foreground: oklch(1 0 0);                  /* [MW] */
+  --link: var(--mw-blue-600);                          /* [MW] blue text, 7.3:1 on white */
+
+  --chart-1: var(--mw-blue-300);                       /* [MW] */
+  --chart-2: var(--mw-blue-400);                       /* [MW] */
+  --chart-3: var(--mw-blue-500);                       /* [MW] */
+  --chart-4: var(--mw-blue-600);                       /* [MW] */
+  --chart-5: var(--mw-blue-700);                       /* [MW] */
+
+  --radius: 0.45rem;                                   /* [preset] Mira "Small" */
+
+  --sidebar: oklch(0.985 0 0);                         /* [preset] */
+  --sidebar-foreground: var(--mw-black);               /* [MW] */
+  --sidebar-primary: var(--mw-blue-600);               /* [MW] */
+  --sidebar-primary-foreground: var(--mw-white);       /* [MW] */
+  --sidebar-accent: oklch(0.967 0.001 286.375);        /* [preset] */
+  --sidebar-accent-foreground: var(--mw-black);        /* [MW] */
+  --sidebar-border: oklch(0.92 0.004 286.32);          /* [preset] */
+  --sidebar-ring: oklch(0.705 0.015 286.067);          /* [preset] */
+}
+
+/* ---------------------------------------------------------------- */
+/* Dark mode: Mira's Zinc structure, MW blue ramp swapped in          */
+/* ---------------------------------------------------------------- */
+.dark {
+  --background: oklch(0.141 0.005 285.823);            /* [preset] */
+  --foreground: oklch(0.985 0 0);                      /* [preset] */
+  --card: oklch(0.21 0.006 285.885);                   /* [preset] */
+  --card-foreground: oklch(0.985 0 0);                 /* [preset] */
+  --popover: oklch(0.21 0.006 285.885);                /* [preset] */
+  --popover-foreground: oklch(0.985 0 0);              /* [preset] */
+  --primary: var(--mw-blue-700);                       /* [MW] */
+  --primary-foreground: var(--mw-white);               /* [MW] */
+  --secondary: oklch(0.274 0.006 286.033);             /* [preset] */
+  --secondary-foreground: oklch(0.985 0 0);            /* [preset] */
+  --muted: oklch(0.274 0.006 286.033);                 /* [preset] */
+  --muted-foreground: oklch(0.705 0.015 286.067);      /* [preset] */
+  --accent: oklch(0.274 0.006 286.033);                /* [preset] */
+  --accent-foreground: oklch(0.985 0 0);               /* [preset] */
+  --destructive: oklch(0.704 0.191 22.216);            /* [preset] */
+  --border: oklch(1 0 0 / 10%);                        /* [preset] */
+  --input: oklch(1 0 0 / 15%);                         /* [preset] */
+  --ring: oklch(0.552 0.016 285.938);                  /* [preset] */
+
+  --success: oklch(0.721 0.200 135.398);               /* [MW] #67BF22, 8.5:1 on dark bg */
+  --success-foreground: var(--mw-black);               /* [MW] */
+  --link: var(--mw-blue-300);                          /* [MW] blue text on dark, 10.9:1 */
+
+  --chart-1: var(--mw-blue-300);                       /* [MW] */
+  --chart-2: var(--mw-blue-400);                       /* [MW] */
+  --chart-3: var(--mw-blue-500);                       /* [MW] */
+  --chart-4: var(--mw-blue-600);                       /* [MW] */
+  --chart-5: var(--mw-blue-700);                       /* [MW] */
+
+  --sidebar: oklch(0.21 0.006 285.885);                /* [preset] */
+  --sidebar-foreground: oklch(0.985 0 0);              /* [preset] */
+  --sidebar-primary: var(--mw-blue-500);               /* [MW] */
+  --sidebar-primary-foreground: var(--mw-white);       /* [MW] */
+  --sidebar-accent: oklch(0.274 0.006 286.033);        /* [preset] */
+  --sidebar-accent-foreground: oklch(0.985 0 0);       /* [preset] */
+  --sidebar-border: oklch(1 0 0 / 10%);                /* [preset] */
+  --sidebar-ring: oklch(0.552 0.016 285.938);          /* [preset] */
+}
+
+/* ---------------------------------------------------------------- */
+/* MW Platform Design System v4 extensions: add these lines inside the generated           */
+/* @theme inline { } block in globals.css. If that block already      */
+/* defines --font-sans, --font-mono or --font-heading (DM Sans from   */
+/* the preset), replace those lines rather than duplicating them.     */
+/* --font-heading, if present, points to the same TT Hoves stack.     */
+/* ---------------------------------------------------------------- */
+/*
+@theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-link: var(--link);
+
+  --color-mw-blue-50: var(--mw-blue-50);
+  --color-mw-blue-100: var(--mw-blue-100);
+  --color-mw-blue-200: var(--mw-blue-200);
+  --color-mw-blue-300: var(--mw-blue-300);
+  --color-mw-blue-400: var(--mw-blue-400);
+  --color-mw-blue-500: var(--mw-blue-500);
+  --color-mw-blue-600: var(--mw-blue-600);
+  --color-mw-blue-700: var(--mw-blue-700);
+  --color-mw-blue-800: var(--mw-blue-800);
+  --color-mw-blue-900: var(--mw-blue-900);
+  --color-mw-blue-950: var(--mw-blue-950);
+
+  --font-sans: var(--font-tt-hoves), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+}
+
+Also add this utility at the top level of globals.css. TT Hoves' tabular figures
+are tight, so aligned numbers always get tracking with them:
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+*/
+
+/* ---------------------------------------------------------------
+   Added for the platform redesign: warning, categorical colors
+   (departments and projects) and the ink used on colored bars.
+   Categorical colors are RGB channels so they can take alpha:
+   rgb(var(--cat-1)) or rgb(var(--cat-1) / 20%).
+   --------------------------------------------------------------- */
+:root {
+  --warning: oklch(0.512 0.133 48.897);
+  --warning-foreground: oklch(1 0 0);
+  --cat-1: 93 136 231;   /* Engineering, first project  */
+  --cat-2: 30 153 153;   /* Growth, second project      */
+  --cat-3: 194 107 187;  /* Project Management, third   */
+  --cat-4: 194 122 37;   /* Administrative, fourth      */
+  --cat-5: 109 151 32;   /* Design, fifth               */
+  --cat-neutral: 135 138 148; /* Scoped, Unassigned     */
+  --bar-ink: var(--mw-black, #010313);
+}
+.dark {
+  --warning: oklch(0.837 0.164 84.429);
+  --warning-foreground: var(--mw-black, #010313);
+}
+@theme inline {
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+}

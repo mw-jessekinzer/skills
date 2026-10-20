@@ -42,7 +42,7 @@ the same signal in its flat dotted-key response as `phone.linetype`.
 - When you have a name + phone and want to verify they belong together
 - When you need email validation bundled with phone validation
 
-**Requires both `phone` and `name`.** Optional: `email` for cross-validation.
+**Requires both `phone` and `name`.** Optional: `email` for cross-validation, `business_name` and address fields for identity context, and `litigator_check: true` to flag TCPA litigator risk (`add_ons.litigator_checks.phone_is_litigator_risk`).
 
 ## Key signals
 
@@ -64,8 +64,18 @@ This causes the waterfall to continue to the next phone provider, ensuring you o
 
 - Both endpoints are post-deduct — you only pay on success.
 
-The normalized response uses dotted keys at `data`, for example
-`toolResponse.raw.data["phone.is_valid"]` and
-`toolResponse.raw.data["phone.activity_score"]` in CLI JSON output. These keys
-are literal property names; do not try to read them as nested
-`phone.is_valid` objects.
+The Real Contact response uses dotted keys at the top level of the result, for
+example `toolResponse.raw["phone.is_valid"]` and
+`toolResponse.raw["phone.activity_score"]` in CLI JSON and Play results
+(`toolResponse.rawV2` is the same object). These keys are literal property
+names; do not try to read them as nested `phone.is_valid` objects. Phone Intel
+fields are also top level, for example `toolResponse.raw.line_type`.
+
+### Output compatibility
+
+Real Contact 2.0 is adapted to the existing literal dotted keys, including
+`phone.linetype`. `phone`, `name`, and optional `email` echo the queried identity;
+they are not newly discovered contact details. Input echoes are added only when
+the corresponding validity flag is true and no provider error is present. Legacy flat fixtures remain valid.
+Explicit null add-ons and provider diagnostics are preserved. Non-object upstream
+responses fail instead of returning an empty validation result.

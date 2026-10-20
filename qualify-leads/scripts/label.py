@@ -53,7 +53,7 @@ PERSON_FACT_FIELDS = [
 TRIAGE_FIELDS = ["company_key", "company_name", "what_they_do", "employees_text",
                  "employees_best", "size_tier", "us_company", "triage", "drop_code", "why"]
 TRIAGE_CODES = {"COMPETITOR_STAFFING", "PUBLIC_BODY_NON_BUYER", "CONSUMER_SELF_EMPLOYED",
-                "CANNOT_BUY", "STRUCTURAL_NO_NEED", "NOT_US", "OVER_2000", "UNIDENTIFIABLE"}
+                "CANNOT_BUY", "STRUCTURAL_NO_NEED", "NOT_US", "UNIDENTIFIABLE"}
 CRM_COMPANY_FIELDS = ["company_key_final", "checked", "hs_company_id", "hs_company_name",
                       "match_type", "owner_name", "owner_active", "lifecycle",
                       "open_deals", "open_deal_summary", "closed_won_24m_count",
@@ -72,7 +72,7 @@ QUALIFIED_FIELDS = [
     "lead_id", "rank", "action", "verdict", "account_strength", "primary_code",
     "reason_codes", "why", "next_step", "watch_outs", "name", "title", "title_group", "company",
     "company_key_final", "website", "what_they_do", "employees_text", "employees_best",
-    "size_band", "size_status", "size_tier", "headcount_source", "us_company",
+    "size_band", "company_size", "size_tier", "headcount_source", "us_company",
     "hiring_status", "open_tech_roles_display", "open_tech_roles_us", "example_roles",
     "need_signals_display", "service_fit", "source_label", "what_they_did",
     "touch_date", "touch_date_display", "touch_type", "intent", "crm_state",
@@ -83,7 +83,7 @@ QUALIFIED_FIELDS = [
 ]
 ROLLUP_FIELDS = [
     "company_key_final", "company_name", "best_action", "best_verdict",
-    "account_strength", "rows", "n_contact_now", "n_tell_owner", "n_account_play",
+    "account_strength", "company_size", "rows", "n_contact_now", "n_tell_owner", "n_account_play",
     "n_review", "n_low", "n_drop", "lead_row_id", "lead_ids", "crm_state",
     "open_tech_roles_us", "tech_roles_all", "best_intent", "freshest_need_days", "newest_touch",
     "collision", "collision_resolved",
@@ -93,16 +93,15 @@ TIER1_FIELDS = ["company_key_final", "company_name", "tier1_reason", "best_actio
                 "projected_deepline", "packet_file", "collision"]
 
 ABSOLUTE = ["COMPLIANCE_DNC", "INTERNAL"]
-COMPANY_CODES = ["COMPETITOR_STAFFING", "NOT_US", "OVER_2000",
+COMPANY_CODES = ["COMPETITOR_STAFFING", "NOT_US",
                  "PUBLIC_BODY_NON_BUYER", "CONSUMER_SELF_EMPLOYED", "CANNOT_BUY",
                  "STRUCTURAL_NO_NEED", "TINY_NO_BUDGET"]
 BOARD_SOURCES = ("ats_api", "careers_page", "linkedin_jobs")  # a job list that was actually read
 PERSON_CODES = ["VENDOR_SELLING", "JOB_SEEKER", "STUDENT_EDUCATOR", "NOT_AT_COMPANY",
                 "EXCLUDED_TITLE", "UNRELATED_TITLE", "PERSONAL_EMAIL_SUBMITTED"]
-INS_CODES = ["INS_NO_PERSON", "INS_NO_COMPANY", "INS_NO_TITLE", "INS_SIZE_UNKNOWN",
-             "INS_US_UNKNOWN"]
+INS_CODES = ["INS_NO_PERSON", "INS_NO_COMPANY", "INS_NO_TITLE", "INS_US_UNKNOWN"]
 OPEN_CODES = ["OPEN_PARENT", "OPEN_AUTHORITY", "OPEN_NEED", "OPEN_EMPLOYMENT", "OPEN_EMAIL",
-              "OPEN_SIZE", "OPEN_TINY"]
+              "OPEN_TINY"]
 NO_RESEARCH_CODES = set(ABSOLUTE) | {"JOB_SEEKER", "STUDENT_EDUCATOR", "EXCLUDED_TITLE",
                                      "PERSONAL_EMAIL_SUBMITTED"}
 # Person codes that are about the buying role, not an excluded audience. A row with
@@ -110,7 +109,7 @@ NO_RESEARCH_CODES = set(ABSOLUTE) | {"JOB_SEEKER", "STUDENT_EDUCATOR", "EXCLUDED
 SOFT_PERSON_CODES = {"UNRELATED_TITLE", "NOT_AT_COMPANY"}
 GAP_CODES = ["GAP_HIRING_NOT_CHECKED", "GAP_HIRING_UNREAD"]
 GAP_SHORT = {"GAP_HIRING_NOT_CHECKED": "hiring", "GAP_HIRING_UNREAD": "hiring",
-             "INS_SIZE_UNKNOWN": "headcount", "INS_US_UNKNOWN": "the US base"}
+             "INS_US_UNKNOWN": "the US base"}
 NEED_WINDOW_MONTHS = 18          # JK ruling 2026-09-28 (was 12)
 NEED_SIGNAL_TYPES = {"funding", "new_tech_leader", "launch", "acquisition", "modernization",
                      "growth", "ai_initiative"}  # "contraction" is recorded but is not a need
@@ -132,7 +131,6 @@ OPEN_SHORT = {"OPEN_PARENT": "whether buying sits with the parent company",
               "OPEN_NEED": "for a current tech hiring or project need",
               "OPEN_EMPLOYMENT": "that {name} still works there",
               "OPEN_EMAIL": "a work email for {name}",
-              "OPEN_SIZE": "the real headcount",
               "OPEN_TINY": "for budget at a very small company"}
 SOURCE_LABEL = {"rb2b_visit": "RB2B website visit", "social_engagement": "LinkedIn engagement"}
 
@@ -232,6 +230,7 @@ def load_facts(run_dir):
             k = C.clean(r.get("company_key"))
             if k:
                 tri[k] = {fld: C.clean(r.get(fld, "")) for fld in TRIAGE_FIELDS}
+                tri[k]["drop_code"] = C.canonical_code(tri[k]["drop_code"])
     f["triage"] = tri
     f["crm_companies"] = {C.clean(r.get("company_key_final")): r
                           for r in C.read_csv(C.work(run_dir, "04-crm-companies.csv"))}
@@ -303,37 +302,35 @@ def parse_signals(text):
     return sorted(out, key=lambda s: s["ym"], reverse=True)
 
 
-def parent_over(c):
-    """The unit's buying runs through a parent of 2,000+ (A/B) or 5,000+ (any tier).
-    Size and facts stay the operating company's; this only raises an open item."""
+def parent_enterprise(c):
+    """The unit's buying runs through an Enterprise parent (5,000+ employees, any source
+    tier). Size and facts stay the operating company's; this only raises an open item."""
     pemp = C.to_int(c.get("parent_employees"))
-    ptier = (c.get("parent_tier") or c.get("size_tier", "")).upper()
-    return C.yes(c.get("parent_centralized")) and pemp is not None and (
-        (ptier in ("A", "B") and pemp >= 2000) or pemp >= 5000)
+    return C.yes(c.get("parent_centralized")) and pemp is not None and pemp >= C.ENTERPRISE_MIN
 
 
-def size_status(c):
-    emp = C.to_int(c.get("employees_best"))
-    tier = c.get("size_tier", "").upper()
-    if emp is None or tier not in ("A", "B", "C"):
-        return "unknown", ""
-    if tier in ("A", "B"):
-        return ("verified_over", "OVER_2000") if emp >= 2000 else ("verified_under", "")
-    if emp >= 5000:
-        return "verified_over", "OVER_2000"
-    if emp >= 1000:
-        return "straddles", ""
-    return "likely_under", ""
-
-
-def size_band(emp, status):
-    if status == "unknown" or emp is None:
+def company_size(emp, signals, as_of):
+    """Descriptive size tier (JK ruling 2026-10-12). Never a disqualifier."""
+    if emp is None:
         return "Unknown"
-    for hi, band in ((10, "1-10"), (50, "11-50"), (200, "51-200"), (500, "201-500"),
-                     (1000, "501-1,000"), (1999, "1,001-1,999")):
+    if emp >= C.ENTERPRISE_MIN:
+        return "Enterprise"
+    if emp >= C.MIDMARKET_MIN:
+        return "Mid-market"
+    for s in signals:
+        m = months_ago(s["ym"], as_of)
+        if s["type"] == "funding" and m is not None and m <= C.STARTUP_FUNDING_MONTHS:
+            return "Growth startup"
+    return "Small business"
+
+
+def size_band(emp):
+    if emp is None:
+        return "Unknown"
+    for hi, band in zip((10, 50, 200, 500, 1000, 1999, C.ENTERPRISE_MIN - 1), C.SIZE_BANDS):
         if emp <= hi:
             return band
-    return "2,000+"
+    return C.SIZE_BANDS[-2]  # Enterprise and up
 
 
 def hiring_status(c):
@@ -479,10 +476,10 @@ def company_facts_for(key, facts):
         if C.clean(t["triage"]).lower() == "drop" and not deep:
             code = t["drop_code"]
             emp = C.to_int(t["employees_best"])
-            if code not in TRIAGE_CODES:
+            if code in C.RETIRED_SIZE_CODES:
+                warn.append("triage size drop ignored: size never drops; research it")
+            elif code not in TRIAGE_CODES:
                 warn.append(f"triage drop_code '{code}' not allowed")
-            elif code == "OVER_2000" and (emp is None or emp < 5000):
-                warn.append(f"triage OVER_2000 ignored: estimate {t['employees_best'] or 'blank'} is under 5,000, research it")
             elif code == "CANNOT_BUY" and emp is not None and emp > 50:
                 warn.append(f"triage CANNOT_BUY ignored: {emp} employees is over 50")
             else:
@@ -545,13 +542,14 @@ def label_row(canon, p1, facts, as_of, run):
     estatus = email_status(email, domains, origin, from_hs, verify) if person else "None"
 
     # size, hiring, need
-    status, over_code = size_status(c)
     emp = C.to_int(c.get("employees_best"))
-    band = size_band(emp, status)
+    band = size_band(emp)
     tech = C.to_int(c.get("open_tech_roles"))
     tech_us = C.to_int(c.get("open_tech_roles_us"))
     hstatus = hiring_status(c)
     signals = parse_signals(c.get("need_signals"))
+    size = company_size(emp, signals, as_of)
+    enterprise = size == "Enterprise"
     fresh_signals = [s for s in signals if s["type"] in NEED_SIGNAL_TYPES and
                      (months_ago(s["ym"], as_of) if months_ago(s["ym"], as_of) is not None else 99) <= NEED_WINDOW_MONTHS]
     # tech roles anywhere count as demand: Midwestern sells global talent too (JK 2026-09-28)
@@ -573,8 +571,6 @@ def label_row(canon, p1, facts, as_of, run):
         comp.add("COMPETITOR_STAFFING")
     if C.clean(c.get("us_company")).lower() == "no" or tri_code == "NOT_US":
         comp.add("NOT_US")
-    if status == "verified_over":
-        comp.add(over_code)
     tech_or_ops = group in ("Primary: technology/product", "Primary: operations/transformation") or \
         (br == "yes" and group not in ("Excluded title", "Unrelated title"))
     if tri_code == "PUBLIC_BODY_NON_BUYER" and person and tech_or_ops:
@@ -625,14 +621,12 @@ def label_row(canon, p1, facts, as_of, run):
     if person and group == "No title":
         ins.append("INS_NO_TITLE")
     if key and tri_code != "UNIDENTIFIABLE":
-        if status in ("unknown", "straddles"):
-            ins.append("INS_SIZE_UNKNOWN")
         if C.clean(c.get("us_company")).lower() not in ("yes", "no"):  # "no" is NOT_US above
             ins.append("INS_US_UNKNOWN")
 
     opens = []
     if person:
-        if parent_over(c):
+        if parent_enterprise(c):
             opens.append("OPEN_PARENT")
         if group == "Secondary influencer" or br in ("partial", "unknown"):
             opens.append("OPEN_AUTHORITY")
@@ -643,8 +637,6 @@ def label_row(canon, p1, facts, as_of, run):
             opens.append("OPEN_EMPLOYMENT")
         if estatus not in C.QUALIFYING_EMAIL:
             opens.append("OPEN_EMAIL")
-        if status == "likely_under":
-            opens.append("OPEN_SIZE")
         if band == "1-10" and "TINY_NO_BUDGET" not in comp:
             opens.append("OPEN_TINY")
 
@@ -662,14 +654,17 @@ def label_row(canon, p1, facts, as_of, run):
     us = C.clean(c.get("us_company")).lower() == "yes"
     if any(x in ABSOLUTE or x in COMPANY_CODES for x in codes) or "INS_NO_COMPANY" in ins:
         strength = "None"
-    elif status == "verified_under" and (emp or 0) >= 11 and us and (roles >= 3 or (roles >= 1 and fresh_signals)):
+    elif enterprise:
+        # open-role counts at a huge company say nothing: only a fresh need signal lifts it
+        strength = "Medium" if us and fresh_signals else "Weak"
+    elif (emp or 0) >= 11 and us and (roles >= 3 or (roles >= 1 and fresh_signals)):
         strength = "Strong"
-    elif status in ("verified_under", "likely_under") and us and (roles >= 1 or fresh_signals):
+    elif us and (roles >= 1 or fresh_signals):
         strength = "Medium"
     else:
         strength = "Weak"
     downgrades = [x for x in re.split(r"[;,\s]+", c.get("strength_downgrade", "")) if x in ALLOWED_DOWNGRADES]
-    if parent_over(c):
+    if parent_enterprise(c):
         downgrades.append("PARENT_UNCLEAR")  # a big parent may run the buying: an open item, never a Drop
     if downgrades and strength in ("Strong", "Medium"):
         strength = {"Strong": "Medium", "Medium": "Weak"}[strength]
@@ -677,12 +672,11 @@ def label_row(canon, p1, facts, as_of, run):
     # --- missing account evidence (never a reason to Drop) ---------------------
     gaps = []
     if key and tri_code != "UNIDENTIFIABLE":
-        if not need_found and hstatus == "Not checked":
+        # hiring is not checked at Enterprise scale on purpose, so it is never a gap there
+        if not need_found and hstatus == "Not checked" and not enterprise:
             gaps.append("GAP_HIRING_NOT_CHECKED")
-        elif not need_found and hstatus == "Unknown":
+        elif not need_found and hstatus == "Unknown" and not enterprise:
             gaps.append("GAP_HIRING_UNREAD")
-        if status in ("unknown", "straddles"):
-            gaps.append("INS_SIZE_UNKNOWN")
         if C.clean(c.get("us_company")).lower() not in ("yes", "no"):
             gaps.append("INS_US_UNKNOWN")
 
@@ -724,14 +718,21 @@ def label_row(canon, p1, facts, as_of, run):
             state not in ("open_deal", "customer"):
         # the account was never fully assessed: park or review it, never Drop it
         gap_action = True
-        rest_strong = all(g in GAP_CODES for g in gaps) and us and status == "verified_under"
+        rest_strong = all(g in GAP_CODES for g in gaps) and us
         action = "Review" if rest_strong else "Low priority"
+    elif enterprise and soft_only and state not in ("open_deal", "customer"):
+        # hiring is not checked at Enterprise scale, so no need found is not a confirmed absence
+        action = "Low priority"
     elif verdict == "Insufficient data":
         action = "Low priority"
     else:
         action = "Drop"
     if gap_action:
         all_codes += [g for g in gaps if g not in all_codes]
+    # Enterprise reaches Tier 1 only as Contact now; an enterprise account play goes to the owner
+    enterprise_route = enterprise and action == "Account play"
+    if enterprise_route:
+        action = "Tell account owner"
 
     # --- text ----------------------------------------------------------------
     name = canon["full_name"] if person else ""
@@ -751,7 +752,6 @@ def label_row(canon, p1, facts, as_of, run):
             "no_need_why": c.get("no_need_why") or c.get("_triage_why") or "no need found",
             "works_there_source": pf.get("works_there_source") or "research",
             "email_status": estatus, "need_text": need_text,
-            "size_note": f"estimate {emp_text}" if emp is not None else "no figure",
             "email_phrase": EMAIL_PHRASE.get(estatus, "work email")}
     templates = C.reason_codes()
     if verdict in ("Not qualified", "Qualified"):
@@ -796,6 +796,11 @@ def label_row(canon, p1, facts, as_of, run):
 
     if action == "Contact now":
         nxt = f"Contact {name} this week" + (f"; owner {routing}" if routing else "") + "."
+    elif enterprise_route:
+        owner = C.clean((cc or {}).get("owner_name")) if state != "possible_match" and \
+            C.yes((cc or {}).get("owner_active")) else ""
+        nxt = (f"Route to {owner}, the HubSpot owner; enterprise account, no packet." if owner
+               else "Enterprise account: find the owner or AE before any outreach.")
     elif action == "Tell account owner":
         fact = C.clean((cc or {}).get("open_deal_summary")) if state == "open_deal" else \
             f"existing customer, {C.to_int((cc or {}).get('closed_won_24m_count')) or 0} closed-won deals in 24 months"
@@ -818,6 +823,7 @@ def label_row(canon, p1, facts, as_of, run):
         nxt = f"Check {OPEN_SHORT[opens[0]].format(name=name or 'them')} before outreach."
     elif action == "Low priority":
         nxt = "Park; no company to research." if primary == "INS_NO_COMPANY" else \
+            f"Park; enterprise account, revisit if {company} shows a fresh need signal." if enterprise else \
             f"Park; revisit if {company} posts tech roles."
     else:
         nxt = "Do not contact. Suppress everywhere." if primary == "COMPLIANCE_DNC" else "No outreach."
@@ -875,7 +881,7 @@ def label_row(canon, p1, facts, as_of, run):
         "company": company, "company_key_final": final_key, "website": website,
         "what_they_do": C.truncate(c.get("what_they_do", ""), 160),
         "employees_text": C.clean(c.get("employees_text")) or (f"{emp:,}" if emp is not None else ""),
-        "employees_best": "" if emp is None else str(emp), "size_band": band, "size_status": status,
+        "employees_best": "" if emp is None else str(emp), "size_band": band, "company_size": size,
         "size_tier": c.get("size_tier", ""), "headcount_source": c.get("employees_source", ""),
         "us_company": C.clean(c.get("us_company")).lower() or "unknown",
         "hiring_status": hstatus, "open_tech_roles_display": open_disp,
@@ -963,7 +969,7 @@ def rollup(rows, facts):
         out.append({
             "company_key_final": k, "company_name": lead["company"],
             "best_action": lead["action"], "best_verdict": min((r["verdict"] for r in g), key=lambda v: C.VERDICT_RANK[v]),
-            "account_strength": strength, "rows": len(g),
+            "account_strength": strength, "company_size": lead["company_size"], "rows": len(g),
             "n_contact_now": counts["Contact now"], "n_tell_owner": counts["Tell account owner"],
             "n_account_play": counts["Account play"], "n_review": counts["Review"],
             "n_low": counts["Low priority"], "n_drop": counts["Drop"],
@@ -991,7 +997,8 @@ TIER1_CEILING = 8  # JK's hard limit on Tier 1 size
 def select_tier1(roll, max_total=8, max_plays=5, caps=None):
     max_plays = min(max_plays, max_total)
     cn = [c for c in roll if c["best_action"] == "Contact now"]
-    plays = [c for c in roll if c["best_action"] == "Account play"]
+    # an Enterprise company never fills an account play slot (label_row routes it to the owner)
+    plays = [c for c in roll if c["best_action"] == "Account play" and c.get("company_size") != "Enterprise"]
     # all tech roles count as demand, US or not (JK 2026-09-28)
     plays.sort(key=lambda c: company_tuple(c["account_strength"], C.to_int(c["tech_roles_all"]) or 0,
                                            c["best_intent"], c["freshest_need_days"], c["crm_state"],
